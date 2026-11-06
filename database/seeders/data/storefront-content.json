@@ -1,0 +1,744 @@
+{
+  "site": {
+    "name": "Zenvy Peptides",
+    "logo": "https://zenvypeptides.com/wp-content/uploads/2026/07/ZENVY-Peptides-LOGO-_1.webp",
+    "tagline": "Zenvy Peptides is a US supplier of premium research peptides with verified purity, certification, and full traceability.",
+    "topbar": "For Lab & Research Use Only (RUO) - Not for Human Consumption",
+    "supportEmail": "info@zenvypeptides.com",
+    "address": [
+      "6706 West Fairview Ave",
+      "Boise, Idaho USA 83704",
+      "(208) 274-8200"
+    ],
+    "seoTitle": "Zenvy Peptides Ã¢â‚¬â€ Research-Grade Peptides",
+    "seoDescription": "Zenvy Peptides is a US supplier of premium research peptides with verified purity, certification, and full traceability.",
+    "copyright": "Ã‚Â© 2026 Zenvy Peptides Ã¢â‚¬â€œ All rights reserved.",
+    "ruo": "For Research Use Only (RUO) Ã¢â‚¬â€œ Not intended for human consumption.",
+    "legalNotice": "All Zenvy Peptides products are supplied strictly for laboratory research use only, not for human or veterinary use, consumption, or injection, and not approved by the FDA to diagnose, treat, cure, or prevent any disease. Nothing on this website constitutes medical advice or usage guidance. By purchasing, you confirm the products are for legitimate research purposes and agree to comply with all applicable laws, assuming full responsibility for safe handling and use. Products are supplied Ã¢â‚¬Å“as is,Ã¢â‚¬Â with Zenvy Peptides accepting no liability for any misuse.",
+    "nav": [
+      {
+        "label": "Home",
+        "to": "/"
+      },
+      {
+        "label": "All Peptides",
+        "to": "/all-peptides"
+      },
+      {
+        "label": "About Us",
+        "to": "/about-us"
+      },
+      {
+        "label": "Help Center",
+        "to": "/help-center"
+      }
+    ],
+    "footerNav": [
+      {
+        "label": "Home",
+        "to": "/"
+      },
+      {
+        "label": "All Peptides",
+        "to": "/all-peptides"
+      },
+      {
+        "label": "About us",
+        "to": "/about-us"
+      },
+      {
+        "label": "Help Center",
+        "to": "/help-center"
+      }
+    ],
+    "legalNav": [
+      {
+        "label": "Terms & Conditions",
+        "to": "/terms-conditions"
+      },
+      {
+        "label": "Privacy Policy",
+        "to": "/privacy-policy"
+      },
+      {
+        "label": "Return & Refunds",
+        "to": "/return-refunds"
+      },
+      {
+        "label": "Shipping & Delivery",
+        "to": "/shipping-delivery"
+      },
+      {
+        "label": "Disclaimer",
+        "to": "/disclaimer"
+      }
+    ],
+    "socials": [
+      {
+        "name": "Instagram",
+        "icon": "fa-brands fa-instagram",
+        "url": "#"
+      },
+      {
+        "name": "Facebook",
+        "icon": "fa-brands fa-facebook-f",
+        "url": "#"
+      },
+      {
+        "name": "Youtube",
+        "icon": "fa-brands fa-youtube",
+        "url": "#"
+      },
+      {
+        "name": "X-twitter",
+        "icon": "fa-brands fa-x-twitter",
+        "url": "#"
+      }
+    ],
+    "newsletterTitle": "Research Updates, Simplified",
+    "newsletterBody": "Get the latest on high-purity peptides, testing standards, and research updates.",
+    "standards": [
+      {
+        "icon": "fa-solid fa-vial-circle-check",
+        "title": "Third-Party Testing",
+        "body": "Every batch is independently tested by accredited laboratories to confirm purity, identity, and consistency, ensuring research-grade standards."
+      },
+      {
+        "icon": "fa-solid fa-award",
+        "title": "Research Grade Quality",
+        "body": "All peptides are manufactured and handled to strict research specifications, supporting accurate and controlled scientific outcomes."
+      },
+      {
+        "icon": "fa-solid fa-magnifying-glass",
+        "title": "Transparent Sourcing",
+        "body": "We maintain full transparency across sourcing and production, with ethical practices and complete batch traceability for research integrity."
+      },
+      {
+        "icon": "fa-solid fa-earth-americas",
+        "title": "Global Shipping",
+        "body": "We provide fast, tracked international delivery, with secure and professional packaging to ensure research materials arrive safely to laboratories worldwide."
+      }
+    ],
+    "features": [
+      {
+        "title": "Secure Checkout",
+        "body": "Advanced encryption ensures every transaction is fully protected.",
+        "icon": "fa-solid fa-shield-halved"
+      },
+      {
+        "title": "Discreet Packaging",
+        "body": "Orders are shipped in plain packaging to maintain complete confidentiality.",
+        "icon": "fa-solid fa-box"
+      },
+      {
+        "title": "Fast Delivery",
+        "body": "Reliable and timely shipping through our trusted delivery partners.",
+        "icon": "fa-solid fa-truck-fast"
+      },
+      {
+        "title": "Satisfaction Guarantee",
+        "body": "Dedicated to delivering consistent quality and dependable service every time.",
+        "icon": "fa-solid fa-circle-check"
+      }
+    ]
+  },
+  "home": {
+    "heroKicker": "For Research Use Only Ã¢â‚¬â€œ RUO",
+    "heroTitle": "Purity You Can Verify. Research You Can Trust.",
+    "heroBody": "Zenvy Peptides delivers high-purity research compounds built for accuracy and reproducibility. Every batch is independently tested and fully traceable, giving laboratories a dependable foundation for advanced scientific work.",
+    "heroCta": "Shop Peptides",
+    "heroImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/GLP-3-Peptides.png",
+    "standardsTitle": "Built on Standards You Can Verify",
+    "productsTitle": "Find the Right Peptide for Your Research",
+    "productsIntro": "Explore a curated selection of high-purity peptides designed to support accurate and reliable laboratory outcomes. Each product is quality-controlled and batch-traceable for consistent research performance.",
+    "productsCta": "View all products",
+    "trustedTitle": "Trusted Quality, Proven Standards",
+    "trustedBody": "Every order is backed by batch-specific COAs, strict quality control processes, and reliable technical support. We focus on consistency, transparency, and dependable service to support professional research environments.",
+    "trustedItems": [
+      "Certificate of Analysis with every order",
+      "Strict Quality Control & Testing",
+      "Ethically Sourced & manufactured",
+      "Dedicated Support when you need it"
+    ],
+    "trustedCta": "View certificates",
+    "trustedImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/123.png",
+    "purityKicker": "Premium Quality Is Our Standard",
+    "purityTitle": "99% Purity, Precision Products & Advanced Solutions",
+    "puritySubtitle": "Products Consistently Pure That You Can Trust",
+    "purityParagraphs": [
+      "Zenvy Peptides is a US-based supplier committed to delivering high-purity research peptides for professional laboratory and scientific use. Founded on the belief that reliable research starts with reliable materials, we hold every product to strict standards of purity, consistency, and quality control from formulation through final packaging.",
+      "Every batch we produce is manufactured under controlled laboratory conditions and backed by rigorous testing protocols, giving researchers the confidence to focus on their work rather than second-guessing their materials. We believe transparency isn't optional in this industry, it's the foundation of trust between supplier and researcher.",
+      "Our mission is simple: to be a dependable partner for the scientific community by combining stringent quality assurance with responsive service and clear, accessible documentation. From sourcing to shipping, Zenvy Peptides is built around one goal, supporting research that researchers can stand behind."
+    ],
+    "purityNotice": "Products for Research Use Only. Not for human or animal consumption.",
+    "purityImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/321.png"
+  },
+  "about": {
+    "title": "About Us",
+    "kicker": "Who We Are",
+    "heading": "Advancing Peptide Research with Precision and Integrity",
+    "body": "Zenvy Peptides is a US-based supplier of high-purity, COA-verified research peptides, trusted by laboratories and researchers across the country. Every product is independently tested to confirm purity, identity, and consistency, and is supported with full batch traceability and accredited laboratory documentation to ensure dependable, reproducible results. Built on a research-first approach, we focus on strict quality control, transparent sourcing, and controlled manufacturing standards to support accurate laboratory outcomes.",
+    "cta": "Explore Catalogue",
+    "image": "https://zenvypeptides.com/wp-content/uploads/2026/07/569ce316-e32d-42ad-96cd-aa9ed39e5909.png",
+    "whyTitle": "Why Choose Zenvy Peptides?",
+    "whyIntro": "Each peptide is rigorously tested for purity, accuracy, and consistency to ensure dependable laboratory results. From controlled production to secure delivery, Zenvy Peptides supports reliable scientific research at every stage.",
+    "qualityKicker": "Premium Quality Is Our Standard",
+    "qualityTitle": "Advancing Research Through Quality",
+    "qualitySubtitle": "99% Purity Every Time",
+    "qualityParagraphs": [
+      "Quality is at the core of everything we do. Every product supplied by Zenvy Peptides undergoes rigorous quality verification processes to help ensure consistency, reliability, and research suitability.",
+      "Our commitment includes comprehensive batch documentation, verified testing procedures, and strict handling protocols designed to maintain product integrity from production through delivery. By prioritising quality at every stage, we help researchers access materials they can trust for their laboratory work."
+    ],
+    "qualityImage": "https://zenvypeptides.com/wp-content/uploads/2026/07/b69dec56-63c2-4f91-a619-13e10beaaa89.jpg"
+  },
+  "help": {
+    "title": "Zenvy Peptides Support",
+    "intro": "Our dedicated support and dispatch team operates Monday to Friday, 9 AM Ã¢â‚¬â€œ 8 PM (GMT), assisting with orders, tracking updates, and general customer enquiries across nationwide.",
+    "companyName": "Zenvy Peptides | An Advanced Health Company",
+    "faqTitle": "Frequently Asked Questions",
+    "faqIntro": "Find clear answers about our research peptides, COAs, storage guidelines, ordering process, delivery information, and policies. This section is designed to ensure transparency, traceability, and strict research-use compliance.",
+    "faqs": [
+      {
+        "q": "What are peptides?",
+        "a": "Peptides are short chains of amino acids linked by peptide bonds. They occur naturally throughout the body and are also synthesised for laboratory work. In a research setting they are supplied as lyophilised (freeze-dried) reference materials for analytical, biochemical and educational study."
+      },
+      {
+        "q": "What are research peptides?",
+        "a": "Research peptides are compounds manufactured and documented specifically for laboratory use. Each batch is produced to a defined specification and supplied with supporting documentation so that results can be reproduced and traced back to a known source."
+      },
+      {
+        "q": "Are these products for human use?",
+        "a": "No. Every product sold by Zenvy Peptides is supplied strictly for laboratory research use only. They are not intended for human or veterinary use, consumption, injection, or any diagnostic, therapeutic or clinical application."
+      },
+      {
+        "q": "Do you provide dosing or guidance?",
+        "a": "No. We do not provide dosing information, protocols, medical advice or usage instructions of any kind. All handling should follow your own laboratory safety procedures and applicable regulations."
+      },
+      {
+        "q": "What does COA-verified mean?",
+        "a": "A Certificate of Analysis (COA) documents the tested properties of a specific batch Ã¢â‚¬â€ most importantly purity and identity. \"COA-verified\" means the batch has been analysed and the results recorded against that batch number."
+      },
+      {
+        "q": "Why does purity matter in research?",
+        "a": "Impurities can introduce variables that distort results and make comparisons between studies unreliable. Consistent, verified purity is what allows an experiment to be repeated and its outcome trusted."
+      },
+      {
+        "q": "How can I verify a product batch?",
+        "a": "Each order is supplied with a batch-specific COA. You can also view the current published certificates on our Certificate of Analysis page, which lists the batch number, test date and purity for each product."
+      },
+      {
+        "q": "Do you provide batch-specific COAs?",
+        "a": "Yes. Every order is accompanied by a COA tied to the exact batch shipped, so the documentation always matches the material in your hands rather than a generic product-level certificate."
+      }
+    ]
+  },
+  "catalogue": {
+    "catalogueTitle": "Peptide Research Catalogue",
+    "catalogueIntro": "Explore a curated selection of high-purity peptides designed to support accurate and reliable laboratory outcomes. Each product is quality-controlled and batch-traceable for consistent research performance.",
+    "shopTitle": "Peptide Shop",
+    "emptyTitle": "No products found",
+    "emptyBody": "Try adjusting your filters or check back soon for new research compounds."
+  },
+  "coa": {
+    "title": "Certificates of Analysis (COA)",
+    "intro": "View batch-specific Certificates of Analysis for each product to verify purity and testing standards. Select a product to access the latest COA associated with its current batch, ensuring full transparency and traceability.",
+    "coas": [
+      {
+        "name": "BPC-157 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.782",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/BPC-157-10mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/BPC-157-10mg-1.pdf"
+      },
+      {
+        "name": "BPC-157 5mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.694",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/BPC-157-5mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/BPC-157-5mg-3.pdf"
+      },
+      {
+        "name": "GHK-Cu 100mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.552",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GHKCU-100mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GHK-Cu-100mg-1.pdf"
+      },
+      {
+        "name": "GHK-CU 50mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.578",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GHK-CU-50mg-3.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GHK-Cu-50mg.pdf"
+      },
+      {
+        "name": "Glow Blend 70mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "N/A",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GLOW-70mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GLOW-70mg.pdf"
+      },
+      {
+        "name": "Ipamorelin 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.820",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/ipamorelin-10mg-3.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Ipamorelin-10mg.pdf"
+      },
+      {
+        "name": "Ipamorelin 5mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.765",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/ipamorelin-5mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Ipamorelin-5mg.pdf"
+      },
+      {
+        "name": "Klow Blend 80mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "N/A",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/KLOW-80mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Klow-Blend-80mg.pdf"
+      },
+      {
+        "name": "Melanotan I 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.418",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/mt1-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Melanotan-I-10mg.pdf"
+      },
+      {
+        "name": "Melanotan II 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.849",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/mt2-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Melanotan-II-10mg.pdf"
+      },
+      {
+        "name": "Retatrutide 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.580",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-10mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-10mg.pdf"
+      },
+      {
+        "name": "Retatrutide 20mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.835",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-20mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-20mg.pdf"
+      },
+      {
+        "name": "Retatrutide 30mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.901",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-30mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-30mg.pdf"
+      },
+      {
+        "name": "TB-500 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.729",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/TB-500-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/TB-500-10mg.pdf"
+      },
+      {
+        "name": "TB-500 5mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.694",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/TB-500-5mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/TB-500-5mg.pdf"
+      },
+      {
+        "name": "Tesamorelin 10mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.043",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/tesamorelin-10mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Tesamorelin-10mg.pdf"
+      },
+      {
+        "name": "Tesamorelin 5mg",
+        "batch": "2026-06",
+        "date": "02-06-2026",
+        "purity": "99.612",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/tesamorelin-5mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Tesamorelin-5mg.pdf"
+      }
+    ]
+  },
+  "legal_terms": {
+    "title": "Terms & Conditions",
+    "blocks": [
+      {
+        "kind": "heading",
+        "text": "1. Overview"
+      },
+      {
+        "kind": "paragraph",
+        "text": "By accessing or purchasing from Zenvy Peptides, you agree to these Terms & Conditions. These terms apply to all visitors, users, and customers. If you do not agree, you should not use the website or place an order."
+      },
+      {
+        "kind": "heading",
+        "text": "2. Research Use Only"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All products supplied by Zenvy Peptides are strictly intended for laboratory and scientific research purposes only. They are not for human or veterinary use, ingestion, injection, or any medical, diagnostic, or therapeutic application. Products must not be used in clinical, cosmetic, or performance-related contexts. Any indication of intended misuse will result in order cancellation. Buyers are responsible for ensuring compliance with all applicable laws and laboratory safety regulations."
+      },
+      {
+        "kind": "heading",
+        "text": "3. Age and Professional Requirement"
+      },
+      {
+        "kind": "paragraph",
+        "text": "You must be at least 21 years old to purchase from Zenvy Peptides. By placing an order, you confirm that you are authorised and competent to handle research materials. Orders placed under false information or for prohibited use will be refused."
+      },
+      {
+        "kind": "heading",
+        "text": "4. Order Acceptance"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All orders are subject to acceptance and review by Zenvy Peptides. We reserve the right to cancel or refuse any order where misuse or regulatory concerns are identified. Order details cannot be changed once dispatch has been completed. Customers are responsible for providing accurate shipping information."
+      },
+      {
+        "kind": "heading",
+        "text": "5. Pricing and Payment"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All prices are displayed in USD ($). Payments are processed securely through trusted third-party providers. Zenvy Peptides does not store or access payment card information. Orders are only processed once payment has been successfully confirmed."
+      },
+      {
+        "kind": "heading",
+        "text": "6. Shipping and Delivery"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides aims to dispatch orders promptly, typically the same business day for orders placed before 2 PM EST. Delivery times are estimates and may vary depending on courier performance or external factors. We are not responsible for delays caused by customs, courier disruptions, or other events outside our control."
+      },
+      {
+        "kind": "heading",
+        "text": "7. Returns and Refunds"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Returns are only considered within 7 days of delivery and only in cases of verified damage, incorrect items, or courier-confirmed issues. Items must remain sealed and unused. Refunds will not be issued for opened products, incorrect address details, or uncollected parcels. All claims are subject to verification."
+      },
+      {
+        "kind": "heading",
+        "text": "8. Intellectual Property"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All content, branding, product names, and materials on the Zenvy Peptides website are the property of Zenvy Peptides and may not be copied, reproduced, or distributed without permission."
+      },
+      {
+        "kind": "heading",
+        "text": "9. Limitation of Liability"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All products are supplied strictly for research use. Zenvy Peptides accepts no liability for any misuse, handling outside laboratory conditions, or unauthorised application. The buyer assumes full responsibility for safe handling and compliance. Liability is limited to the value of the purchased goods."
+      },
+      {
+        "kind": "heading",
+        "text": "10. Indemnification"
+      },
+      {
+        "kind": "paragraph",
+        "text": "By purchasing from Zenvy Peptides, you agree to indemnify and hold harmless Zenvy Peptides, its team, and partners against any claims or damages arising from misuse, legal violations, or breach of these terms."
+      },
+      {
+        "kind": "heading",
+        "text": "11. Compliance and Safety"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Customers must handle all materials in accordance with applicable laboratory safety standards and regulations. Safety data sheets may be provided upon request. Zenvy Peptides does not provide medical advice or usage instructions."
+      },
+      {
+        "kind": "heading",
+        "text": "12. Governing Law"
+      },
+      {
+        "kind": "paragraph",
+        "text": "These Terms & Conditions are governed by the laws of the United States and the state in which Zenvy Peptides operates. Any disputes will be subject to the jurisdiction of that stateÃ¢â‚¬â„¢s courts."
+      },
+      {
+        "kind": "heading",
+        "text": "13. Agreement at Checkout"
+      },
+      {
+        "kind": "paragraph",
+        "text": "By completing checkout, customers confirm they are purchasing for research purposes only, are over 21, and agree to all Terms & Conditions before payment is processed."
+      },
+      {
+        "kind": "heading",
+        "text": "14. Updates"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides may update these Terms & Conditions at any time. The latest version will always apply from the moment it is published."
+      },
+      {
+        "kind": "heading",
+        "text": "15. Contact"
+      },
+      {
+        "kind": "paragraph",
+        "text": "For any queries or support, contact: support@zenvypeptides.com"
+      }
+    ]
+  },
+  "legal_privacy": {
+    "title": "Privacy Policy",
+    "blocks": [
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides is committed to protecting your privacy and ensuring that all personal data is handled securely, transparently, and in accordance with applicable data protection laws. This Privacy Policy explains how your information is collected, used, and protected when you interact with our website and services."
+      },
+      {
+        "kind": "heading",
+        "text": "1. Who We Are"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides is a US-based supplier of research-use-only peptides. This Privacy Policy applies to all users and customers who access or purchase from our website. By using our services, you acknowledge and agree to the practices described in this policy."
+      },
+      {
+        "kind": "heading",
+        "text": "2. Information We Collect"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides may collect personal information such as your name, email address, billing and delivery details, and contact number when you place an order or contact support. We also process order-related information required to fulfil your purchase, along with secure payment processing handled by third-party providers. In addition, we may collect technical data such as IP address, browser type, device information, and website usage analytics to improve performance and security. Any information voluntarily submitted via contact forms or email may also be stored for support purposes. We do not store payment card details on our servers at any time."
+      },
+      {
+        "kind": "heading",
+        "text": "3. How We Use Your Information"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides uses collected data to process and fulfil orders, provide customer support, and ensure smooth website operation. Information may also be used to improve our services, enhance user experience, and maintain security standards. In certain cases, data may be used to detect or prevent fraudulent activity. Marketing communications are only sent if you have explicitly opted in. We do not sell or rent personal data to third parties."
+      },
+      {
+        "kind": "heading",
+        "text": "4. Legal Basis for Processing"
+      },
+      {
+        "kind": "paragraph",
+        "text": "We process personal data under lawful bases including contractual necessity (order fulfilment), legal obligations (such as accounting and tax compliance), legitimate business interests (such as improving services and preventing fraud), and user consent where applicable, such as marketing preferences."
+      },
+      {
+        "kind": "heading",
+        "text": "5. Cookies and Tracking Technologies"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides uses cookies to enhance website functionality, improve user experience, and analyse traffic patterns. Cookies help maintain shopping cart functionality, remember user preferences, and monitor website performance. Users may manage or disable cookies through their browser settings, although this may affect certain features of the website."
+      },
+      {
+        "kind": "heading",
+        "text": "6. Data Sharing"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Personal data may be shared only with trusted third-party service providers involved in order processing, including payment gateways, courier services, analytics tools, and customer support systems. These providers are required to handle data securely and comply with applicable data protection regulations. Your information is only shared when necessary to deliver services or complete transactions."
+      },
+      {
+        "kind": "heading",
+        "text": "7. Data Security"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides implements appropriate security measures to protect your data, including encrypted connections, secure hosting environments, and restricted access controls. Payment information is handled exclusively by secure third-party processors. While we take strong precautions, no online system can guarantee absolute security."
+      },
+      {
+        "kind": "heading",
+        "text": "8. Your Rights"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Depending on your state of residence, you may have the right to access, update, delete, or restrict the use of your personal data, as well as the right to opt out of the sale or sharing of personal information where applicable (for example, under state privacy laws such as the California Consumer Privacy Act (CCPA)). You may also withdraw consent for marketing communications at any time. To exercise any of these rights, you can contact support at support@zenvypeptides.com."
+      },
+      {
+        "kind": "heading",
+        "text": "9. Data Retention"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Personal data is retained only for as long as necessary to fulfil its intended purpose. Order and transaction records may be retained for legal and accounting requirements, typically up to six years. Marketing data is retained until you opt out, and analytics data is stored in accordance with provider policies."
+      },
+      {
+        "kind": "heading",
+        "text": "10. International Data Transfers"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Some data may be processed by service providers located outside the United States. In such cases, appropriate safeguards are implemented to ensure data protection standards remain consistent and secure."
+      },
+      {
+        "kind": "heading",
+        "text": "11. Third-Party Links"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Our website may include links to external websites. Zenvy Peptides is not responsible for the privacy practices or content of third-party sites."
+      },
+      {
+        "kind": "heading",
+        "text": "12. Policy Updates"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides may update this Privacy Policy from time to time to reflect operational, legal, or regulatory changes. Any updates will be published on this page with immediate effect."
+      },
+      {
+        "kind": "heading",
+        "text": "Contact Information"
+      },
+      {
+        "kind": "paragraph",
+        "text": "For any privacy-related inquiries, please contact us at support@zenvypeptides.com"
+      }
+    ]
+  },
+  "legal_returns": {
+    "title": "Return & Refunds",
+    "blocks": [
+      {
+        "kind": "paragraph",
+        "text": "Due to the nature of research-use-only laboratory products, Zenvy Peptides cannot accept returns once items have been shipped and opened. For hygiene, safety, and quality control reasons, any opened, used, or tampered products are not eligible for return or resale."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Customers are responsible for ensuring all order details, including product selection and delivery address, are correct before completing checkout. If your order arrives damaged, incorrect, or there is a delivery-related issue, you must contact Zenvy Peptides support immediately. Items should not be returned without prior approval. All issues must be reported within 7 days of delivery and supported with clear photographic or video evidence, including the condition of the sealed packaging before opening where applicable."
+      },
+      {
+        "kind": "heading",
+        "text": "Refunds & Replacements"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides may offer a refund or replacement only in verified cases such as damaged goods in transit, incorrect items received, or confirmed courier-related delivery failure. Lost parcels may also be reviewed after completion of a courier investigation. Each case is assessed individually in line with applicable consumer protection standards and internal verification procedures. Refunds or replacements will not be issued if more than 7 days have passed since delivery, if incorrect address details were provided, if parcels were refused or uncollected, or if items have been opened, used, or altered in any way."
+      },
+      {
+        "kind": "heading",
+        "text": "Missing or Damaged Items"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All orders are securely packaged to ensure integrity during transit. If a missing item is reported, proof must be provided showing the unopened and sealed package, including visible shipping labels. Once packaging has been opened or tampered with, verification is no longer possible and claims cannot be processed. Due to fraud prevention controls, supporting evidence such as clear images or video of the unboxing process may be required for validation."
+      },
+      {
+        "kind": "heading",
+        "text": "Important Conditions"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Claims must be submitted within 7 days of delivery. Items must remain in original sealed condition until the issue is reviewed. Courier investigations may be required for lost or delayed parcels, and refunds or replacements cannot be processed while investigations are ongoing. For support, contact: support@zenvypeptides.com"
+      }
+    ]
+  },
+  "legal_shipping": {
+    "title": "Shipping & Delivery",
+    "blocks": [
+      {
+        "kind": "paragraph",
+        "text": "At Zenvy Peptides, we prioritise fast, secure, and reliable delivery for all research-use-only peptide orders. Every shipment is handled with care to ensure efficient dispatch, full tracking, and consistent service across the United States and selected international destinations."
+      },
+      {
+        "kind": "heading",
+        "text": "Dispatch Times"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides processes orders quickly to minimise delays. Orders placed before 2:00 PM EST (MondayÃ¢â‚¬â€œFriday) are usually dispatched the same business day, while orders placed after this time are processed on the next business day. Orders placed on Fridays after cut-off or over the weekend are dispatched on Monday. During peak periods, dispatch may occasionally extend by one business day due to higher order volume. Once your order is dispatched, tracking details are sent via email so you can monitor your shipment in real time."
+      },
+      {
+        "kind": "heading",
+        "text": "US Delivery"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides offers fast and reliable domestic shipping through USPS and UPS services, including Priority Mail, Priority Mail Express, and UPS Ground. Priority services typically arrive within 1Ã¢â‚¬â€œ3 business days, while Priority Mail Express provides a guaranteed next-day or two-day option depending on destination. All US orders are shipped discreetly and securely. While we aim for rapid delivery, occasional delays may occur due to courier handling or peak periods."
+      },
+      {
+        "kind": "heading",
+        "text": "International Shipping"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Zenvy Peptides also ships internationally to selected destinations worldwide. Delivery times typically range from 5Ã¢â‚¬â€œ10 business days depending on customs processing and local postal services. All international timelines are estimates and may vary based on destination country procedures."
+      },
+      {
+        "kind": "heading",
+        "text": "Customs & Import Information"
+      },
+      {
+        "kind": "paragraph",
+        "text": "International orders may be subject to local customs duties, taxes, or handling fees depending on the destination country. These charges are not included at checkout and remain the responsibility of the customer. Customs clearance times vary by region and are outside of Zenvy PeptidesÃ¢â‚¬â„¢ control. Delays during customs processing do not indicate a lost parcel."
+      },
+      {
+        "kind": "heading",
+        "text": "Tracking & Delivery Support"
+      },
+      {
+        "kind": "paragraph",
+        "text": "All orders include tracking where applicable. In case of delays or delivery issues, courier investigations are initiated to resolve the matter efficiently. Domestic cases typically take up to 15 business days, while international cases may take up to 30 business days. For assistance, contact us at support@zenvypeptides.com."
+      }
+    ]
+  },
+  "legal_disclaimer": {
+    "title": "Disclaimer - RUO",
+    "blocks": [
+      {
+        "kind": "paragraph",
+        "text": "All products offered by Zenvy Peptides are strictly for research and laboratory use only and are not intended for human consumption, medical, therapeutic, diagnostic, or clinical purposes. Zenvy Peptides does not support or condone any misuse of research materials under any circumstances."
+      },
+      {
+        "kind": "paragraph",
+        "text": "These products are not medical or pharmaceutical products and must not be represented or used as such in any form. The purchaser is solely responsible for ensuring full compliance with all applicable laws, regulations, and ethical standards relating to research materials."
+      },
+      {
+        "kind": "paragraph",
+        "text": "By purchasing from Zenvy Peptides, you accept full responsibility for the safe storage, handling, and lawful use of all products. Zenvy Peptides shall not be held liable for any misuse, improper handling, or consequences arising from use outside legitimate research environments."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Your purchase confirms that you understand and agree to these terms."
+      }
+    ]
+  },
+  "store": {
+    "currency": "AED",
+    "symbolStyle": "svg",
+    "symbolPosition": "before",
+    "symbolText": "AED",
+    "decimals": 2,
+    "vatEnabled": true,
+    "vatRate": 5,
+    "vatIncludedInPrice": false,
+    "vatLabel": "VAT (5%)",
+    "shippingMode": "custom",
+    "shippingOptions": [],
+    "returnWindowDays": 14,
+    "ageConfirmation": true
+  }
+}

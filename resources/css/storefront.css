@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/*.blade.php';
+
+/* ------------------------------------------------------------------
+   Storefront design tokens: brand palette, typography, and radii.
+   ------------------------------------------------------------------ */
+@theme {
+    --font-body: 'Mona Sans', Arial, Helvetica, sans-serif;
+    --font-heading: 'Cantora One', Arial, Helvetica, sans-serif;
+    --font-widget: 'McLaren', Arial, Helvetica, sans-serif;
+    --font-nav: 'Noto Sans Mandaic', Arial, Helvetica, sans-serif;
+
+    --color-primary: #0b4f8a;
+    --color-primary-hover: #093f6d;
+    --color-secondary: #00b894;
+    --color-success: #22c55e;
+    --color-warning: #fbbf24;
+    --color-danger: #ef4444;
+    --color-background: #f8fafc;
+    --color-ink: #000000;
+    --color-body: #000000;
+    --color-navy: #0b4f8a;
+    --color-navy-dark: #083b67;
+    --color-muted: #000000;
+    --color-page-title: #083b67;
+
+    --radius-btn: 35px;
+    --radius-card: 12px;
+}
+
+:root {
+    --wd-container-w: 1222px;
+    --wd-text-font-size: 16px;
+    --wd-header-el-font-size: 17px;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--font-body);
+        font-weight: 400;
+        font-size: var(--wd-text-font-size);
+        line-height: 1.6;
+        color: var(--color-body);
+        background-color: var(--color-background);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-heading);
+        font-weight: 400;
+        color: var(--color-ink);
+        line-height: 1.25;
+        margin: 0;
+    }
+
+    a {
+        color: var(--color-navy);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    a:hover {
+        color: var(--color-ink);
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@layer components {
+    /* 1222px content container, matching --wd-container-w */
+    .wd-container {
+        width: 100%;
+        max-width: var(--wd-container-w);
+        margin-inline: auto;
+        padding-inline: 1.25rem;
+    }
+
+    /* Pill buttons: 35px radius, primary bg, white label */
+    .wd-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: var(--radius-btn);
+        background-color: var(--color-primary);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        line-height: 1;
+        padding: 1.05rem 2.25rem;
+        border: 0;
+        cursor: pointer;
+        transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .wd-btn:hover,
+    .wd-btn:focus-visible {
+        background-color: var(--color-primary-hover);
+        color: #fff;
+    }
+
+    .wd-btn-outline {
+        background-color: transparent;
+        color: var(--color-ink);
+        box-shadow: inset 0 0 0 2px currentColor;
+    }
+
+    .wd-btn-outline:hover,
+    .wd-btn-outline:focus-visible {
+        background-color: var(--color-primary-hover);
+        color: #fff;
+    }
+
+    /* Dark page-title bar (used by /about-us, /help-center, /coa, legal...) */
+    .wd-page-title {
+        background-color: var(--color-page-title);
+    }
+
+    /* Rounded form fields, matching --wd-form-brd-radius: 35px */
+    .wd-field {
+        width: 100%;
+        border: 1px solid #e3e3e3;
+        border-radius: var(--radius-btn);
+        padding: 0.9rem 1.35rem;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        color: var(--color-body);
+        background-color: #fff;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+    .wd-field:focus {
+        border-color: var(--color-primary);
+    }
+
+    .wd-field::placeholder {
+        color: #9a9a9a;
+    }
+}
+
+/* SweetAlert2 themed to the site palette */
+.swal2-popup {
+    border-radius: var(--radius-card) !important;
+    font-family: var(--font-body) !important;
+}
+
+.swal2-confirm.wd-swal-confirm {
+    background-color: var(--color-primary) !important;
+    border-radius: var(--radius-btn) !important;
+    font-weight: 600 !important;
+}
+
+.swal2-confirm.wd-swal-confirm:hover {
+    background-color: var(--color-primary-hover) !important;
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --wd-text-font-size: 14px;
+        --wd-header-el-font-size: 15px;
+    }
+}
+
+@media (max-width: 768.98px) {
+    :root {
+        --wd-text-font-size: 12px;
+        --wd-header-el-font-size: 14px;
+    }
+}
