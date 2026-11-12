@@ -39,7 +39,6 @@ class StorefrontSeeder extends Seeder
         $settings = [
             'currency' => 'USD',
             'timezone' => 'UTC',
-            'shipping_settings' => json_encode(['flat_rate' => 50, 'free_threshold' => 1000]),
             'tax_settings' => json_encode(['rate' => 20]),
             'payment_methods' => json_encode([]),
             'email_settings' => json_encode([]),
