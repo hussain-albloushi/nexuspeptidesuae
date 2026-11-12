@@ -1,4 +1,4 @@
-﻿{
+{
   "site": {
     "name": "Nexus Peptides",
     "logo": "/storage/Nexus_Peptides_UAE_Biotech_Logo_preview.png",
@@ -12,9 +12,9 @@
     ],
     "seoTitle": "Nexus Peptide - UAE",
     "seoDescription": "Nexus Peptides is a US supplier of premium research peptides with verified purity, certification, and full traceability.",
-    "copyright": "Ãƒâ€šÃ‚Â© 2026 Nexus Peptides ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ All rights reserved.",
-    "ruo": "For Research Use Only (RUO) ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ Not intended for human consumption.",
-    "legalNotice": "All Nexus Peptides products are supplied strictly for laboratory research use only, not for human or veterinary use, consumption, or injection, and not approved by the FDA to diagnose, treat, cure, or prevent any disease. Nothing on this website constitutes medical advice or usage guidance. By purchasing, you confirm the products are for legitimate research purposes and agree to comply with all applicable laws, assuming full responsibility for safe handling and use. Products are supplied ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œas is,ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â with Nexus Peptides accepting no liability for any misuse.",
+    "copyright": "Ã‚Â© 2026 Nexus Peptides Ã¢â‚¬â€œ All rights reserved.",
+    "ruo": "For Research Use Only (RUO) Ã¢â‚¬â€œ Not intended for human consumption.",
+    "legalNotice": "All Nexus Peptides products are supplied strictly for laboratory research use only, not for human or veterinary use, consumption, or injection, and not approved by the FDA to diagnose, treat, cure, or prevent any disease. Nothing on this website constitutes medical advice or usage guidance. By purchasing, you confirm the products are for legitimate research purposes and agree to comply with all applicable laws, assuming full responsibility for safe handling and use. Products are supplied Ã¢â‚¬Å“as is,Ã¢â‚¬Â with Nexus Peptides accepting no liability for any misuse.",
     "nav": [
       {
         "label": "Home",
@@ -143,11 +143,11 @@
     ]
   },
   "home": {
-    "heroKicker": "For Research Use Only ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ RUO",
+    "heroKicker": "For Research Use Only Ã¢â‚¬â€œ RUO",
     "heroTitle": "Purity You Can Verify. Research You Can Trust.",
     "heroBody": "Nexus Peptides delivers high-purity research compounds built for accuracy and reproducibility. Every batch is independently tested and fully traceable, giving laboratories a dependable foundation for advanced scientific work.",
     "heroCta": "Shop Peptides",
-    "heroImage": "/catalog-images/home-hero-glp-3.png",
+    "heroImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/GLP-3-Peptides.png",
     "standardsTitle": "Built on Standards You Can Verify",
     "productsTitle": "Find the Right Peptide for Your Research",
     "productsIntro": "Explore a curated selection of high-purity peptides designed to support accurate and reliable laboratory outcomes. Each product is quality-controlled and batch-traceable for consistent research performance.",
@@ -161,7 +161,7 @@
       "Dedicated Support when you need it"
     ],
     "trustedCta": "View certificates",
-    "trustedImage": "/catalog-images/trusted-quality.png",
+    "trustedImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/123.png",
     "purityKicker": "Premium Quality Is Our Standard",
     "purityTitle": "99% Purity, Precision Products & Advanced Solutions",
     "puritySubtitle": "Products Consistently Pure That You Can Trust",
@@ -171,7 +171,7 @@
       "Our mission is simple: to be a dependable partner for the scientific community by combining stringent quality assurance with responsive service and clear, accessible documentation. From sourcing to shipping, Nexus Peptides is built around one goal, supporting research that researchers can stand behind."
     ],
     "purityNotice": "Products for Research Use Only. Not for human or animal consumption.",
-    "purityImage": "/catalog-images/purity-standard.png"
+    "purityImage": "https://zenvypeptides.com/wp-content/uploads/2026/09/321.png"
   },
   "about": {
     "title": "About Us",
@@ -179,7 +179,7 @@
     "heading": "Advancing Peptide Research with Precision and Integrity",
     "body": "Nexus Peptides is a US-based supplier of high-purity, COA-verified research peptides, trusted by laboratories and researchers across the country. Every product is independently tested to confirm purity, identity, and consistency, and is supported with full batch traceability and accredited laboratory documentation to ensure dependable, reproducible results. Built on a research-first approach, we focus on strict quality control, transparent sourcing, and controlled manufacturing standards to support accurate laboratory outcomes.",
     "cta": "Explore Catalogue",
-    "image": "/catalog-images/about-lab.png",
+    "image": "https://zenvypeptides.com/wp-content/uploads/2026/07/569ce316-e32d-42ad-96cd-aa9ed39e5909.png",
     "whyTitle": "Why Choose Nexus Peptides?",
     "whyIntro": "Each peptide is rigorously tested for purity, accuracy, and consistency to ensure dependable laboratory results. From controlled production to secure delivery, Nexus Peptides supports reliable scientific research at every stage.",
     "qualityKicker": "Premium Quality Is Our Standard",
@@ -189,11 +189,11 @@
       "Quality is at the core of everything we do. Every product supplied by Nexus Peptides undergoes rigorous quality verification processes to help ensure consistency, reliability, and research suitability.",
       "Our commitment includes comprehensive batch documentation, verified testing procedures, and strict handling protocols designed to maintain product integrity from production through delivery. By prioritising quality at every stage, we help researchers access materials they can trust for their laboratory work."
     ],
-    "qualityImage": "/catalog-images/quality-lab.jpg"
+    "qualityImage": "https://zenvypeptides.com/wp-content/uploads/2026/07/b69dec56-63c2-4f91-a619-13e10beaaa89.jpg"
   },
   "help": {
     "title": "Nexus Peptides Support",
-    "intro": "Our dedicated support and dispatch team operates Monday to Friday, 9 AM ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ 8 PM (GMT), assisting with orders, tracking updates, and general customer enquiries across nationwide.",
+    "intro": "Our dedicated support and dispatch team operates Monday to Friday, 9 AM Ã¢â‚¬â€œ 8 PM (GMT), assisting with orders, tracking updates, and general customer enquiries across nationwide.",
     "companyName": "Nexus Peptides | An Advanced Health Company",
     "faqTitle": "Frequently Asked Questions",
     "faqIntro": "Find clear answers about our research peptides, COAs, storage guidelines, ordering process, delivery information, and policies. This section is designed to ensure transparency, traceability, and strict research-use compliance.",
@@ -216,7 +216,7 @@
       },
       {
         "q": "What does COA-verified mean?",
-        "a": "A Certificate of Analysis (COA) documents the tested properties of a specific batch ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â most importantly purity and identity. \"COA-verified\" means the batch has been analysed and the results recorded against that batch number."
+        "a": "A Certificate of Analysis (COA) documents the tested properties of a specific batch Ã¢â‚¬â€ most importantly purity and identity. \"COA-verified\" means the batch has been analysed and the results recorded against that batch number."
       },
       {
         "q": "Why does purity matter in research?",
@@ -247,103 +247,137 @@
         "name": "BPC-157 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.782"
+        "purity": "99.782",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/BPC-157-10mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/BPC-157-10mg-1.pdf"
       },
       {
         "name": "BPC-157 5mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.694"
+        "purity": "99.694",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/BPC-157-5mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/BPC-157-5mg-3.pdf"
       },
       {
         "name": "GHK-Cu 100mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.552"
+        "purity": "99.552",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GHKCU-100mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GHK-Cu-100mg-1.pdf"
       },
       {
         "name": "GHK-CU 50mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.578"
+        "purity": "99.578",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GHK-CU-50mg-3.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GHK-Cu-50mg.pdf"
       },
       {
         "name": "Glow Blend 70mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "N/A"
+        "purity": "N/A",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/GLOW-70mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/GLOW-70mg.pdf"
       },
       {
         "name": "Ipamorelin 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.820"
+        "purity": "99.820",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/ipamorelin-10mg-3.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Ipamorelin-10mg.pdf"
       },
       {
         "name": "Ipamorelin 5mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.765"
+        "purity": "99.765",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/ipamorelin-5mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Ipamorelin-5mg.pdf"
       },
       {
         "name": "Klow Blend 80mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "N/A"
+        "purity": "N/A",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/KLOW-80mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Klow-Blend-80mg.pdf"
       },
       {
         "name": "Melanotan I 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.418"
+        "purity": "99.418",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/mt1-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Melanotan-I-10mg.pdf"
       },
       {
         "name": "Melanotan II 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.849"
+        "purity": "99.849",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/mt2-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Melanotan-II-10mg.pdf"
       },
       {
         "name": "Retatrutide 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.580"
+        "purity": "99.580",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-10mg-1.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-10mg.pdf"
       },
       {
         "name": "Retatrutide 20mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.835"
+        "purity": "99.835",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-20mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-20mg.pdf"
       },
       {
         "name": "Retatrutide 30mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.901"
+        "purity": "99.901",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/reta-30mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Retatrutide-30mg.pdf"
       },
       {
         "name": "TB-500 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.729"
+        "purity": "99.729",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/TB-500-10mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/TB-500-10mg.pdf"
       },
       {
         "name": "TB-500 5mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.694"
+        "purity": "99.694",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/TB-500-5mg.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/TB-500-5mg.pdf"
       },
       {
         "name": "Tesamorelin 10mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.043"
+        "purity": "99.043",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/tesamorelin-10mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Tesamorelin-10mg.pdf"
       },
       {
         "name": "Tesamorelin 5mg",
         "batch": "2026-06",
         "date": "02-06-2026",
-        "purity": "99.612"
+        "purity": "99.612",
+        "image": "https://zenvypeptides.com/wp-content/uploads/2026/05/tesamorelin-5mg-2.png",
+        "file": "https://zenvypeptides.com/wp-content/uploads/2026/06/Tesamorelin-5mg.pdf"
       }
     ]
   },
@@ -444,7 +478,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "These Terms & Conditions are governed by the laws of the United States and the state in which Nexus Peptides operates. Any disputes will be subject to the jurisdiction of that stateÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s courts."
+        "text": "These Terms & Conditions are governed by the laws of the United States and the state in which Nexus Peptides operates. Any disputes will be subject to the jurisdiction of that stateÃ¢â‚¬â„¢s courts."
       },
       {
         "kind": "heading",
@@ -635,7 +669,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Nexus Peptides processes orders quickly to minimise delays. Orders placed before 2:00 PM EST (MondayÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Friday) are usually dispatched the same business day, while orders placed after this time are processed on the next business day. Orders placed on Fridays after cut-off or over the weekend are dispatched on Monday. During peak periods, dispatch may occasionally extend by one business day due to higher order volume. Once your order is dispatched, tracking details are sent via email so you can monitor your shipment in real time."
+        "text": "Nexus Peptides processes orders quickly to minimise delays. Orders placed before 2:00 PM EST (MondayÃ¢â‚¬â€œFriday) are usually dispatched the same business day, while orders placed after this time are processed on the next business day. Orders placed on Fridays after cut-off or over the weekend are dispatched on Monday. During peak periods, dispatch may occasionally extend by one business day due to higher order volume. Once your order is dispatched, tracking details are sent via email so you can monitor your shipment in real time."
       },
       {
         "kind": "heading",
@@ -643,7 +677,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Nexus Peptides offers fast and reliable domestic shipping through USPS and UPS services, including Priority Mail, Priority Mail Express, and UPS Ground. Priority services typically arrive within 1ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“3 business days, while Priority Mail Express provides a guaranteed next-day or two-day option depending on destination. All US orders are shipped discreetly and securely. While we aim for rapid delivery, occasional delays may occur due to courier handling or peak periods."
+        "text": "Nexus Peptides offers fast and reliable domestic shipping through USPS and UPS services, including Priority Mail, Priority Mail Express, and UPS Ground. Priority services typically arrive within 1Ã¢â‚¬â€œ3 business days, while Priority Mail Express provides a guaranteed next-day or two-day option depending on destination. All US orders are shipped discreetly and securely. While we aim for rapid delivery, occasional delays may occur due to courier handling or peak periods."
       },
       {
         "kind": "heading",
@@ -651,7 +685,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Nexus Peptides also ships internationally to selected destinations worldwide. Delivery times typically range from 5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“10 business days depending on customs processing and local postal services. All international timelines are estimates and may vary based on destination country procedures."
+        "text": "Nexus Peptides also ships internationally to selected destinations worldwide. Delivery times typically range from 5Ã¢â‚¬â€œ10 business days depending on customs processing and local postal services. All international timelines are estimates and may vary based on destination country procedures."
       },
       {
         "kind": "heading",
@@ -659,7 +693,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "International orders may be subject to local customs duties, taxes, or handling fees depending on the destination country. These charges are not included at checkout and remain the responsibility of the customer. Customs clearance times vary by region and are outside of Nexus PeptidesÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ control. Delays during customs processing do not indicate a lost parcel."
+        "text": "International orders may be subject to local customs duties, taxes, or handling fees depending on the destination country. These charges are not included at checkout and remain the responsibility of the customer. Customs clearance times vary by region and are outside of Nexus PeptidesÃ¢â‚¬â„¢ control. Delays during customs processing do not indicate a lost parcel."
       },
       {
         "kind": "heading",

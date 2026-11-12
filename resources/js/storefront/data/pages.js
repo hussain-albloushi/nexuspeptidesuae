@@ -169,7 +169,7 @@ export const site = {
     heroBody:
         'Nexus Peptides delivers high-purity research compounds built for accuracy and reproducibility. Every batch is independently tested and fully traceable, giving laboratories a dependable foundation for advanced scientific work.',
     heroCta: 'Shop Peptides',
-    heroImage: '/catalog-images/home-hero-glp-3.png',
+    heroImage: 'https://zenvypeptides.com/wp-content/uploads/2026/09/GLP-3-Peptides.png',
     address: ['6706 West Fairview Ave', 'Boise, Idaho USA 83704', '(208) 274-8200'],
     supportEmail: 'info@nexuspeptides.com',
     copyright: '© 2026 Nexus Peptides – All rights reserved.',
