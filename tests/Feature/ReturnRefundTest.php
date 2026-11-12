@@ -211,6 +211,39 @@ class ReturnRefundTest extends TestCase
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'cancelled', 'payment_status' => 'refunded']);
     }
 
+    public function test_a_legacy_whole_order_return_can_still_be_approved(): void
+    {
+        Sanctum::actingAs($customer = $this->customer());
+        $product = $this->product(['stock_quantity' => 10, 'low_stock_threshold' => 2]);
+        $order = $this->deliveredOrder(['user_id' => $customer->id, 'total_amount' => 200]);
+        $this->orderItems($order, [['name' => 'BPC-157 10mg', 'price' => 100, 'quantity' => 2, 'product_id' => $product->id]]);
+        $this->saleMovement($order, $product, 10, 8);
+
+        // A request created before item-level returns existed has no lines.
+        $return = ReturnRequest::create([
+            'order_id' => $order->id, 'user_id' => $customer->id,
+            'reason' => 'The whole order arrived damaged in transit.',
+            'status' => ReturnRequest::STATUS_REQUESTED,
+        ]);
+
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'approved', 'refund_amount' => 250])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('refund_amount');
+
+        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'approved'])
+            ->assertOk()
+            ->assertJsonPath('order.status', 'cancelled')
+            ->assertJsonPath('order.payment_status', 'refunded');
+
+        $this->assertDatabaseHas('return_requests', ['id' => $return->id, 'status' => 'approved', 'refund_amount' => 200]);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'cancelled', 'shipping_status' => 'cancelled', 'payment_status' => 'refunded']);
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock_quantity' => 12]);
+        $this->assertDatabaseHas('order_status_history', [
+            'order_id' => $order->id, 'old_status' => 'delivered', 'new_status' => 'cancelled',
+        ]);
+    }
+
     public function test_a_full_return_refunds_the_remaining_order_balance_including_shipping(): void
     {
         Sanctum::actingAs($customer = $this->customer());

@@ -92,7 +92,8 @@ function returnableQty(order, item) {
 /** Human label for a return request's lines, e.g. "1 × BPC-157 10mg". */
 function returnLineLabel(order, request) {
     const names = new Map((order.items || []).map((item) => [item.id, item.name]));
-    return (request.items || []).map((line) => `${line.quantity} × ${names.get(line.order_item_id) || 'item'}`).join(', ');
+    const lines = (request.items || []).map((line) => `${line.quantity} × ${names.get(line.order_item_id) || 'item'}`);
+    return lines.length ? lines.join(', ') : 'whole order';
 }
 
 /** Latest in-review return request, if any. */

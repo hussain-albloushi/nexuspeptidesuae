@@ -3,16 +3,18 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 
 export function adminAlertOptions(options = {}) {
     const dialogs = [...document.querySelectorAll('dialog[open]')];
-    return {
+    const config = {
         target: dialogs.at(-1) || document.querySelector('.apex-admin-shell') || document.body,
         background: 'var(--admin-surface, #fff)',
         color: 'var(--admin-text, #060d11)',
         confirmButtonColor: '#008e4c',
         cancelButtonColor: '#56616a',
         customClass: { container: 'admin-swal-container', popup: 'admin-swal-popup' },
-        heightAuto: false,
         ...options,
     };
+    // SweetAlert2 rejects heightAuto on toasts — only dialogs need it.
+    if (!config.toast && config.heightAuto === undefined) config.heightAuto = false;
+    return config;
 }
 
 export async function confirmAdmin({ title, text, confirmButtonText = 'Confirm', destructive = false, ...options }) {

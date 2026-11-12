@@ -87,8 +87,9 @@
         <section v-if="detail?.return_requests?.length" class="detail-section"><h3><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Return requests</h3>
           <div v-for="ret in detail.return_requests" :key="ret.id" class="order-notes">
             <p><span class="payment-badge" :class="ret.status === 'approved' ? 'refunded' : ret.status === 'rejected' ? 'failed' : ''">{{ orderLabel(ret.status) }}</span> <strong>Return request</strong> <small>{{ dateTime(ret.created_at) }}</small></p>
-            <ul class="change-preview"><li v-for="line in ret.items" :key="line.id"><strong>{{ line.quantity }} × {{ line.order_item?.name || 'Item unavailable' }}</strong><span>{{ orderMoney(line.order_item ? line.order_item.price * line.quantity : 0) }}</span></li></ul>
+            <ul class="change-preview"><li v-for="line in ret.items" :key="line.id"><strong>{{ line.quantity }} × {{ line.order_item?.name || 'Item unavailable' }}</strong><span>{{ orderMoney(line.order_item ? line.order_item.price * line.quantity : 0) }}</span></li><li v-if="!ret.items?.length"><strong>Whole-order return</strong><span>requested before item-level returns</span></li></ul>
             <p v-if="ret.reason" class="order-notes">“{{ ret.reason }}”</p>
+            <p v-if="ret.status === 'requested' && !ret.items?.length" class="order-notes">Approving this returns and refunds the whole order. Reject it to let the customer request specific items instead.</p>
             <p v-if="ret.status === 'requested'" class="order-notes">Refund to issue: {{ orderMoney(defaultRefund(detail, ret)) }} <small>({{ isFullyReturned(detail, ret) ? 'remaining order balance, including shipping and COD' : 'item prices only; shipping and COD are not refunded' }})</small></p>
             <p v-if="ret.refund_amount" class="order-notes">Refunded: {{ orderMoney(ret.refund_amount) }}</p>
             <p v-if="ret.decision_notes" class="order-notes">Decision note: {{ ret.decision_notes }}</p>
@@ -152,6 +153,9 @@ function returnRefund(ret) {
 
 /** Whether approving this request returns every item on the order. */
 function isFullyReturned(order, ret) {
+  // Requests created before item-level returns were introduced have no lines
+  // and represent a whole-order return.
+  if (!(ret.items || []).length) return true;
   const returned = new Map();
   for (const request of order?.return_requests || []) {
     if (request.status === 'rejected' || request.id === ret.id) continue;

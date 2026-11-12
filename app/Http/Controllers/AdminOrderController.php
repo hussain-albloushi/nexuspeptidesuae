@@ -263,12 +263,16 @@ class AdminOrderController extends Controller
                 return;
             }
 
+            // Requests created before item-level returns existed have no lines:
+            // they are whole-order returns and keep the old approval behaviour.
+            $legacy = $return->items->isEmpty();
+
             // Refunds cover the returned items only — shipping and cash-on-
             // delivery fees are not refunded on partial returns. When every
-            // item comes back, the remaining order balance (including those
-            // fees) is refunded, as with a full-order return.
+            // item comes back (or the request is a legacy whole-order one),
+            // the remaining order balance, including those fees, is refunded.
             $claimed = $return->refundAmount();
-            $fullyReturned = $order->items->every(fn ($item) => $item->returned_quantity >= $item->quantity);
+            $fullyReturned = $legacy || $order->items->every(fn ($item) => $item->returned_quantity >= $item->quantity);
             $alreadyRefunded = $this->refundedSoFar($order);
             $balance = round(max(0, (float) $order->total_amount - $alreadyRefunded), 2);
             $cap = $fullyReturned ? $balance : min($claimed, $balance);
@@ -281,7 +285,7 @@ class AdminOrderController extends Controller
                 ]);
             }
 
-            $lines = $return->items->map(fn (ReturnRequestItem $item) => $item->quantity.' × '.$item->orderItem->name)->implode(', ');
+            $lines = $legacy ? 'whole order' : $return->items->map(fn (ReturnRequestItem $item) => $item->quantity.' × '.$item->orderItem->name)->implode(', ');
             $historyNotes = 'Return approved ('.$lines.'). A refund of AED '.number_format($amount, 2).' was issued'.($notes !== '' ? ': '.$notes : '.');
             $state = round($alreadyRefunded + $amount, 2) >= (float) $order->total_amount ? 'refunded' : 'partially_refunded';
             $order->update(['payment_status' => $state]);
@@ -298,7 +302,12 @@ class AdminOrderController extends Controller
                     'notes' => $historyNotes,
                 ]);
             }
-            $this->restoreReturnedStock($return, 'Returned order '.$order->order_number);
+            if ($legacy) {
+                // Whole-order request: restock everything sold on this order.
+                $this->restoreStock($order, 'Returned order '.$order->order_number);
+            } else {
+                $this->restoreReturnedStock($return, 'Returned order '.$order->order_number);
+            }
 
             $return->update(['status' => ReturnRequest::STATUS_APPROVED, 'refund_amount' => $amount, 'decision_notes' => $notes ?: null]);
         }, 3);
