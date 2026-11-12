@@ -18,6 +18,9 @@ const router = createRouter({
             { path: 'settings', name: 'admin-settings', component: () => import('./pages/admin/Settings.vue') },
             { path: 'contents', name: 'admin-contents', component: () => import('./pages/admin/Contents.vue') },
             { path: 'search', name: 'admin-search', component: () => import('./pages/admin/Search.vue') },
+
+            // Wrong admin URLs land on a themed 404 instead of redirecting silently.
+            { path: ':pathMatch(.*)*', name: 'admin-not-found', component: () => import('./pages/admin/NotFound.vue') },
         ]},
         { path: '/login', name: 'login', component: () => import('./pages/Login.vue') },
         { path: '/:pathMatch(.*)*', redirect: '/admin' },

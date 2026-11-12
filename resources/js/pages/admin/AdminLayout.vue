@@ -246,6 +246,7 @@ function handleSearch() {
   }
 }
 const pageTitle = computed(() => {
+  if (route.name === 'admin-not-found') return 'Page not found';
   if (titles[route.path]) return titles[route.path];
   if (route.path.startsWith('/admin/orders')) return 'Orders';
   if (route.path.startsWith('/admin/products')) return 'Products';
