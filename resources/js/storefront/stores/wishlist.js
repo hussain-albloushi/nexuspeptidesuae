@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 // Per-user scope (logged-in users). Guest visitors also get a key so they
 // don't accidentally pick up one account's wishlist while browsing as another.
 const NEW_PREFIX = 'nexus_wishlist:';
-const LEGACY_PREFIX = 'nexus peptides_wishlist:';
-const LEGACY_GLOBAL = 'nexus peptides_wishlist';
+const LEGACY_PREFIX = 'zenvy_wishlist:';
+const LEGACY_GLOBAL = 'zenvy_wishlist';
 const GUEST_KEY = `${NEW_PREFIX}guest`;
 
 function userKey(email) {
@@ -30,7 +30,7 @@ function currentKey() {
 }
 
 /**
- * Move wishlist data stored under the old `nexus peptides_*` keys forward.
+ * Move wishlist data stored under the old `zenvy_*` keys forward.
  */
 function migrateLegacy() {
     try {
@@ -43,7 +43,7 @@ function migrateLegacy() {
             localStorage.removeItem(LEGACY_GLOBAL);
         }
 
-        // Old per-user keys: nexus peptides_wishlist:<email> -> nexus_wishlist:<email>
+        // Old per-user keys: zenvy_wishlist:<email> -> nexus_wishlist:<email>
         for (let i = localStorage.length - 1; i >= 0; i -= 1) {
             const key = localStorage.key(i);
             if (key && key.startsWith(LEGACY_PREFIX)) {
