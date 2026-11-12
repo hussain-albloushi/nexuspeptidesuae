@@ -5,7 +5,7 @@ import { useWishlistStore } from './wishlist';
 
 const KEY = 'nexus_account';
 const TOKEN_KEY = 'nexus_token';
-const LEGACY_KEY = 'zenvy_account';
+const LEGACY_KEY = 'nexus peptides_account';
 
 function load() {
     try {

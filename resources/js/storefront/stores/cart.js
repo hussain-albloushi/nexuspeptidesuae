@@ -3,7 +3,7 @@ import { findBySlug } from '../data/products';
 import { useCurrencyStore } from './currency';
 
 const KEY = 'nexus_cart';
-const LEGACY_KEY = 'zenvy_cart';
+const LEGACY_KEY = 'nexus peptides_cart';
 
 function migrateLegacy() {
     try {
