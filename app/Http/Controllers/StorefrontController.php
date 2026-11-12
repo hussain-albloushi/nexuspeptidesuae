@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,7 @@ class StorefrontController extends Controller
         return view('storefront', [
             'content' => $content,
             'seo' => $seo,
+            'products' => $this->publishedProducts(),
         ]);
     }
 
@@ -38,6 +40,36 @@ class StorefrontController extends Controller
 
         return response()->json(array_replace(config('storefront-content.shipping_defaults'), $content['store'] ?? []))
             ->header('Cache-Control', 'no-store');
+    }
+
+    /**
+     * Admin-managed catalogue snapshot for the storefront. Products that are
+     * inactive, hidden, or deleted in the admin panel are left out, so the
+     * storefront catalogue mirrors the database exactly.
+     */
+    protected function publishedProducts(): array
+    {
+        try {
+            return Product::query()
+                ->where('is_active', true)
+                ->where('visibility', 'public')
+                ->orderBy('id')
+                ->get(['slug', 'name', 'price', 'compare_at_price', 'featured_image_url'])
+                ->map(fn (Product $product): array => [
+                    'slug' => $product->slug,
+                    'name' => $product->name,
+                    'price' => (float) $product->price,
+                    'compare_at_price' => $product->compare_at_price !== null ? (float) $product->compare_at_price : null,
+                    'image' => $product->featured_image_url,
+                ])
+                ->all();
+        } catch (Throwable $exception) {
+            Log::warning('Could not load storefront products.', [
+                'exception' => $exception->getMessage(),
+            ]);
+
+            return [];
+        }
     }
 
     protected function publishedContent(): array

@@ -1,17 +1,19 @@
 /**
- * Static product catalogue — the 36 Nexus peptides, mirroring the rows seeded
- * into the database (independent listing; there is no products API for the
- * storefront yet, so this module is what renders the live shop grid/PDP).
+ * Storefront product catalogue.
  *
- * Prices (AED) are taken from public/storage/products_nexus01.txt:
- *   - Injector pen images (nexus_peptides_product_images/01–18) map to the
- *     first (higher) price block;
- *   - Glass vial images (product_images_no_prices/*.png) map to the second
- *     (lower) price block.
+ * The rich per-compound copy (tags, descriptions, features) is built below
+ * from the static definitions, but the admin-managed values win at runtime:
+ * the blade layout publishes the active, public products from the database as
+ * window.__STOREFRONT_PRODUCTS__ and those entries override the static name,
+ * price, image, and sale pricing. Products removed (or deactivated/hidden) in
+ * the admin disappear from the storefront. When the payload is missing or
+ * empty — e.g. the database is briefly unavailable — the static catalogue
+ * renders unchanged as a fallback.
  *
- * Keep slugs / names / prices in sync with the database `products` table
- * (admin → Products). Wishlist/cart persists slugs in localStorage — old
- * slugs resolve to nothing and are filtered out, so no migration is needed.
+ * Keep the static prices below in sync with the database `products` table
+ * (admin → Products): the static values only act as the fallback path.
+ * Wishlist/cart persists slugs in localStorage — old slugs resolve to nothing
+ * and are filtered out, so no migration is needed.
  */
 
 export const categories = [
@@ -196,7 +198,43 @@ function buildDescription(p) {
     };
 }
 
-export const products = raw.map((p) => ({
+/**
+ * Overlay the admin-published catalogue (database) over the static values.
+ * `compare_at_price` becomes the crossed-out regular price and `discount`
+ * the percentage shown on the sale badge, matching how the storefront
+ * components render them.
+ */
+const publishedBySlug = new Map(
+    (typeof window !== 'undefined' && Array.isArray(window.__STOREFRONT_PRODUCTS__)
+        ? window.__STOREFRONT_PRODUCTS__
+        : []
+    )
+        .filter((p) => p && typeof p.slug === 'string')
+        .map((p) => [p.slug, p]),
+);
+
+const catalogue = publishedBySlug.size
+    ? raw
+        .filter((p) => publishedBySlug.has(p.slug))
+        .map((p) => {
+            const live = publishedBySlug.get(p.slug);
+            const price = Number(live.price);
+            const compare = Number(live.compare_at_price);
+            const hasCompare = Number.isFinite(price) && Number.isFinite(compare) && compare > price;
+            const effectivePrice = Number.isFinite(price) ? price : p.price;
+
+            return {
+                ...p,
+                name: typeof live.name === 'string' && live.name.trim() !== '' ? live.name : p.name,
+                price: effectivePrice,
+                regular: hasCompare ? compare : effectivePrice,
+                discount: hasCompare ? Math.round(((compare - effectivePrice) / compare) * 100) : 0,
+                image: typeof live.image === 'string' && live.image !== '' ? live.image : p.image,
+            };
+        })
+    : raw;
+
+export const products = catalogue.map((p) => ({
     ...p,
     categoryLabel: categories.find((c) => c.slug === p.category)?.name || 'Peptides',
     description: buildDescription(p),

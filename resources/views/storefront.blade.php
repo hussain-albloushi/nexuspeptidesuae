@@ -14,6 +14,7 @@
 
     <script>
         window.__STOREFRONT_CONTENT__ = @json($content ?: new \stdClass());
+        window.__STOREFRONT_PRODUCTS__ = @json($products ?? []);
     </script>
 
     @vite(['resources/css/storefront.css', 'resources/js/storefront/main.js'])
