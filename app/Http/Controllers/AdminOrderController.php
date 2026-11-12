@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ReturnRequest;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +36,7 @@ class AdminOrderController extends Controller
     {
         return $this->withTransitions(Order::with([
             'user:id,name,email', 'items', 'statusHistory' => fn ($history) => $history->orderBy('created_at')->orderBy('id'),
+            'returnRequests' => fn ($requests) => $requests->orderBy('created_at'),
         ])->findOrFail($id));
     }
 
@@ -140,7 +142,7 @@ class AdminOrderController extends Controller
                     $order->update(['tracking_number' => $tracking]);
                 }
                 if ($status === 'cancelled' && in_array($oldStatus, ['pending', 'processing'], true)) {
-                    $this->restoreUnshippedStock($order);
+                    $this->restoreStock($order, 'Cancelled order '.$order->order_number);
                 }
             }
         }, 3);
@@ -173,7 +175,120 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    private function restoreUnshippedStock(Order $order): void
+    /**
+     * Record a refund the admin performed with the payment provider (e.g. the
+     * Stripe dashboard or cash handed back). This is bookkeeping: it flips the
+     * order's payment state and emails the customer, but it does not move
+     * money or touch stock.
+     */
+    public function recordRefund(Request $request, int $id): JsonResponse
+    {
+        $data = $request->validate([
+            'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0.01', 'max:99999999.99'],
+            'notes' => ['required', 'string', 'min:5', 'max:1000'],
+        ]);
+
+        DB::transaction(function () use ($id, $data): void {
+            $order = Order::whereKey($id)->lockForUpdate()->firstOrFail();
+
+            if (! in_array($order->payment_status, ['paid', 'partially_refunded'], true)) {
+                throw ValidationException::withMessages([
+                    'payment' => 'Only paid orders can be refunded. Record the payment first if cash on delivery was collected.',
+                ]);
+            }
+
+            $alreadyRefunded = $order->payment_status === 'partially_refunded' ? $this->refundedSoFar($order) : 0.0;
+            $amount = round((float) $data['amount'], 2);
+            if ($alreadyRefunded + $amount > (float) $order->total_amount) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Refunds cannot exceed the order total. AED '.number_format(max(0, (float) $order->total_amount - $alreadyRefunded), 2).' can still be refunded.',
+                ]);
+            }
+
+            $total = (float) $order->total_amount;
+            $state = round($alreadyRefunded + $amount, 2) >= $total ? 'refunded' : 'partially_refunded';
+            $order->update(['payment_status' => $state]);
+            $order->statusHistory()->create([
+                'old_status' => $order->status,
+                'new_status' => $order->status,
+                'notes' => 'Refund of AED '.number_format($amount, 2).' recorded'.($state === 'partially_refunded' ? ' (partial).' : '.').' '.$data['notes'],
+            ]);
+        }, 3);
+
+        return response()->json(['message' => 'Refund recorded.', 'order' => $this->show($id)]);
+    }
+
+    /**
+     * Approve or reject a customer return request. Approval cancels the
+     * delivered order, records the refund state, emails the customer, and
+     * restocks the returned goods.
+     */
+    public function respondReturn(Request $request, int $id, int $returnId): JsonResponse
+    {
+        $data = $request->validate([
+            'decision' => ['required', 'in:approved,rejected'],
+            'refund_amount' => ['required_if:decision,approved', 'nullable', 'numeric', 'decimal:0,2', 'min:0.01', 'max:99999999.99'],
+            'decision_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        DB::transaction(function () use ($id, $returnId, $data): void {
+            $order = Order::whereKey($id)->lockForUpdate()->firstOrFail();
+            $return = ReturnRequest::whereKey($returnId)->where('order_id', $order->id)->lockForUpdate()->firstOrFail();
+
+            if ($return->status !== ReturnRequest::STATUS_REQUESTED) {
+                throw ValidationException::withMessages([
+                    'decision' => 'This return request was already handled.',
+                ]);
+            }
+            if ($order->status !== 'delivered') {
+                throw ValidationException::withMessages([
+                    'decision' => 'Only delivered orders can be returned. Refresh the order and try again.',
+                ]);
+            }
+
+            $notes = trim((string) ($data['decision_notes'] ?? ''));
+
+            if ($data['decision'] === 'rejected') {
+                $return->update(['status' => ReturnRequest::STATUS_REJECTED, 'decision_notes' => $notes ?: null]);
+                $order->statusHistory()->create([
+                    'old_status' => $order->status,
+                    'new_status' => $order->status,
+                    'notes' => 'Return request rejected.'.($notes !== '' ? ' '.$notes : ''),
+                ]);
+
+                return;
+            }
+
+            $amount = round((float) $data['refund_amount'], 2);
+            $total = (float) $order->total_amount;
+            if ($amount > $total) {
+                throw ValidationException::withMessages([
+                    'refund_amount' => 'Refunds cannot exceed the order total (AED '.number_format($total, 2).').',
+                ]);
+            }
+
+            $state = $amount >= $total ? 'refunded' : 'partially_refunded';
+            $order->update(['payment_status' => $state]);
+            $order->transitionStatus('cancelled', 'Return approved. A refund of AED '.number_format($amount, 2).' was issued'.($notes !== '' ? ': '.$notes : '.'));
+            $order->update(['shipping_status' => 'cancelled']);
+            $this->restoreStock($order, 'Returned order '.$order->order_number);
+
+            $return->update(['status' => ReturnRequest::STATUS_APPROVED, 'refund_amount' => $amount, 'decision_notes' => $notes ?: null]);
+        }, 3);
+
+        return response()->json(['message' => 'Return request '.$data['decision'].'.', 'order' => $this->show($id)]);
+    }
+
+    /** Sum of refunds already recorded in the order history, in AED. */
+    private function refundedSoFar(Order $order): float
+    {
+        return round((float) $order->statusHistory()
+            ->where('notes', 'like', 'Refund of AED%')
+            ->get()
+            ->sum(fn ($history) => (float) preg_replace('/.*Refund of AED ([0-9.]+).*/', '$1', $history->notes)), 2);
+    }
+
+    private function restoreStock(Order $order, string $reason): void
     {
         $sales = InventoryTransaction::where('type', 'sale')->where('reason', 'Order '.$order->order_number)
             ->whereColumn('quantity_before', '>', 'quantity_after')->orderBy('product_id')->get()->groupBy('product_id');
@@ -191,7 +306,7 @@ class AdminOrderController extends Controller
             ]);
             InventoryTransaction::create([
                 'product_id' => $productId, 'quantity_before' => $before, 'quantity_after' => $after,
-                'type' => 'return', 'reason' => 'Cancelled order '.$order->order_number,
+                'type' => 'return', 'reason' => $reason,
             ]);
         }
     }

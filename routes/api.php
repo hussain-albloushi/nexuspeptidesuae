@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', EnsureCustomerAccess::class])->group(function
     // Customer orders (authenticated customer can view own orders)
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/orders/{id}/return', [OrderController::class, 'requestReturn']);
 
     // Admin endpoints (admin role required)
     Route::middleware('admin')->group(function () {
@@ -54,6 +55,8 @@ Route::middleware(['auth:sanctum', EnsureCustomerAccess::class])->group(function
         Route::get('/orders/{id}', [AdminOrderController::class, 'show']);
         Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
         Route::patch('/orders/{id}/payment', [AdminOrderController::class, 'collectPayment']);
+        Route::patch('/orders/{id}/refund', [AdminOrderController::class, 'recordRefund']);
+        Route::patch('/orders/{id}/returns/{returnId}', [AdminOrderController::class, 'respondReturn']);
         Route::get('/orders/{id}/invoice', [AdminOrderController::class, 'invoice']);
 
         Route::get('/products', [ProductController::class, 'index']);

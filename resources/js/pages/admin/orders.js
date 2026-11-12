@@ -166,6 +166,38 @@ export function useOrders(route) {
         } finally { busy.value = false; }
     }
 
+    /** Record a refund that was performed with the payment provider. */
+    async function recordRefund(order, amount, notes) {
+        if (busy.value) return false;
+        busy.value = true; actionError.value = ''; success.value = '';
+        try {
+            const { data } = await axios.patch('/api/orders/' + order.id + '/refund', { amount, notes });
+            if (detail.value?.id === order.id) detail.value = data.order;
+            success.value = data.message;
+            await refresh();
+            return true;
+        } catch (failure) {
+            actionError.value = errorMessage(failure, 'The refund could not be recorded. Please refresh and try again.');
+            return false;
+        } finally { busy.value = false; }
+    }
+
+    /** Approve or reject a customer return request on an order. */
+    async function respondReturn(order, returnId, decision, payload = {}) {
+        if (busy.value) return false;
+        busy.value = true; actionError.value = ''; success.value = '';
+        try {
+            const { data } = await axios.patch('/api/orders/' + order.id + '/returns/' + returnId, { decision, ...payload });
+            if (detail.value?.id === order.id) detail.value = data.order;
+            success.value = data.message;
+            await refresh();
+            return true;
+        } catch (failure) {
+            actionError.value = errorMessage(failure, 'The return request could not be updated. Please refresh and try again.');
+            return false;
+        } finally { busy.value = false; }
+    }
+
     async function exportOrders(format = 'csv', selectedOnly = false) {
         if (exportBusy.value || (selectedOnly && !selected.value.length)) return false;
         exportBusy.value = true; exportError.value = '';
@@ -215,5 +247,5 @@ export function useOrders(route) {
     }
     onScopeDispose(() => { disposed = true; cancelList(); detailController?.abort(); detailVersion++; });
     void refresh();
-    return { filters, orders, loading, error, success, page, perPage, sort, direction, pagination, selectedIds, selected, allSelected, commonTransitions, hasFilters, detail, detailLoading, detailError, busy, actionError, exportBusy, exportError, refresh, resetFilters, sortBy, toggleSelection, toggleAll, loadOrder, closeOrder, updateStatuses, collectPayment, exportOrders, printInvoice };
+    return { filters, orders, loading, error, success, page, perPage, sort, direction, pagination, selectedIds, selected, allSelected, commonTransitions, hasFilters, detail, detailLoading, detailError, busy, actionError, exportBusy, exportError, refresh, resetFilters, sortBy, toggleSelection, toggleAll, loadOrder, closeOrder, updateStatuses, collectPayment, recordRefund, respondReturn, exportOrders, printInvoice };
 }

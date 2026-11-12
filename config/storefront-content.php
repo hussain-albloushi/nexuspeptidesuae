@@ -22,6 +22,7 @@ return [
         'flatRate' => 25,
         'freeShippingThreshold' => 300,
         'codFee' => 0,
+        'returnWindowDays' => 14,
     ],
 
     'upload' => [

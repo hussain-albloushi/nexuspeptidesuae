@@ -34,6 +34,11 @@ class Order extends Model
         return $this->hasMany(OrderStatusHistory::class);
     }
 
+    public function returnRequests()
+    {
+        return $this->hasMany(ReturnRequest::class);
+    }
+
     public static $allowedStatusTransitions = [
         'pending' => ['processing', 'cancelled'],
         'processing' => ['shipped', 'cancelled'],

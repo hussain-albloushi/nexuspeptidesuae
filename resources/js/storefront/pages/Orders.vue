@@ -2,15 +2,18 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
+import { useCurrencyStore } from '../stores/currency';
 import { useRoute, useRouter } from 'vue-router';
 import { swalToast } from '../services/alerts';
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const currency = useCurrencyStore();
 const orders = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const returnForm = ref({ orderId: null, reason: '', busy: false, error: '' });
 
 // Status badge styling matches AdminLTE + Tailwind theme
 function statusBadge(status) {
@@ -67,6 +70,48 @@ onMounted(() => {
 
     fetchOrders();
 });
+
+// --- Returns -------------------------------------------------------------
+
+/** Return state of a delivered order: eligible, requested, decided, or null. */
+function returnState(order) {
+    const request = (order.return_requests || []).find((entry) => entry.status !== 'rejected');
+    if (request) return request;
+
+    if (order.status !== 'delivered') return null;
+    if (['refunded', 'partially_refunded'].includes(order.payment_status)) return null;
+
+    const window = Number(currency.settings.returnWindowDays ?? 14);
+    if (window <= 0) return null;
+    const delivered = (order.status_history || []).find((entry) => entry.new_status === 'delivered');
+    const deliveredAt = new Date(delivered?.created_at || order.updated_at);
+    if (deliveredAt.getTime() + window * 24 * 60 * 60 * 1000 < Date.now()) return null;
+
+    return { status: 'eligible' };
+}
+
+function startReturn(order) {
+    returnForm.value = { orderId: order.id, reason: '', busy: false, error: '' };
+}
+
+function cancelReturn() {
+    returnForm.value = { orderId: null, reason: '', busy: false, error: '' };
+}
+
+async function submitReturn(order) {
+    if (returnForm.value.busy) return;
+    returnForm.value.busy = true;
+    returnForm.value.error = '';
+    try {
+        const { data } = await axios.post(`/api/orders/${order.id}/return`, { reason: returnForm.value.reason });
+        swalToast(data.message || 'Return request received.');
+        cancelReturn();
+        await fetchOrders();
+    } catch (e) {
+        returnForm.value.busy = false;
+        returnForm.value.error = (e.response?.data?.message) || 'The return request could not be sent. Please try again.';
+    }
+}
 </script>
 
 <template>
@@ -193,6 +238,60 @@ onMounted(() => {
                     <span v-if="order.shipping_status">Shipping: <strong class="text-ink capitalize">{{ order.shipping_status }}</strong></span>
                     <span v-if="order.tracking_number">Tracking: <strong class="text-ink">{{ order.tracking_number }}</strong></span>
                     <span v-if="order.notes"><strong>Notes:</strong> {{ order.notes }}</span>
+                </div>
+
+                <!-- Return request -->
+                <div v-if="returnState(order)" class="border-t border-black/5 px-6 py-4">
+                    <template v-if="returnState(order).status === 'requested'">
+                        <p class="flex items-center gap-2 text-sm text-amber-700">
+                            <i class="fa-solid fa-clock"></i>
+                            Return requested — we are reviewing it and will contact you.
+                        </p>
+                    </template>
+                    <template v-else-if="returnState(order).status === 'approved'">
+                        <p class="flex items-center gap-2 text-sm text-emerald-700">
+                            <i class="fa-solid fa-circle-check"></i>
+                            Return approved
+                            <span v-if="returnState(order).refund_amount">— AED {{ money(returnState(order).refund_amount) }} refunded</span>
+                        </p>
+                    </template>
+                    <template v-else>
+                        <button
+                            v-if="returnForm.orderId !== order.id"
+                            type="button"
+                            class="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2 text-sm font-semibold text-navy transition hover:bg-black/5"
+                            @click="startReturn(order)"
+                        >
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Request return
+                        </button>
+                        <form v-else class="max-w-xl space-y-3" @submit.prevent="submitReturn(order)">
+                            <div v-if="returnForm.error" class="rounded-card bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">{{ returnForm.error }}</div>
+                            <label class="block text-sm font-medium text-ink" :for="'return-reason-' + order.id">
+                                Tell us what went wrong with this order
+                            </label>
+                            <textarea
+                                :id="'return-reason-' + order.id"
+                                v-model="returnForm.reason"
+                                rows="3"
+                                required
+                                minlength="10"
+                                maxlength="1000"
+                                class="w-full rounded-card border border-black/10 bg-background px-4 py-3 text-sm text-ink focus:border-primary focus:outline-none"
+                                placeholder="For example: the vial arrived damaged…"
+                            ></textarea>
+                            <div class="flex items-center gap-3">
+                                <button
+                                    type="submit"
+                                    class="inline-flex items-center rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-50"
+                                    :disabled="returnForm.busy"
+                                >
+                                    {{ returnForm.busy ? 'Sending…' : 'Send return request' }}
+                                </button>
+                                <button type="button" class="text-sm text-neutral-500 hover:text-ink" @click="cancelReturn">Cancel</button>
+                            </div>
+                        </form>
+                    </template>
                 </div>
             </div>
         </div>

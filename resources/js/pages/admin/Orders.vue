@@ -76,9 +76,23 @@
           <p v-else>No further status transitions are available.</p><dl class="detail-grid"><div><dt>Shipping state</dt><dd>{{ orderLabel(detail.shipping_status) }}</dd></div><div><dt>Tracking number</dt><dd>{{ detail.tracking_number || 'Not recorded' }}</dd></div></dl>
         </section>
         <div class="detail-columns"><section class="detail-section"><h3><i class="fa-regular fa-user" aria-hidden="true"></i> Customer</h3><strong>{{ detail.user?.name || 'Customer unavailable' }}</strong><p>{{ detail.user?.email || 'No email recorded' }}</p><small>Customer ID: {{ detail.user_id || 'Not recorded' }}</small></section><section class="detail-section"><h3><i class="fa-regular fa-credit-card" aria-hidden="true"></i> Payment</h3><span class="payment-badge" :class="detail.payment_status">{{ orderLabel(detail.payment_status || 'pending') }}</span><p>Method: {{ paymentMethodLabel(detail.payment_method) }}</p><strong>{{ orderMoney(detail.total_amount) }}</strong></section></div>
+        <section v-if="['paid', 'partially_refunded', 'partially_paid'].includes(detail.payment_status)" class="detail-section"><h3><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i> Refunds</h3>
+          <form v-if="refundForm.open" class="status-form" @submit.prevent="confirmRefund"><div><label for="refund-amount">Refund amount (AED)</label><input id="refund-amount" v-model.number="refundForm.amount" type="number" min="0.01" step="0.01" required :disabled="busy" /></div><div><label for="refund-notes">Where &amp; why *</label><input id="refund-notes" v-model="refundForm.notes" maxlength="1000" minlength="5" required :disabled="busy" placeholder="e.g. Refunded via Stripe dashboard, damaged item" /></div><button type="submit" class="order-button primary" :disabled="busy">{{ busy ? 'Saving…' : 'Record refund' }}</button><button type="button" class="order-button" :disabled="busy" @click="refundForm.open = false">Cancel</button></form>
+          <button v-else type="button" class="order-button" :disabled="busy" @click="prepareRefund(detail)">Record refund</button>
+          <small>Bookkeeping only — this does not move money. Perform the actual refund with your payment provider (e.g. the Stripe dashboard) first; the customer is emailed a note.</small>
+        </section>
         <div class="detail-columns"><section class="detail-section"><h3>Shipping address</h3><dl v-if="addressFields(detail.shipping_address).length" class="address-list"><div v-for="field in addressFields(detail.shipping_address)" :key="field.label"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div></dl><p v-else>No shipping address recorded.</p></section><section class="detail-section"><h3>Billing address</h3><dl v-if="addressFields(detail.billing_address).length" class="address-list"><div v-for="field in addressFields(detail.billing_address)" :key="field.label"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div></dl><p v-else>No billing address recorded.</p></section></div>
         <section class="detail-section"><h3><i class="fa-solid fa-box-open" aria-hidden="true"></i> Order items</h3><div class="item-table-wrap"><table class="item-table"><thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Unit price</th><th scope="col">Amount</th></tr></thead><tbody><tr v-for="item in detail.items" :key="item.id"><td>{{ item.name }}<small>Product ID: {{ item.product_id || 'Unavailable' }}</small></td><td>{{ item.quantity }}</td><td>{{ orderMoney(item.price) }}</td><td>{{ orderMoney(item.total_price) }}</td></tr><tr v-if="!detail.items?.length"><td colspan="4">No item details recorded.</td></tr></tbody></table></div><dl class="totals-list"><div><dt>Subtotal</dt><dd>{{ orderMoney(detail.subtotal) }}</dd></div><div><dt>Discount</dt><dd>{{ orderMoney(detail.discount_amount) }}</dd></div><div><dt>Shipping</dt><dd>{{ orderMoney(detail.shipping_amount) }}</dd></div><div v-if="Number(detail.cod_fee) > 0"><dt>Cash on delivery</dt><dd>{{ orderMoney(detail.cod_fee) }}</dd></div><div><dt>Tax (recorded)</dt><dd>{{ orderMoney(detail.tax_amount) }}</dd></div><div class="grand-total"><dt>Order total</dt><dd>{{ orderMoney(detail.total_amount) }}</dd></div></dl><small>Amounts are as recorded. Tax may already be included in the subtotal.</small></section>
         <section class="detail-section"><h3>Notes</h3><h4>Customer notes</h4><p class="order-notes">{{ detail.notes || 'No customer notes.' }}</p><h4>Internal notes</h4><p class="order-notes">{{ detail.internal_notes || 'No internal notes.' }}</p></section>
+        <section v-if="detail?.return_requests?.length" class="detail-section"><h3><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Return requests</h3>
+          <div v-for="ret in detail.return_requests" :key="ret.id" class="order-notes">
+            <p><span class="payment-badge" :class="ret.status === 'approved' ? 'refunded' : ret.status === 'rejected' ? 'failed' : ''">{{ orderLabel(ret.status) }}</span> <strong>Return request</strong> <small>{{ dateTime(ret.created_at) }}</small></p>
+            <p class="order-notes">“{{ ret.reason }}”</p>
+            <p v-if="ret.refund_amount" class="order-notes">Refunded: {{ orderMoney(ret.refund_amount) }}</p>
+            <p v-if="ret.decision_notes" class="order-notes">Decision note: {{ ret.decision_notes }}</p>
+            <form v-if="ret.status === 'requested'" class="status-form" @submit.prevent="decideReturn(detail, ret, 'approved')"><div><label :for="'refund-amount-' + ret.id">Refund amount (AED)</label><input :id="'refund-amount-' + ret.id" v-model.number="decisionFor(ret).amount" type="number" min="0.01" step="0.01" required :disabled="busy" /></div><div><label :for="'return-notes-' + ret.id">Decision note (optional)</label><input :id="'return-notes-' + ret.id" v-model="decisionFor(ret).notes" maxlength="1000" :disabled="busy" /></div><button type="submit" class="order-button primary" :disabled="busy">{{ busy ? 'Saving…' : 'Approve & refund' }}</button><button type="button" class="order-button destructive" :disabled="busy" @click="decideReturn(detail, ret, 'rejected')">Reject</button></form>
+          </div>
+        </section>
         <section class="detail-section"><h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Order history</h3><ol class="order-history"><li><strong>Order created</strong><small>{{ dateTime(detail.created_at) }}</small></li><li v-for="entry in detail.status_history" :key="entry.id"><strong>{{ orderLabel(entry.old_status) }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> {{ orderLabel(entry.new_status) }}</strong><small>{{ dateTime(entry.created_at) }}</small><p v-if="entry.notes" class="order-notes">{{ entry.notes }}</p></li></ol></section>
       </div>
       <footer class="drawer-footer"><button type="button" class="order-button" :disabled="busy" @click="closeDrawer">Close</button><button v-if="detail" type="button" class="order-button primary" aria-label="Print invoice or save as PDF" :disabled="exportBusy" @click="printInvoice(detail)"><i class="fa-solid fa-print" aria-hidden="true"></i> Invoice / PDF</button></footer>
@@ -107,11 +121,37 @@
 
 <script setup>
 import AdminAlertDialog from './AdminAlertDialog.vue';
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { addressFields, orderColumns, orderLabel, orderMoney, orderStatuses, paymentMethodLabel, paymentStates, useOrders } from './orders.js';
 
-const { filters, orders, loading, error, success, page, perPage, sort, direction, pagination, selectedIds, selected, allSelected, commonTransitions, hasFilters, detail, detailLoading, detailError, busy, actionError, exportBusy, exportError, refresh, resetFilters, sortBy, toggleSelection, toggleAll, loadOrder, closeOrder, updateStatuses, collectPayment, exportOrders, printInvoice } = useOrders(useRoute());
+const { filters, orders, loading, error, success, page, perPage, sort, direction, pagination, selectedIds, selected, allSelected, commonTransitions, hasFilters, detail, detailLoading, detailError, busy, actionError, exportBusy, exportError, refresh, resetFilters, sortBy, toggleSelection, toggleAll, loadOrder, closeOrder, updateStatuses, collectPayment, recordRefund, respondReturn, exportOrders, printInvoice } = useOrders(useRoute());
+
+// Refund recording (manual bookkeeping — the money moves with the provider).
+const refundForm = reactive({ open: false, amount: null, notes: '' });
+function prepareRefund(order) {
+  refundForm.open = true;
+  refundForm.amount = Number(order.total_amount);
+  refundForm.notes = '';
+}
+async function confirmRefund() {
+  if (await recordRefund(detail.value, refundForm.amount, refundForm.notes)) refundForm.open = false;
+}
+
+// Return request decisions, keyed by request id.
+const returnDecisions = reactive({});
+function decisionFor(ret) {
+  if (!returnDecisions[ret.id]) returnDecisions[ret.id] = { amount: Number(detail.value?.total_amount), notes: '' };
+  return returnDecisions[ret.id];
+}
+async function decideReturn(order, ret, decision) {
+  const state = decisionFor(ret);
+  const payload = decision === 'approved'
+    ? { refund_amount: state.amount, decision_notes: state.notes }
+    : { decision_notes: state.notes };
+  if (await respondReturn(order, ret.id, decision, payload)) delete returnDecisions[ret.id];
+}
+
 const paymentConfirmed = ref(false);
 const paymentDialog = ref(null);
 const paymentOrder = ref(null);

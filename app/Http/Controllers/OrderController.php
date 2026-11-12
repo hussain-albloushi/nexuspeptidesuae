@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ReturnRequest;
 use App\Services\StripePayment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,10 +51,79 @@ class OrderController extends Controller
     {
         $userId = $r->user()->id;
 
-        return Order::with(['items', 'statusHistory', 'items.product'])
+        return Order::with(['items', 'statusHistory', 'items.product', 'returnRequests'])
             ->where('user_id', $userId)
             ->latest()
             ->get();
+    }
+
+    /**
+     * Customer asks to return a delivered order. Allowed once, inside the
+     * configured return window (Website Content → Store → "Return window"),
+     * and only while the order is delivered and not already refunded.
+     */
+    public function requestReturn(Request $r, int $id): JsonResponse
+    {
+        $data = $r->validate([
+            'reason' => ['required', 'string', 'min:10', 'max:1000'],
+        ]);
+
+        $order = Order::with(['returnRequests', 'statusHistory' => fn ($history) => $history
+            ->where('new_status', 'delivered')->orderByDesc('created_at')])
+            ->where('user_id', $r->user()->id)
+            ->findOrFail($id);
+
+        if ($order->status !== 'delivered') {
+            throw ValidationException::withMessages([
+                'order' => 'Only delivered orders can be returned.',
+            ]);
+        }
+
+        if (in_array($order->payment_status, ['refunded', 'partially_refunded'], true)) {
+            throw ValidationException::withMessages([
+                'order' => 'This order has already been refunded.',
+            ]);
+        }
+
+        if ($order->returnRequests->where('status', '!=', 'rejected')->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'order' => 'A return request already exists for this order.',
+            ]);
+        }
+
+        $deliveredAt = $order->statusHistory->first()?->created_at ?? $order->updated_at;
+        $window = $this->returnWindowDays();
+        if ($window <= 0 || $deliveredAt->copy()->addDays($window)->isPast()) {
+            throw ValidationException::withMessages([
+                'order' => $window <= 0
+                    ? 'Returns are currently disabled.'
+                    : 'The return window of '.$window.' days after delivery has passed.',
+            ]);
+        }
+
+        $request = ReturnRequest::create([
+            'order_id' => $order->id,
+            'user_id' => $r->user()->id,
+            'reason' => $data['reason'],
+            'status' => ReturnRequest::STATUS_REQUESTED,
+        ]);
+
+        $order->statusHistory()->create([
+            'old_status' => $order->status,
+            'new_status' => $order->status,
+            'notes' => 'Return requested by the customer. Our team will review it shortly.',
+        ]);
+
+        return response()->json(['message' => 'Return request received. We will review it and contact you.', 'return_request' => $request], 201);
+    }
+
+    /** Configured return window in days (Website Content → Store), default 14, 0 disables returns. */
+    private function returnWindowDays(): int
+    {
+        $settings = $this->storeSettings();
+        $days = (int) round((float) ($settings['returnWindowDays'] ?? 14));
+
+        return max(0, $days);
     }
 
     /**
