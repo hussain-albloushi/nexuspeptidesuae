@@ -65,7 +65,8 @@ test('zero VAT rate and zero decimal places are preserved', () => {
 
 test('cart charges the configured flat shipping option', () => {
     Object.assign(useContentStore().content.store, {
-        shippingMode: 'flat', shippingOptions: [{ name: 'Standard', cost: '25' }],
+        shippingMode: 'flat', flatRate: null, shippingOptions: [{ name: 'Standard', cost: '25' }],
+        freeShippingThreshold: null,
     });
     const cart = useCartStore();
     cart.add(products[0].slug);

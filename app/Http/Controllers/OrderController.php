@@ -51,25 +51,34 @@ class OrderController extends Controller
     {
         $userId = $r->user()->id;
 
-        return Order::with(['items', 'statusHistory', 'items.product', 'returnRequests'])
+        return Order::with(['items', 'statusHistory', 'items.product', 'returnRequests.items'])
             ->where('user_id', $userId)
             ->latest()
             ->get();
     }
 
     /**
-     * Customer asks to return a delivered order. Allowed once, inside the
-     * configured return window (Website Content → Store → "Return window"),
-     * and only while the order is delivered and not already refunded.
+     * Customer asks to return specific items of a delivered order. Only one
+     * request may be in review at a time, inside the configured return window
+     * (Website Content → Store → "Return window"), and only while the order is
+     * delivered and not fully refunded. Quantities are capped at what is still
+     * returnable — the ordered quantity minus approved and in-review returns —
+     * and the refund amount is recomputed server-side from the recorded item
+     * prices.
      */
     public function requestReturn(Request $r, int $id): JsonResponse
     {
         $data = $r->validate([
             'reason' => ['required', 'string', 'min:10', 'max:1000'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.order_item_id' => ['required', 'integer', 'distinct'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000'],
         ]);
 
-        $order = Order::with(['returnRequests', 'statusHistory' => fn ($history) => $history
-            ->where('new_status', 'delivered')->orderByDesc('created_at')])
+        $order = Order::with([
+            'items', 'returnRequests.items',
+            'statusHistory' => fn ($history) => $history->where('new_status', 'delivered')->orderByDesc('created_at'),
+        ])
             ->where('user_id', $r->user()->id)
             ->findOrFail($id);
 
@@ -79,13 +88,17 @@ class OrderController extends Controller
             ]);
         }
 
-        if (in_array($order->payment_status, ['refunded', 'partially_refunded'], true)) {
+        // Fully refunded orders are done. Partially refunded ones stay open:
+        // the customer may still return remaining items with new requests.
+        if ($order->payment_status === 'refunded') {
             throw ValidationException::withMessages([
                 'order' => 'This order has already been refunded.',
             ]);
         }
 
-        if ($order->returnRequests->where('status', '!=', 'rejected')->isNotEmpty()) {
+        // Only one request may be in review at a time. Approved requests don't
+        // block follow-ups: remaining items can be returned in later requests.
+        if ($order->returnRequests->where('status', ReturnRequest::STATUS_REQUESTED)->isNotEmpty()) {
             throw ValidationException::withMessages([
                 'order' => 'A return request already exists for this order.',
             ]);
@@ -101,20 +114,55 @@ class OrderController extends Controller
             ]);
         }
 
-        $request = ReturnRequest::create([
-            'order_id' => $order->id,
-            'user_id' => $r->user()->id,
-            'reason' => $data['reason'],
-            'status' => ReturnRequest::STATUS_REQUESTED,
-        ]);
+        $requested = collect($data['items'])->keyBy('order_item_id');
+        $unknown = $requested->keys()->diff($order->items->modelKeys());
+        if ($unknown->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'items' => 'Some selected items do not belong to this order.',
+            ]);
+        }
+
+        $lines = [];
+        foreach ($requested as $itemId => $line) {
+            $orderItem = $order->items->find($itemId);
+            $returnable = $orderItem->quantity - $orderItem->returned_quantity;
+            if ((int) $line['quantity'] > $returnable) {
+                throw ValidationException::withMessages([
+                    'items' => 'Only '.$returnable.' × '.$orderItem->name.' can still be returned.',
+                ]);
+            }
+            if ($returnable > 0) {
+                $lines[] = ['order_item_id' => $itemId, 'quantity' => (int) $line['quantity']];
+            }
+        }
+
+        if ($lines === []) {
+            throw ValidationException::withMessages([
+                'items' => 'Choose at least one item and quantity to return.',
+            ]);
+        }
+
+        $request = DB::transaction(function () use ($order, $r, $data, $lines): ReturnRequest {
+            $return = ReturnRequest::create([
+                'order_id' => $order->id,
+                'user_id' => $r->user()->id,
+                'reason' => $data['reason'],
+                'status' => ReturnRequest::STATUS_REQUESTED,
+            ]);
+            $return->items()->createMany($lines);
+
+            return $return;
+        });
 
         $order->statusHistory()->create([
             'old_status' => $order->status,
             'new_status' => $order->status,
-            'notes' => 'Return requested by the customer. Our team will review it shortly.',
+            'notes' => 'Return requested for '.collect($lines)
+                ->map(fn (array $line) => $line['quantity'].' × '.$order->items->find($line['order_item_id'])->name)
+                ->implode(', ').'. Our team will review it shortly.',
         ]);
 
-        return response()->json(['message' => 'Return request received. We will review it and contact you.', 'return_request' => $request], 201);
+        return response()->json(['message' => 'Return request received. We will review it and contact you.', 'return_request' => $request->load('items')], 201);
     }
 
     /** Configured return window in days (Website Content → Store), default 14, 0 disables returns. */

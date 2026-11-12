@@ -13,7 +13,7 @@ const currency = useCurrencyStore();
 const orders = ref([]);
 const loading = ref(true);
 const error = ref(null);
-const returnForm = ref({ orderId: null, reason: '', busy: false, error: '' });
+const returnForm = ref({ orderId: null, reason: '', lines: {}, busy: false, error: '' });
 
 // Status badge styling matches AdminLTE + Tailwind theme
 function statusBadge(status) {
@@ -73,37 +73,75 @@ onMounted(() => {
 
 // --- Returns -------------------------------------------------------------
 
-/** Return state of a delivered order: eligible, requested, decided, or null. */
-function returnState(order) {
-    const request = (order.return_requests || []).find((entry) => entry.status !== 'rejected');
-    if (request) return request;
+/** Quantity of an order item already covered by non-rejected return requests. */
+function returnedQty(order, item) {
+    let returned = 0;
+    for (const request of order.return_requests || []) {
+        if (request.status === 'rejected') continue;
+        for (const line of request.items || []) {
+            if (line.order_item_id === item.id) returned += line.quantity;
+        }
+    }
+    return returned;
+}
 
-    if (order.status !== 'delivered') return null;
-    if (['refunded', 'partially_refunded'].includes(order.payment_status)) return null;
+function returnableQty(order, item) {
+    return Math.max(0, item.quantity - returnedQty(order, item));
+}
+
+/** Human label for a return request's lines, e.g. "1 × BPC-157 10mg". */
+function returnLineLabel(order, request) {
+    const names = new Map((order.items || []).map((item) => [item.id, item.name]));
+    return (request.items || []).map((line) => `${line.quantity} × ${names.get(line.order_item_id) || 'item'}`).join(', ');
+}
+
+/** Latest in-review return request, if any. */
+function pendingReturn(order) {
+    return (order.return_requests || []).find((entry) => entry.status === 'requested');
+}
+
+/** Latest approved return request, if any. */
+function approvedReturn(order) {
+    const approved = (order.return_requests || []).filter((entry) => entry.status === 'approved');
+    return approved[approved.length - 1];
+}
+
+/** Whether the order can receive a new return request right now. */
+function canRequestReturn(order) {
+    if (pendingReturn(order)) return false;
+    if (order.status !== 'delivered') return false;
+    if (order.payment_status === 'refunded') return false;
 
     const window = Number(currency.settings.returnWindowDays ?? 14);
-    if (window <= 0) return null;
+    if (window <= 0) return false;
     const delivered = (order.status_history || []).find((entry) => entry.new_status === 'delivered');
     const deliveredAt = new Date(delivered?.created_at || order.updated_at);
-    if (deliveredAt.getTime() + window * 24 * 60 * 60 * 1000 < Date.now()) return null;
+    if (deliveredAt.getTime() + window * 24 * 60 * 60 * 1000 < Date.now()) return false;
 
-    return { status: 'eligible' };
+    return (order.items || []).some((item) => returnableQty(order, item) > 0);
 }
 
 function startReturn(order) {
-    returnForm.value = { orderId: order.id, reason: '', busy: false, error: '' };
+    returnForm.value = { orderId: order.id, reason: '', lines: {}, busy: false, error: '' };
 }
 
 function cancelReturn() {
-    returnForm.value = { orderId: null, reason: '', busy: false, error: '' };
+    returnForm.value = { orderId: null, reason: '', lines: {}, busy: false, error: '' };
 }
 
 async function submitReturn(order) {
     if (returnForm.value.busy) return;
+    const items = Object.entries(returnForm.value.lines)
+        .filter(([, quantity]) => Number(quantity) > 0)
+        .map(([orderItemId, quantity]) => ({ order_item_id: Number(orderItemId), quantity: Number(quantity) }));
+    if (!items.length) {
+        returnForm.value.error = 'Choose at least one item and quantity to return.';
+        return;
+    }
     returnForm.value.busy = true;
     returnForm.value.error = '';
     try {
-        const { data } = await axios.post(`/api/orders/${order.id}/return`, { reason: returnForm.value.reason });
+        const { data } = await axios.post(`/api/orders/${order.id}/return`, { reason: returnForm.value.reason, items });
         swalToast(data.message || 'Return request received.');
         cancelReturn();
         await fetchOrders();
@@ -240,35 +278,60 @@ async function submitReturn(order) {
                     <span v-if="order.notes"><strong>Notes:</strong> {{ order.notes }}</span>
                 </div>
 
-                <!-- Return request -->
-                <div v-if="returnState(order)" class="border-t border-black/5 px-6 py-4">
-                    <template v-if="returnState(order).status === 'requested'">
+                <!-- Return requests -->
+                <div v-if="pendingReturn(order) || approvedReturn(order) || canRequestReturn(order)" class="border-t border-black/5 px-6 py-4">
+                    <template v-if="pendingReturn(order)">
                         <p class="flex items-center gap-2 text-sm text-amber-700">
                             <i class="fa-solid fa-clock"></i>
-                            Return requested — we are reviewing it and will contact you.
+                            Return requested ({{ returnLineLabel(order, pendingReturn(order)) }}) — we are reviewing it and will contact you.
                         </p>
                     </template>
-                    <template v-else-if="returnState(order).status === 'approved'">
+                    <template v-else-if="approvedReturn(order)">
                         <p class="flex items-center gap-2 text-sm text-emerald-700">
                             <i class="fa-solid fa-circle-check"></i>
-                            Return approved
-                            <span v-if="returnState(order).refund_amount">— AED {{ money(returnState(order).refund_amount) }} refunded</span>
+                            Return approved ({{ returnLineLabel(order, approvedReturn(order)) }})
+                            <span v-if="approvedReturn(order).refund_amount">— AED {{ money(approvedReturn(order).refund_amount) }} refunded</span>
                         </p>
                     </template>
-                    <template v-else>
+                    <template v-if="canRequestReturn(order)">
                         <button
                             v-if="returnForm.orderId !== order.id"
                             type="button"
                             class="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2 text-sm font-semibold text-navy transition hover:bg-black/5"
+                            :class="{ 'mt-3': pendingReturn(order) || approvedReturn(order) }"
                             @click="startReturn(order)"
                         >
                             <i class="fa-solid fa-rotate-left"></i>
                             Request return
                         </button>
-                        <form v-else class="max-w-xl space-y-3" @submit.prevent="submitReturn(order)">
+                        <form v-else class="max-w-xl space-y-3" :class="{ 'mt-3': pendingReturn(order) || approvedReturn(order) }" @submit.prevent="submitReturn(order)">
                             <div v-if="returnForm.error" class="rounded-card bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">{{ returnForm.error }}</div>
+                            <fieldset class="space-y-2">
+                                <legend class="text-sm font-medium text-ink">Choose what you want to send back</legend>
+                                <div
+                                    v-for="item in order.items"
+                                    :key="item.id"
+                                    class="flex items-center justify-between gap-3 rounded-card border border-black/10 bg-white px-4 py-2"
+                                >
+                                    <div>
+                                        <p class="text-sm font-medium text-ink">{{ item.name }}</p>
+                                        <p class="text-xs text-neutral-500">
+                                            AED {{ money(item.price) }} · {{ returnableQty(order, item) }} of {{ item.quantity }} returnable
+                                        </p>
+                                    </div>
+                                    <select
+                                        v-if="returnableQty(order, item) > 0"
+                                        v-model.number="returnForm.lines[item.id]"
+                                        class="rounded-full border border-black/10 bg-background px-3 py-1 text-sm text-ink focus:border-primary focus:outline-none"
+                                        :aria-label="'Quantity to return for ' + item.name"
+                                    >
+                                        <option v-for="n in returnableQty(order, item) + 1" :key="n - 1" :value="n - 1">{{ n - 1 }}</option>
+                                    </select>
+                                    <span v-else class="text-xs text-neutral-400">Fully returned</span>
+                                </div>
+                            </fieldset>
                             <label class="block text-sm font-medium text-ink" :for="'return-reason-' + order.id">
-                                Tell us what went wrong with this order
+                                Tell us what went wrong with these items
                             </label>
                             <textarea
                                 :id="'return-reason-' + order.id"

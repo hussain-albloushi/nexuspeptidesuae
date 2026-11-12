@@ -21,7 +21,8 @@ class CheckoutTest extends TestCase
 
         $this->postJson('/api/orders', $this->payload($product) + ['total_amount' => 1])
             ->assertCreated()->assertJsonPath('subtotal', '200.00')
-            ->assertJsonPath('tax_amount', '10.00')->assertJsonPath('total_amount', '210.00');
+            ->assertJsonPath('tax_amount', '10.00')->assertJsonPath('shipping_amount', '25.00')
+            ->assertJsonPath('total_amount', '235.00');
 
         $this->assertDatabaseHas('products', ['id' => $product->id, 'stock_quantity' => 8]);
         $this->assertDatabaseHas('inventory_transactions', ['product_id' => $product->id, 'type' => 'sale']);
@@ -35,13 +36,14 @@ class CheckoutTest extends TestCase
 
         $this->postJson('/api/orders', $this->payload($product))
             ->assertCreated()->assertJsonPath('tax_amount', '10.00')
-            ->assertJsonPath('total_amount', '210.00');
+            ->assertJsonPath('shipping_amount', '25.00')
+            ->assertJsonPath('total_amount', '235.00');
     }
 
-    public function test_flat_shipping_uses_the_configured_shipping_option(): void
+    public function test_flat_shipping_uses_the_configured_delivery_charge(): void
     {
         $product = $this->product();
-        $this->storeSettings(['shippingMode' => 'flat', 'shippingOptions' => [['name' => 'Standard', 'cost' => '25']]]);
+        $this->storeSettings(['shippingMode' => 'flat', 'flatRate' => 25]);
         Sanctum::actingAs(User::factory()->create());
 
         $this->postJson('/api/orders', $this->payload($product))
@@ -156,8 +158,15 @@ class CheckoutTest extends TestCase
 
     private function storeSettings(array $settings): void
     {
-        Content::create([
-            'key' => 'store', 'label' => 'Store', 'type' => 'group', 'is_active' => true, 'data' => $settings,
-        ]);
+        Content::updateOrCreate(
+            ['key' => 'store'],
+            [
+                'label' => 'Store', 'type' => 'group', 'is_active' => true,
+                'data' => array_merge([
+                    'shippingMode' => 'flat', 'flatRate' => 25, 'freeShippingThreshold' => 300,
+                    'codFee' => 0, 'vatEnabled' => true, 'vatRate' => 5, 'vatIncludedInPrice' => false,
+                ], $settings),
+            ]
+        );
     }
 }
