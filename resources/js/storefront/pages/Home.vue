@@ -162,7 +162,7 @@ const filteredProducts = computed(() => {
                         </li>
                     </ul>
 
-                    <router-link to="/coa" class="wd-btn mt-9">
+                    <router-link v-if="content.isPublished('coa')" to="/coa" class="wd-btn mt-9">
                         {{ home.trustedCta }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </router-link>

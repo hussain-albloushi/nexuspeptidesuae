@@ -15,6 +15,7 @@ const site = computed(() => content.site);
             </p>
 
             <router-link
+                v-if="content.isPublished('coa')"
                 to="/coa"
                 class="hidden shrink-0 font-semibold text-white underline decoration-dotted underline-offset-4 hover:opacity-80 sm:block"
             >

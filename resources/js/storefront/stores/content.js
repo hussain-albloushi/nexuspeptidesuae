@@ -34,9 +34,15 @@ function publishedContent() {
 }
 
 export const useContentStore = defineStore('storefront-content', {
-    state: () => ({
-        content: mergeContent(contentDefaults, publishedContent()),
-    }),
+    state: () => {
+        const published = publishedContent();
+
+        return {
+            content: mergeContent(contentDefaults, published),
+            /** Groups the admin has published (drafts are absent from the payload). */
+            publishedGroups: Object.keys(published),
+        };
+    },
 
     actions: {
         async refreshStoreSettings() {
@@ -52,6 +58,8 @@ export const useContentStore = defineStore('storefront-content', {
 
     getters: {
         site: (state) => state.content.site,
+        /** True when the admin has published that content group. */
+        isPublished: (state) => (key) => state.publishedGroups.includes(key),
         store: (state) => state.content.store || {},
         home: (state) => state.content.home,
         about: (state) => state.content.about,

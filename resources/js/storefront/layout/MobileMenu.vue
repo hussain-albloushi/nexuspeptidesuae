@@ -57,6 +57,7 @@ const query = ref('');
                     </router-link>
 
                     <router-link
+                        v-if="content.isPublished('coa')"
                         to="/coa"
                         class="border-b border-line py-4 font-nav text-base capitalize text-ink hover:text-secondary"
                         @click="emit('close')"
