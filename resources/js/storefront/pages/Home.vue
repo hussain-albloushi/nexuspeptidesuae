@@ -82,7 +82,7 @@ const filteredProducts = computed(() => {
         <StandardsSection :title="home.standardsTitle" :items="site.standards" />
 
         <!-- Product grid -->
-        <section class="border-t border-black/10 bg-neutral-50/60">
+        <section class="border-t border-line bg-neutral-50/60">
             <div class="wd-container py-16 md:py-20">
                 <div class="mx-auto max-w-3xl text-center">
                     <h2 class="text-3xl md:text-4xl">

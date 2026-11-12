@@ -24,7 +24,7 @@
     --admin-secondary: #009E5A;
     --admin-background: #F9FAFB;
     --admin-text: #060D11;
-    --admin-border: #E2E6E8;
+    --admin-border: #969CA3;
     --admin-success: #22C55E;
     --admin-warning: #FBBF24;
     --admin-danger: #EF4444;
@@ -71,7 +71,7 @@
 [data-bs-theme="dark"] :is(.app-wrapper, .login-page) {
     --admin-background: #0D1114;
     --admin-text: #FFFFFF;
-    --admin-border: #293138;
+    --admin-border: #969CA3;
     --admin-surface: #151A1E;
     --admin-inset: #1B2227;
     --admin-link: color-mix(in srgb, var(--admin-primary) 45%, #FFFFFF);
@@ -337,8 +337,8 @@
 }
 
 /* SweetAlert2 admin theme */
-.admin-swal-container { z-index: 20000; --admin-surface: #fff; --admin-text: #060d11; --admin-border: #e2e6e8; font-family: system-ui, sans-serif; }
-[data-bs-theme="dark"] .admin-swal-container { --admin-surface: #151a1e; --admin-text: #edf2f4; --admin-border: #293138; }
+.admin-swal-container { z-index: 20000; --admin-surface: #fff; --admin-text: #060d11; --admin-border: #969ca3; font-family: system-ui, sans-serif; }
+[data-bs-theme="dark"] .admin-swal-container { --admin-surface: #151a1e; --admin-text: #edf2f4; --admin-border: #969ca3; }
 .admin-swal-popup { border: 1px solid var(--admin-border); border-radius: 14px; font-size: 14px; box-shadow: 0 12px 45px #0002; }
 .admin-swal-popup .swal2-title { font-size: 22px; font-weight: 600; }
 .admin-swal-popup .swal2-html-container { font-size: 14px; line-height: 1.6; }

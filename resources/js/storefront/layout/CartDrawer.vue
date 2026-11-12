@@ -28,7 +28,7 @@ function setQty(slug, e) {
                 class="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
                 aria-label="Shopping cart"
             >
-                <div class="flex items-center justify-between border-b border-black/10 px-6 py-5">
+                <div class="flex items-center justify-between border-b border-line px-6 py-5">
                     <h2 class="font-widget text-lg text-muted">Shopping cart</h2>
                     <div class="flex items-center gap-4">
                         <span class="text-sm text-neutral-500">
@@ -51,7 +51,7 @@ function setQty(slug, e) {
 
                 <!-- Lines -->
                 <div v-else class="flex-1 overflow-y-auto px-6 py-4">
-                    <ul class="divide-y divide-black/10">
+                    <ul class="divide-y divide-line">
                         <li v-for="line in cart.lines" :key="line.slug" class="flex gap-4 py-4">
                             <router-link
                                 :to="`/product/${line.slug}`"
@@ -89,7 +89,7 @@ function setQty(slug, e) {
                                 </p>
 
                                 <div class="mt-2 flex items-center gap-3">
-                                    <div class="flex items-center rounded-btn border border-black/10">
+                                    <div class="flex items-center rounded-btn border border-line">
                                         <button
                                             type="button"
                                             class="px-3 py-1 text-ink hover:text-secondary"
@@ -118,7 +118,7 @@ function setQty(slug, e) {
                 </div>
 
                 <!-- Totals -->
-                <div v-if="!cart.isEmpty" class="border-t border-black/10 px-6 py-5">
+                <div v-if="!cart.isEmpty" class="border-t border-line px-6 py-5">
                     <div class="flex items-center justify-between text-sm text-ink">
                         <span>Subtotal</span>
                         <span class="font-semibold text-ink">

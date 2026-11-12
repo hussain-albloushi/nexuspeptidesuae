@@ -26,6 +26,7 @@
     --color-navy-dark: #083b67;
     --color-muted: #000000;
     --color-page-title: #083b67;
+    --color-line: #969ca3;
 
     --radius-btn: 35px;
     --radius-card: 12px;
@@ -129,7 +130,7 @@
     /* Rounded form fields, matching --wd-form-brd-radius: 35px */
     .wd-field {
         width: 100%;
-        border: 1px solid #e3e3e3;
+        border: 1px solid var(--color-line);
         border-radius: var(--radius-btn);
         padding: 0.9rem 1.35rem;
         font-family: var(--font-body);

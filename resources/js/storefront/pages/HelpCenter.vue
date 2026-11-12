@@ -51,7 +51,7 @@ function submit() {
                     </p>
 
                     <div class="mt-8 grid gap-6 sm:grid-cols-2">
-                        <div class="rounded-card border border-black/10 p-5">
+                        <div class="rounded-card border border-line p-5">
                             <h3 class="font-widget text-base text-muted">Support Email</h3>
                             <a
                                 :href="`mailto:${site.supportEmail}`"
@@ -61,7 +61,7 @@ function submit() {
                             </a>
                         </div>
 
-                        <div class="rounded-card border border-black/10 p-5">
+                        <div class="rounded-card border border-line p-5">
                             <h3 class="font-widget text-base text-muted">
                                 {{ help.companyName }}
                             </h3>
@@ -127,7 +127,7 @@ function submit() {
                         {{ help.faqIntro }}
                     </p>
 
-                    <div class="mt-8 divide-y divide-black/10 border-y border-black/10">
+                    <div class="mt-8 divide-y divide-line border-y border-line">
                         <div v-for="(f, i) in help.faqs" :key="f.q">
                             <button
                                 type="button"

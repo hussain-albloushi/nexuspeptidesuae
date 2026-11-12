@@ -17,7 +17,7 @@ defineProps({
             <div
                 v-for="item in items"
                 :key="item.title"
-                class="rounded-card border border-black/10 bg-white p-7 transition hover:shadow-lg"
+                class="rounded-card border border-line bg-white p-7 transition hover:shadow-lg"
             >
                 <span class="grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-primary">
                     <i :class="item.icon" class="text-2xl"></i>

@@ -360,7 +360,7 @@ async function placeOrder() {
 
                     <!-- Payment -->
                     <h2 class="pt-4 text-2xl">Payment</h2>
-                    <div class="space-y-3 rounded-card border border-black/10 p-5">
+                    <div class="space-y-3 rounded-card border border-line p-5">
                         <label class="flex cursor-pointer items-center gap-3">
                             <input v-model="form.payment" type="radio" value="cod" class="accent-primary" />
                             <span class="text-sm text-ink">Cash on delivery</span>
@@ -406,10 +406,10 @@ async function placeOrder() {
                 </form>
 
                 <!-- Order summary -->
-                <aside class="h-fit rounded-card border border-black/10 p-6">
+                <aside class="h-fit rounded-card border border-line p-6">
                     <h2 class="font-widget text-lg text-muted">Your order</h2>
 
-                    <ul class="mt-5 divide-y divide-black/10">
+                    <ul class="mt-5 divide-y divide-line">
                         <li
                             v-for="line in cart.lines"
                             :key="line.slug"
@@ -427,7 +427,7 @@ async function placeOrder() {
                                 </button>
                             </div>
                             <div class="mt-2 flex items-center justify-between gap-3">
-                                <div class="flex items-center rounded-btn border border-black/10">
+                                <div class="flex items-center rounded-btn border border-line">
                                     <button
                                         type="button"
                                         class="px-2 py-1 text-ink transition hover:text-secondary"
@@ -483,7 +483,7 @@ async function placeOrder() {
                     </form>
 
                     <ShippingProgress />
-                    <dl class="mt-5 space-y-3 border-t border-black/10 pt-5 text-sm">
+                    <dl class="mt-5 space-y-3 border-t border-line pt-5 text-sm">
                         <div class="flex justify-between">
                             <dt class="text-neutral-500">Subtotal</dt>
                             <dd class="font-medium text-ink">
@@ -515,7 +515,7 @@ async function placeOrder() {
                                 <PriceDisplay :value="cart.tax" />
                             </dd>
                         </div>
-                        <div class="flex justify-between border-t border-black/10 pt-3">
+                        <div class="flex justify-between border-t border-line pt-3">
                             <dt class="text-base font-semibold text-ink">Total</dt>
                             <dd class="text-base font-semibold text-navy">
                                 <PriceDisplay :value="finalTotal" />

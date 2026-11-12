@@ -71,7 +71,7 @@ watch([sort, perPage], () => goToPage(1));
 
         <section class="wd-container py-12">
             <!-- Toolbar -->
-            <div class="mb-9 flex flex-wrap items-center justify-between gap-4 border-b border-black/10 pb-5">
+            <div class="mb-9 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
                 <p class="text-sm text-neutral-500">
                     Showing
                     <strong class="text-ink">
@@ -97,7 +97,7 @@ watch([sort, perPage], () => goToPage(1));
                             :key="n"
                             type="button"
                             class="grid h-8 w-8 place-items-center rounded-md border text-xs"
-                            :class="columns === n ? 'border-primary bg-primary text-white' : 'border-black/15 text-neutral-500'"
+                            :class="columns === n ? 'border-primary bg-primary text-white' : 'border-line text-neutral-500'"
                             :aria-label="`${n} columns`"
                             @click="columns = n"
                         >
@@ -118,7 +118,7 @@ watch([sort, perPage], () => goToPage(1));
 
             <ProductGrid v-if="visible.length" :products="visible" :columns="columnClass" />
 
-            <div v-else class="rounded-card border border-black/10 bg-white p-10 text-center">
+            <div v-else class="rounded-card border border-line bg-white p-10 text-center">
                 <h2 class="text-2xl">{{ catalogue.emptyTitle }}</h2>
                 <p class="mt-3 text-neutral-500">{{ catalogue.emptyBody }}</p>
             </div>
@@ -131,7 +131,7 @@ watch([sort, perPage], () => goToPage(1));
             >
                 <button
                     type="button"
-                    class="grid h-10 w-10 place-items-center rounded-full border border-black/15 text-ink transition hover:border-secondary hover:bg-secondary hover:text-white disabled:opacity-40"
+                    class="grid h-10 w-10 place-items-center rounded-full border border-line text-ink transition hover:border-secondary hover:bg-secondary hover:text-white disabled:opacity-40"
                     :disabled="page === 1"
                     aria-label="Previous page"
                     @click="goToPage(page - 1)"
@@ -144,7 +144,7 @@ watch([sort, perPage], () => goToPage(1));
                     :key="n"
                     type="button"
                     class="grid h-10 w-10 place-items-center rounded-full border text-sm font-medium transition"
-                    :class="n === page ? 'border-primary bg-primary text-white' : 'border-black/15 text-ink hover:border-secondary'"
+                    :class="n === page ? 'border-primary bg-primary text-white' : 'border-line text-ink hover:border-secondary'"
                     @click="goToPage(n)"
                 >
                     {{ n }}
@@ -152,7 +152,7 @@ watch([sort, perPage], () => goToPage(1));
 
                 <button
                     type="button"
-                    class="grid h-10 w-10 place-items-center rounded-full border border-black/15 text-ink transition hover:border-secondary hover:bg-secondary hover:text-white disabled:opacity-40"
+                    class="grid h-10 w-10 place-items-center rounded-full border border-line text-ink transition hover:border-secondary hover:bg-secondary hover:text-white disabled:opacity-40"
                     :disabled="page === totalPages"
                     aria-label="Next page"
                     @click="goToPage(page + 1)"

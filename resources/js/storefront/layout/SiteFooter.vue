@@ -113,7 +113,7 @@ function subscribe() {
         </div>
 
         <!-- Copyright -->
-        <div class="border-t border-black/10">
+        <div class="border-t border-line">
             <div class="wd-container py-7">
                 <div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
                     <div>

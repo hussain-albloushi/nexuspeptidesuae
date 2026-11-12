@@ -27,7 +27,7 @@ const query = ref('');
                 class="fixed right-0 top-0 z-50 flex h-full w-[85%] max-w-sm flex-col bg-white shadow-2xl"
                 aria-label="Mobile navigation"
             >
-                <div class="flex items-center justify-between border-b border-black/10 px-6 py-5">
+                <div class="flex items-center justify-between border-b border-line px-6 py-5">
                     <img :src="site.logo" :alt="site.name" class="h-11 w-auto" />
                     <button type="button" aria-label="Close" @click="emit('close')">
                         <i class="fa-solid fa-xmark text-xl text-ink"></i>
@@ -50,7 +50,7 @@ const query = ref('');
                         v-for="item in site.nav"
                         :key="item.to"
                         :to="item.to"
-                        class="border-b border-black/5 py-4 font-nav text-base capitalize text-ink hover:text-secondary"
+                        class="border-b border-line py-4 font-nav text-base capitalize text-ink hover:text-secondary"
                         @click="emit('close')"
                     >
                         {{ item.label }}
@@ -58,14 +58,14 @@ const query = ref('');
 
                     <router-link
                         to="/coa"
-                        class="border-b border-black/5 py-4 font-nav text-base capitalize text-ink hover:text-secondary"
+                        class="border-b border-line py-4 font-nav text-base capitalize text-ink hover:text-secondary"
                         @click="emit('close')"
                     >
                         Certificate of Analysis
                     </router-link>
                 </nav>
 
-                <div class="mt-auto flex flex-col gap-3 border-t border-black/10 px-6 py-6">
+                <div class="mt-auto flex flex-col gap-3 border-t border-line px-6 py-6">
                     <router-link
                         to="/my-account"
                         class="wd-btn w-full"

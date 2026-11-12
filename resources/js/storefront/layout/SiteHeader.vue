@@ -43,7 +43,7 @@ async function doLogout() {
 </script>
 
 <template>
-    <header class="sticky top-0 z-40 border-b border-black/10 bg-white">
+    <header class="sticky top-0 z-40 border-b border-line bg-white">
         <div class="wd-container flex h-[74px] items-center gap-6">
             <!-- Logo -->
             <router-link to="/" class="shrink-0" :aria-label="site.name">
@@ -127,7 +127,7 @@ async function doLogout() {
 
                     <div
                         v-if="accountMenuOpen"
-                        class="absolute right-0 top-full mt-2 w-48 rounded-card border border-black/10 bg-white py-2 shadow-lg"
+                        class="absolute right-0 top-full mt-2 w-48 rounded-card border border-line bg-white py-2 shadow-lg"
                     >
                         <router-link
                             to="/my-orders"
@@ -157,7 +157,7 @@ async function doLogout() {
                         >
                             <i class="fa-solid fa-heart mr-2 text-xs"></i> Wishlist
                         </router-link>
-                        <hr class="my-1 border-black/10" />
+                        <hr class="my-1 border-line" />
                         <button
                             type="button"
                             class="block w-full px-4 py-2 text-left text-sm text-danger transition hover:bg-neutral-50"

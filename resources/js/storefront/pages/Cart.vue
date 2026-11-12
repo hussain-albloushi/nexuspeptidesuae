@@ -62,13 +62,13 @@ function setQty(slug, e) {
                 <!-- Table -->
                 <div class="lg:col-span-2">
                     <div
-                        class="grid grid-cols-[1fr_auto] gap-4 border-b border-black/10 pb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500"
+                        class="grid grid-cols-[1fr_auto] gap-4 border-b border-line pb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500"
                     >
                         <span>Product</span>
                         <span>Total</span>
                     </div>
 
-                    <ul class="divide-y divide-black/10">
+                    <ul class="divide-y divide-line">
                         <li
                             v-for="line in cart.lines"
                             :key="line.slug"
@@ -95,7 +95,7 @@ function setQty(slug, e) {
                                     </p>
 
                                     <div class="mt-3 flex items-center gap-3">
-                                        <div class="flex items-center rounded-btn border border-black/15">
+                                        <div class="flex items-center rounded-btn border border-line">
                                             <button
                                                 type="button"
                                                 class="px-3 py-1.5 hover:text-secondary"
@@ -155,29 +155,29 @@ function setQty(slug, e) {
                 </div>
 
                 <!-- Totals -->
-                <aside class="h-fit rounded-card border border-black/10 p-6">
+                <aside class="h-fit rounded-card border border-line p-6">
                     <h2 class="font-widget text-lg text-muted">Cart totals</h2>
                     <ShippingProgress />
 
                     <dl class="mt-5 space-y-3 text-sm">
-                        <div class="flex justify-between border-b border-black/10 pb-3">
+                        <div class="flex justify-between border-b border-line pb-3">
                             <dt class="text-neutral-500">Subtotal</dt>
                             <dd class="font-semibold text-ink">
                                 <PriceDisplay :value="cart.subtotal" />
                             </dd>
                         </div>
-                        <div class="flex justify-between border-b border-black/10 pb-3">
+                        <div class="flex justify-between border-b border-line pb-3">
                             <dt class="text-neutral-500">Total items</dt>
                             <dd class="font-semibold text-ink">{{ cart.count }}</dd>
                         </div>
-                        <div class="flex justify-between border-b border-black/10 pb-3">
+                        <div class="flex justify-between border-b border-line pb-3">
                             <dt class="text-neutral-500">Shipping</dt>
                             <dd class="font-semibold text-ink">
                                 <template v-if="cart.shipping === 0">Free</template>
                                 <template v-else><PriceDisplay :value="cart.shipping" /></template>
                             </dd>
                         </div>
-                        <div v-if="currency.settings.vatEnabled" class="flex justify-between border-b border-black/10 pb-3">
+                        <div v-if="currency.settings.vatEnabled" class="flex justify-between border-b border-line pb-3">
                             <dt class="text-neutral-500">{{ currency.settings.vatLabel || 'VAT' }}</dt>
                             <dd class="font-semibold text-ink">
                                 <PriceDisplay :value="cart.tax" />

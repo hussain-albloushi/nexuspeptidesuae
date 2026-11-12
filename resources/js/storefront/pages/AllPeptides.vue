@@ -102,7 +102,7 @@ const filteredProducts = computed(() => {
                         <ProductGrid :products="filteredProducts" />
                     </div>
                 </template>
-                <div v-else class="rounded-card border border-black/10 bg-white p-10 text-center">
+                <div v-else class="rounded-card border border-line bg-white p-10 text-center">
                     <h2 class="text-2xl">{{ catalogue.emptyTitle }}</h2>
                     <p class="mt-3 text-neutral-500">{{ catalogue.emptyBody }}</p>
                 </div>

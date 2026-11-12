@@ -138,7 +138,7 @@ function moveToCart(product) {
                                 </button>
                                 <button
                                     type="button"
-                                    class="grid h-11 w-11 shrink-0 place-items-center rounded-btn border border-black/15 text-ink transition hover:border-danger hover:text-danger"
+                                    class="grid h-11 w-11 shrink-0 place-items-center rounded-btn border border-line text-ink transition hover:border-danger hover:text-danger"
                                     aria-label="Remove"
                                     @click="remove(product)"
                                 >

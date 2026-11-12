@@ -216,7 +216,7 @@ async function resendVerification() {
 
         <section class="wd-container py-14 md:py-16">
             <!-- Logged in -->
-            <div v-if="auth.isAuthenticated" class="mx-auto max-w-2xl rounded-card border border-black/10 p-8">
+            <div v-if="auth.isAuthenticated" class="mx-auto max-w-2xl rounded-card border border-line p-8">
                 <div class="flex items-center gap-4">
                     <span class="grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-primary">
                         <i class="fa-solid fa-user text-xl"></i>
@@ -237,28 +237,28 @@ async function resendVerification() {
                 <div class="mt-8 grid gap-4 sm:grid-cols-4">
                     <router-link
                         to="/my-orders"
-                        class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
+                        class="rounded-card border border-line p-5 text-center transition hover:border-secondary"
                     >
                         <i class="fa-solid fa-box-open text-primary"></i>
                         <p class="mt-2 text-sm font-medium text-ink">Orders</p>
                     </router-link>
                     <router-link
                         to="/peptide-shop"
-                        class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
+                        class="rounded-card border border-line p-5 text-center transition hover:border-secondary"
                     >
                         <i class="fa-solid fa-bag-shopping text-primary"></i>
                         <p class="mt-2 text-sm font-medium text-ink">Shop</p>
                     </router-link>
                     <router-link
                         to="/wishlist"
-                        class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
+                        class="rounded-card border border-line p-5 text-center transition hover:border-secondary"
                     >
                         <i class="fa-solid fa-heart text-primary"></i>
                         <p class="mt-2 text-sm font-medium text-ink">Wishlist</p>
                     </router-link>
                     <router-link
                         to="/cart"
-                        class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
+                        class="rounded-card border border-line p-5 text-center transition hover:border-secondary"
                     >
                         <i class="fa-solid fa-cart-shopping text-primary"></i>
                         <p class="mt-2 text-sm font-medium text-ink">Cart</p>
@@ -266,7 +266,7 @@ async function resendVerification() {
                 </div>
 
                 <!-- Saved billing details -->
-                <form class="mt-8 border-t border-black/10 pt-8" @submit.prevent="doSaveAddress">
+                <form class="mt-8 border-t border-line pt-8" @submit.prevent="doSaveAddress">
                     <h2 class="text-xl">Billing &amp; delivery details</h2>
                     <p class="mt-1 text-sm text-neutral-500">
                         Saved to your account and pre-filled at checkout. Changing them here does not

@@ -36,7 +36,7 @@ function onImgError(url) {
 
             <div
                 v-if="!coa.coas?.length"
-                class="mx-auto mt-12 flex max-w-xl flex-col items-center rounded-card border border-black/10 bg-white px-8 py-12 text-center"
+                class="mx-auto mt-12 flex max-w-xl flex-col items-center rounded-card border border-line bg-white px-8 py-12 text-center"
             >
                 <span class="grid h-16 w-16 place-items-center rounded-card bg-neutral-100 text-neutral-400" aria-hidden="true">
                     <i class="fa-solid fa-file-lines text-2xl"></i>
@@ -59,7 +59,7 @@ function onImgError(url) {
                 <article
                     v-for="certificate in coa.coas"
                     :key="`${certificate.name}-${certificate.batch}`"
-                    class="flex flex-col rounded-card border border-black/10 bg-white p-6 transition hover:shadow-lg"
+                    class="flex flex-col rounded-card border border-line bg-white p-6 transition hover:shadow-lg"
                 >
                     <div class="flex items-center gap-4">
                         <img

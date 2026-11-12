@@ -67,7 +67,7 @@ function addToCart(slug) {
                     </div>
 
                     <form
-                        class="mt-8 flex items-center gap-4 border-b-2 border-black pb-4"
+                        class="mt-8 flex items-center gap-4 border-b-2 border-line pb-4"
                         @submit.prevent
                     >
                         <i class="fa-solid fa-magnifying-glass text-xl text-ink"></i>
@@ -87,7 +87,7 @@ function addToCart(slug) {
                         Start typing to see products you are looking for.
                     </p>
 
-                    <ul v-else-if="results.length" class="mt-8 divide-y divide-black/10">
+                    <ul v-else-if="results.length" class="mt-8 divide-y divide-line">
                         <li v-for="p in results" :key="p.slug">
                             <div class="flex items-center gap-4 py-4 hover:bg-neutral-50">
                                 <router-link

@@ -109,7 +109,7 @@ function goTo(p) {
                 <div class="mt-6 flex items-center justify-between gap-4">
                     <button
                         type="button"
-                        class="flex flex-1 items-center gap-3 rounded-card border border-black/10 p-3 text-left transition hover:border-secondary disabled:opacity-40"
+                        class="flex flex-1 items-center gap-3 rounded-card border border-line p-3 text-left transition hover:border-secondary disabled:opacity-40"
                         :disabled="!prev"
                         @click="goTo(prev)"
                     >
@@ -125,7 +125,7 @@ function goTo(p) {
 
                     <button
                         type="button"
-                        class="flex flex-1 items-center justify-end gap-3 rounded-card border border-black/10 p-3 text-right transition hover:border-secondary disabled:opacity-40"
+                        class="flex flex-1 items-center justify-end gap-3 rounded-card border border-line p-3 text-right transition hover:border-secondary disabled:opacity-40"
                         :disabled="!next"
                         @click="goTo(next)"
                     >
@@ -165,7 +165,7 @@ function goTo(p) {
 
                 <!-- Quantity + actions -->
                 <div class="mt-8 flex flex-wrap items-center gap-4">
-                    <div class="flex items-center rounded-btn border border-black/15">
+                    <div class="flex items-center rounded-btn border border-line">
                         <button
                             type="button"
                             class="px-4 py-3 text-ink hover:text-secondary"
@@ -207,7 +207,7 @@ function goTo(p) {
                 </button>
 
                 <!-- Meta -->
-                <dl class="mt-8 space-y-2 border-t border-black/10 pt-6 text-sm">
+                <dl class="mt-8 space-y-2 border-t border-line pt-6 text-sm">
                     <div class="flex gap-2">
                         <dt class="text-neutral-500">Category:</dt>
                         <dd>
@@ -238,7 +238,7 @@ function goTo(p) {
 
         <!-- Tabs -->
         <div class="mt-16">
-            <div class="flex gap-8 border-b border-black/10">
+            <div class="flex gap-8 border-b border-line">
                 <button
                     type="button"
                     class="pb-4 text-sm font-semibold uppercase tracking-wide transition"
@@ -290,7 +290,7 @@ function goTo(p) {
                 <h4 class="mt-8 font-semibold text-ink">Package Includes</h4>
                 <p class="mt-2 text-ink">{{ product.description.package }}</p>
 
-                <hr class="my-8 border-black/10" />
+                <hr class="my-8 border-line" />
 
                 <h4 class="font-semibold text-ink">{{ product.description.noticeTitle }}</h4>
                 <p class="mt-2 font-semibold text-ink">{{ product.description.notice }}</p>
@@ -346,7 +346,7 @@ function goTo(p) {
         </div>
 
         <!-- Related -->
-        <section class="mt-14 border-t border-black/10 pt-14">
+        <section class="mt-14 border-t border-line pt-14">
             <h2 class="mb-8 text-2xl">Related products</h2>
             <ProductGrid :products="related" />
         </section>

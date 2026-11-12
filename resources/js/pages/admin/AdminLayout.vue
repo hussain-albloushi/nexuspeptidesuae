@@ -230,12 +230,12 @@ function logout() {
 .apex-admin-shell { --lte-sidebar-width: 260px; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 .app-main { background: var(--admin-canvas); min-width: 0; }
 .app-sidebar {
-  background: #090909 !important; color: #d1d5d7; border-right: 1px solid #1b1b1b;
+  background: #090909 !important; color: #d1d5d7; border-right: 1px solid var(--admin-border);
   --lte-sidebar-color: #a4aaad; --lte-sidebar-hover-color: #ebeff1; --lte-sidebar-hover-bg: #161616;
   --lte-sidebar-menu-active-bg: #161616; --lte-sidebar-menu-active-color: #009e5a; --lte-sidebar-header-color: #626b70;
   box-shadow: none !important;
 }
-.sidebar-brand { height: 64px; min-height: 64px; padding: 0 16px; border-bottom: 1px solid #1b1b1b; justify-content: flex-start; }
+.sidebar-brand { height: 64px; min-height: 64px; padding: 0 16px; border-bottom: 1px solid var(--admin-border); justify-content: flex-start; }
 .sidebar-brand .brand-link { display: flex; align-items: center; gap: 12px; padding: 0; text-decoration: none; }
 .apex-brand-mark { display: grid; place-items: center; width: 32px; height: 32px; background: #009e5a; color: #fff; border-radius: 10px; flex-shrink: 0; }
 .brand-identity { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; line-height: 1.2; }
@@ -252,7 +252,7 @@ function logout() {
 .sidebar-menu .nav-header:first-child { padding-top: 8px; }
 .sidebar-edge-toggle { position: absolute; top: 80px; right: -12px; z-index: 5; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--admin-border); background: #fff; color: #303a40; border-radius: 50%; box-shadow: 0 1px 3px #0000000d; padding: 0; }
 .sidebar-edge-toggle svg { transform: rotate(180deg); }
-.sidebar-account { display: flex; align-items: center; gap: 12px; padding: 20px; min-height: 77px; border-top: 1px solid #1b1b1b; }
+.sidebar-account { display: flex; align-items: center; gap: 12px; padding: 20px; min-height: 77px; border-top: 1px solid var(--admin-border); }
 .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: #008e4c; color: #fff; display: grid; place-items: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
 .sidebar-account > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sidebar-account strong { color: #e9edf0; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 145px; }

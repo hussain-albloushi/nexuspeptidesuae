@@ -12,7 +12,7 @@ const track = computed(() => {
 </script>
 
 <template>
-    <section class="overflow-hidden border-y border-black/10 bg-background py-7">
+    <section class="overflow-hidden border-y border-line bg-background py-7">
         <div class="wd-marquee flex w-max gap-14 md:gap-20">
             <div
                 v-for="(f, i) in track"

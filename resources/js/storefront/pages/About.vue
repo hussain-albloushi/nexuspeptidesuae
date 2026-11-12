@@ -50,7 +50,7 @@ const site = computed(() => content.site);
         </section>
 
         <!-- Why choose -->
-        <div class="border-t border-black/10 bg-neutral-50/60">
+        <div class="border-t border-line bg-neutral-50/60">
             <StandardsSection
                 :title="about.whyTitle"
                 :intro="about.whyIntro"

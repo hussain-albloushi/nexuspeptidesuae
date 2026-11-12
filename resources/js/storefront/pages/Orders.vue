@@ -174,7 +174,7 @@ async function submitReturn(order) {
         <!-- Auth error / redirect -->
         <div
             v-else-if="error && !auth.isAuthenticated"
-            class="mt-12 max-w-xl rounded-card border border-black/10 bg-background p-8 text-center"
+            class="mt-12 max-w-xl rounded-card border border-line bg-background p-8 text-center"
         >
             <i class="fa-solid fa-lock text-3xl text-neutral-300"></i>
             <p class="mt-4 text-sm leading-relaxed text-neutral-500">{{ error }}</p>
@@ -189,7 +189,7 @@ async function submitReturn(order) {
         <!-- Load failed while logged in -->
         <div
             v-else-if="error"
-            class="mt-12 max-w-xl rounded-card border border-black/10 bg-background p-8 text-center"
+            class="mt-12 max-w-xl rounded-card border border-line bg-background p-8 text-center"
         >
             <i class="fa-solid fa-triangle-exclamation text-3xl text-neutral-300"></i>
             <p class="mt-4 text-sm leading-relaxed text-neutral-500">{{ error }}</p>
@@ -227,10 +227,10 @@ async function submitReturn(order) {
             <div
                 v-for="order in orders"
                 :key="order.id"
-                class="rounded-card border border-black/10 bg-background"
+                class="rounded-card border border-line bg-background"
             >
                 <!-- Order header -->
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-black/5 px-6 py-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
                     <div>
                         <p class="text-xs uppercase tracking-widest text-neutral-400">Order #{{ order.order_number ?? order.id }}</p>
                         <p class="mt-1 text-xs text-neutral-500">{{ dateStr(order.created_at) }}</p>
@@ -258,7 +258,7 @@ async function submitReturn(order) {
                                 <th class="pb-3 font-medium text-right">Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-black/5">
+                        <tbody class="divide-y divide-line">
                             <tr v-for="item in order.items" :key="item.id">
                                 <td class="py-3 pr-4 align-top">{{ item.name }}</td>
                                 <td class="py-3 text-center text-neutral-600">{{ item.quantity }}</td>
@@ -270,7 +270,7 @@ async function submitReturn(order) {
                 </div>
 
                 <!-- Footer with order meta -->
-                <div class="flex flex-wrap gap-x-8 gap-y-2 border-t border-black/5 bg-white/60 px-6 py-3 text-xs text-neutral-500">
+                <div class="flex flex-wrap gap-x-8 gap-y-2 border-t border-line bg-white/60 px-6 py-3 text-xs text-neutral-500">
                     <span v-if="order.payment_status">Payment: <strong class="text-ink capitalize">{{ order.payment_status }}</strong></span>
                     <span v-if="order.shipping_status">Shipping: <strong class="text-ink capitalize">{{ order.shipping_status }}</strong></span>
                     <span v-if="order.tracking_number">Tracking: <strong class="text-ink">{{ order.tracking_number }}</strong></span>
@@ -278,7 +278,7 @@ async function submitReturn(order) {
                 </div>
 
                 <!-- Return requests -->
-                <div v-if="pendingReturn(order) || approvedReturn(order) || canRequestReturn(order)" class="border-t border-black/5 px-6 py-4">
+                <div v-if="pendingReturn(order) || approvedReturn(order) || canRequestReturn(order)" class="border-t border-line px-6 py-4">
                     <template v-if="pendingReturn(order)">
                         <p class="flex items-center gap-2 text-sm text-amber-700">
                             <i class="fa-solid fa-clock"></i>
@@ -296,7 +296,7 @@ async function submitReturn(order) {
                         <button
                             v-if="returnForm.orderId !== order.id"
                             type="button"
-                            class="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2 text-sm font-semibold text-navy transition hover:bg-black/5"
+                            class="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2 text-sm font-semibold text-navy transition hover:bg-black/5"
                             :class="{ 'mt-3': pendingReturn(order) || approvedReturn(order) }"
                             @click="startReturn(order)"
                         >
@@ -310,7 +310,7 @@ async function submitReturn(order) {
                                 <div
                                     v-for="item in order.items"
                                     :key="item.id"
-                                    class="flex items-center justify-between gap-3 rounded-card border border-black/10 bg-white px-4 py-2"
+                                    class="flex items-center justify-between gap-3 rounded-card border border-line bg-white px-4 py-2"
                                 >
                                     <div>
                                         <p class="text-sm font-medium text-ink">{{ item.name }}</p>
@@ -321,7 +321,7 @@ async function submitReturn(order) {
                                     <select
                                         v-if="returnableQty(order, item) > 0"
                                         v-model.number="returnForm.lines[item.id]"
-                                        class="rounded-full border border-black/10 bg-background px-3 py-1 text-sm text-ink focus:border-primary focus:outline-none"
+                                        class="rounded-full border border-line bg-background px-3 py-1 text-sm text-ink focus:border-primary focus:outline-none"
                                         :aria-label="'Quantity to return for ' + item.name"
                                     >
                                         <option v-for="n in returnableQty(order, item) + 1" :key="n - 1" :value="n - 1">{{ n - 1 }}</option>
@@ -339,7 +339,7 @@ async function submitReturn(order) {
                                 required
                                 minlength="10"
                                 maxlength="1000"
-                                class="w-full rounded-card border border-black/10 bg-background px-4 py-3 text-sm text-ink focus:border-primary focus:outline-none"
+                                class="w-full rounded-card border border-line bg-background px-4 py-3 text-sm text-ink focus:border-primary focus:outline-none"
                                 placeholder="For example: the vial arrived damaged…"
                             ></textarea>
                             <div class="flex items-center gap-3">
