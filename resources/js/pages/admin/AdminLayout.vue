@@ -5,17 +5,10 @@
       <div class="container-fluid">
         <button type="button" class="apex-mobile-menu" data-lte-toggle="sidebar" aria-label="Toggle navigation"><AdminIcon name="menu" /></button>
 
-        <form class="navbar-search admin-global-search" :class="{ 'mobile-open': mobileSearchOpen }" @keydown.esc="mobileSearchOpen = false" role="search" @submit.prevent="handleSearch">
-          <label for="navbar-search-input" class="visually-hidden">Search</label>
-          <div class="navbar-search-field">
-            <input v-model="searchQuery" type="search" id="navbar-search-input" class="form-control" placeholder="Search anything…" autocomplete="off" maxlength="255" />
-            <button class="navbar-search-submit" type="submit" aria-label="Submit search"><AdminIcon name="search" :size="16" /></button>
-            <kbd class="search-shortcut">Ctrl K</kbd>
-          </div>
-        </form>
+        <QuickSearch v-model:mobile-open="mobileSearchOpen" />
 
         <ul class="navbar-nav ms-auto apex-header-actions">
-          <li class="nav-item apex-mobile-search"><button type="button" class="nav-link" aria-label="Search admin panel" :aria-expanded="mobileSearchOpen" @click="toggleMobileSearch"><AdminIcon name="search" /></button></li>
+          <li class="nav-item apex-mobile-search"><button type="button" class="nav-link" aria-label="Search admin panel" :aria-expanded="mobileSearchOpen" @click="mobileSearchOpen = !mobileSearchOpen"><AdminIcon name="search" /></button></li>
           <li class="nav-item apex-header-cta"><router-link to="/admin/orders" class="apex-header-button"><AdminIcon name="orders" :size="15" /> Manage orders</router-link></li>
 
 
@@ -176,22 +169,16 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import AdminIcon from './AdminIcon.vue';
-import { useRoute, useRouter } from 'vue-router';
+import QuickSearch from './QuickSearch.vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
-import { searchQuery as normalizeSearchQuery } from './search';
 import { useDashboard } from './dashboard';
 
 const route = useRoute();
-const router = useRouter();
 const adminUser = ref(null);
 const mobileSearchOpen = ref(false);
-async function toggleMobileSearch() {
-  mobileSearchOpen.value = !mobileSearchOpen.value;
-  await nextTick();
-  if (mobileSearchOpen.value) document.getElementById('navbar-search-input')?.focus();
-}
 const { data: notificationData, loading: notificationLoading, error: notificationError, refresh: refreshNotifications, start: startNotifications } = useDashboard('/api/dashboard/notifications');
 const alertTypes = [
   { key: 'out_of_stock', label: 'products out of stock', icon: 'fa-solid fa-box', color: 'var(--admin-danger)', note: 'Replenish unavailable products', to: { path: '/admin/inventory', query: { status: 'out_of_stock' } } },
@@ -222,29 +209,6 @@ const titles = {
   '/admin/search': 'Search Results',
 };
 
-const searchQuery = ref('');
-
-watch(() => route.query.q, (value) => {
-  searchQuery.value = normalizeSearchQuery(value);
-}, { immediate: true });
-
-async function focusSearch(event) {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-    event.preventDefault();
-    if (window.matchMedia('(max-width: 767px)').matches) mobileSearchOpen.value = true;
-    await nextTick();
-    document.getElementById('navbar-search-input')?.focus();
-  }
-}
-onMounted(() => window.addEventListener('keydown', focusSearch));
-onBeforeUnmount(() => window.removeEventListener('keydown', focusSearch));
-
-function handleSearch() {
-  if (searchQuery.value.trim()) {
-    router.push({ path: '/admin/search', query: { q: searchQuery.value.trim() } });
-    mobileSearchOpen.value = false;
-  }
-}
 const pageTitle = computed(() => {
   if (route.name === 'admin-not-found') return 'Page not found';
   if (titles[route.path]) return titles[route.path];
@@ -296,9 +260,10 @@ function logout() {
 .sidebar-account button { background: transparent; border: 0; color: #737e83; padding: 4px; margin-left: auto; }
 .app-header { height: 64px; min-height: 64px; border-bottom: 1px solid var(--admin-border); box-shadow: none; background: color-mix(in srgb, var(--admin-canvas) 80%, transparent) !important; backdrop-filter: blur(20px); position: relative; }
 .app-header > .container-fluid { padding-left: 24px; padding-right: 24px; gap: 12px; flex-wrap: nowrap; }
-.admin-global-search { flex: 0 1 288px; max-width: 288px; margin: 0; }
+.admin-global-search { position: relative; flex: 0 1 288px; max-width: 288px; margin: 0; }
 .admin-global-search .navbar-search-field, .admin-global-search:focus-within .navbar-search-field { width: 100%; }
 .admin-global-search .form-control { min-height: 36px; height: 36px; padding: 7px 48px 7px 36px; border-radius: 10px; border: 1px solid var(--admin-border); background: transparent; box-shadow: none; font-size: 13px; }
+.admin-global-search .form-control::-webkit-search-cancel-button { display: none; }
 .admin-global-search .navbar-search-submit { left: 12px; color: #929fa6; }
 .search-shortcut { position: absolute; right: 10px; top: 10px; border: 1px solid var(--admin-border); border-radius: 3px; background: var(--admin-inset); color: var(--admin-muted); padding: 0 3px; font: 9px/14px ui-monospace, monospace; }
 .apex-header-actions { align-items: center; gap: 6px; }

@@ -127,6 +127,24 @@ test('collection pages send SKU queries to the API and reload when the route que
     assert.equal(state.results.value.length, 1);
 });
 
+test('global search results deep link to the matching record', async () => {
+    respond = async (config) => {
+        if (config.url === '/api/orders') {
+            return [{ id: 10, order_number: 'NP-12345678', status: 'processing', total_amount: '250.00', user: { name: 'Ada' } }];
+        }
+        if (config.url === '/api/products') {
+            return [{ id: 3, name: 'BPC-157 10mg', sku: 'BPC-157-10MG', is_active: true }];
+        }
+        return [{ id: 7, name: 'Ada Lovelace', email: 'ada@example.com' }];
+    };
+    const state = createSearch('ada');
+    await flush();
+
+    assert.deepEqual(state.results.value[0].link, { path: '/admin/orders', query: { q: '#NP-12345678' } });
+    assert.deepEqual(state.results.value[1].link, { path: '/admin/products', query: { q: 'BPC-157-10MG' } });
+    assert.deepEqual(state.results.value[2].link, { path: '/admin/customers', query: { q: 'ada@example.com' } });
+});
+
 test('request failures are shown as errors and can be retried', async () => {
     respond = async () => { throw new Error('Request failed'); };
     const state = createSearch('query');
