@@ -47,6 +47,9 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
+            // Pin the DB session to UTC so it never reinterprets the website
+            // wall-clock values PHP writes into DATETIME columns.
+            'timezone' => '+00:00',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -67,6 +70,9 @@ return [
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
+            // Pin the DB session to UTC so it never reinterprets the website
+            // wall-clock values PHP writes into DATETIME columns.
+            'timezone' => '+00:00',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'laravel'),

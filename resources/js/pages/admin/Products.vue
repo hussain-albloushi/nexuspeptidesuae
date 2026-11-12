@@ -117,6 +117,7 @@ import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { confirmAdmin, Swal } from './adminAlerts';
 import { productFieldGroups, productForm, stockStatus, useProductImage, useProducts } from './products';
+import { formatSiteDate } from '../../siteTime.js';
 
 const { filters, products, categories, categoryError, loading, error, page, perPage, pagination, activeProduct, detailLoading, detailError, busy, actionError, fieldErrors, success, hasFilters, refresh, loadCategories, resetFilters, loadProduct, closeProduct, saveProduct, deleteProduct } = useProducts(useRoute());
 const productDialog = ref(null);
@@ -129,7 +130,7 @@ const hasAdvancedFilters = computed(() => ['stock_status', 'is_active', 'min_pri
 let selectedId;
 let opener;
 const money = (value) => new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(Number(value || 0));
-const dateTime = (value) => value ? new Date(value).toLocaleString() : 'Not recorded';
+const dateTime = (value) => formatSiteDate(value, { dateStyle: 'medium', timeStyle: 'short' });
 const safeImage = (value) => typeof value === 'string' && !value.includes('\\') && (/^https?:\/\//i.test(value) || /^\/(?!\/)/.test(value));
 
 async function openProduct(id, action) {

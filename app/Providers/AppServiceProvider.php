@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\SiteSettings;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Commands, queues and scheduled tasks have no HTTP middleware, so
+        // apply the website clock here as well as in ApplySiteSettings.
+        app(SiteSettings::class)->applyRuntimeConfig();
+
         VerifyEmail::toMailUsing(fn (object $notifiable, string $url): MailMessage => $this->verificationMail($notifiable, $url));
     }
 

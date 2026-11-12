@@ -237,6 +237,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { formatSiteDate } from '../../siteTime.js';
 
 const products = ref([]);
 const allProducts = ref([]);
@@ -292,8 +293,7 @@ function money(value) {
 }
 
 function formatDate(value) {
-  if (!value) return '—';
-  return new Date(value).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return formatSiteDate(value, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }, '—', 'en-GB');
 }
 
 function statusLabel(status) {

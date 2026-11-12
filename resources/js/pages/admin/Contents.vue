@@ -157,6 +157,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import axios from 'axios';
 import { confirmAdmin, notifyAdmin } from './adminAlerts';
 import ContentForm from './content/ContentForm.vue';
+import { formatSiteDate } from '../../siteTime.js';
 
 const uploadUrl = '/api/content-editor/upload';
 
@@ -214,18 +215,7 @@ function snapshot(draft) {
 }
 
 function formatDate(value) {
-    if (!value) {
-        return '';
-    }
-
-    try {
-        return new Intl.DateTimeFormat(undefined, {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-        }).format(new Date(value));
-    } catch {
-        return value;
-    }
+    return formatSiteDate(value, { dateStyle: 'medium', timeStyle: 'short' }, value || '');
 }
 
 async function load() {

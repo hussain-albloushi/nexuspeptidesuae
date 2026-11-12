@@ -129,6 +129,7 @@ import { notifyAdmin } from './adminAlerts';
 import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { addressFields, orderColumns, orderLabel, orderMoney, orderStatuses, paymentMethodLabel, paymentStates, useOrders } from './orders.js';
+import { formatSiteDate } from '../../siteTime.js';
 
 const { filters, orders, loading, error, success, page, perPage, sort, direction, pagination, selectedIds, selected, allSelected, commonTransitions, hasFilters, detail, detailLoading, detailError, busy, actionError, exportBusy, exportError, refresh, resetFilters, sortBy, toggleSelection, toggleAll, loadOrder, closeOrder, updateStatuses, collectPayment, recordRefund, respondReturn, exportOrders, printInvoice } = useOrders(useRoute());
 
@@ -226,9 +227,9 @@ const confirmation = ref({ targets: [], status: '', notes: '', tracking: '' });
 let detailId;
 let detailOpener;
 let confirmationOpener;
-const orderDate = (value) => value ? new Date(value).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not recorded';
-const orderTime = (value) => value ? new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-const dateTime = (value) => value ? new Date(value).toLocaleString() : 'Not recorded';
+const orderDate = (value) => formatSiteDate(value, { day: 'numeric', month: 'short', year: 'numeric' });
+const orderTime = (value) => formatSiteDate(value, { hour: '2-digit', minute: '2-digit' }, '');
+const dateTime = (value) => formatSiteDate(value, { dateStyle: 'medium', timeStyle: 'short' });
 function reviewRowStatus(order, event) {
   const status = event.target.value;
   event.target.value = order.status;

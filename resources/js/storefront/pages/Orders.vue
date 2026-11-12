@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
 import { useRoute, useRouter } from 'vue-router';
 import { swalToast } from '../services/alerts';
+import { formatSiteDate } from '../../siteTime.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -32,12 +33,9 @@ function money(value) {
     return new Intl.NumberFormat('en-AE', { minimumFractionDigits: 2 }).format(value);
 }
 
-// Date helper
+// Date helper — timestamps are stored in the website timezone.
 function dateStr(iso) {
-    if (!iso) return '';
-    return new Date(iso).toLocaleDateString('en-AE', {
-        year: 'numeric', month: 'short', day: 'numeric'
-    });
+    return formatSiteDate(iso, { year: 'numeric', month: 'short', day: 'numeric' }, '', 'en-AE');
 }
 
 async function fetchOrders() {

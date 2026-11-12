@@ -6,6 +6,10 @@
     <meta name="color-scheme" content="light dark">
     <title>NexusPeptides Admin</title>
 
+    <script>
+        window.__SITE_TIMEZONE__ = @json(config('app.timezone'));
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.3.0/index.css" media="print" onload="this.media='all'">

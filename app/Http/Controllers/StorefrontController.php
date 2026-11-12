@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Content;
 use App\Models\Product;
+use App\Services\SiteSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -38,8 +39,11 @@ class StorefrontController extends Controller
     {
         $content = $this->publishedContent();
 
-        return response()->json(array_replace(config('storefront-content.shipping_defaults'), $content['store'] ?? []))
-            ->header('Cache-Control', 'no-store');
+        return response()->json(array_replace(
+            config('storefront-content.shipping_defaults'),
+            $content['store'] ?? [],
+            ['timezone' => app(SiteSettings::class)->timezone()],
+        ))->header('Cache-Control', 'no-store');
     }
 
     /**

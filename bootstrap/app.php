@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AdminOnly;
+use App\Http\Middleware\ApplySiteSettings;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,8 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prepend(ApplySiteSettings::class);
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminOnly::class,
+            'admin' => AdminOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

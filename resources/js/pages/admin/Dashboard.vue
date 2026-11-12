@@ -121,6 +121,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import Chart from 'chart.js/auto';
 import { useDashboard } from './dashboard';
+import { formatSiteDate } from '../../siteTime.js';
 
 const { days, data, loading, error, autoRefresh, refresh, start } = useDashboard();
 const chartCanvas = ref(null);
@@ -141,8 +142,8 @@ const attentionCards = [
 const money = (value) => new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 2 }).format(Number(value || 0));
 const number = (value) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Number(value || 0));
 const label = (value) => String(value).replace(/_/g, ' ').replace(/^./, (letter) => letter.toUpperCase());
-const date = (value) => value ? new Date(value).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—';
-const updatedTime = computed(() => data.value ? new Date(data.value.generated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '');
+const date = (value) => formatSiteDate(value, { day: 'numeric', month: 'short' }, '—');
+const updatedTime = computed(() => data.value ? formatSiteDate(data.value.generated_at, { hour: '2-digit', minute: '2-digit', second: '2-digit' }, '') : '');
 const hasSales = computed(() => data.value?.trend.some((point) => point.booked > 0 || point.paid > 0));
 const statusColor = (status) => ({ pending: '#f59e0b', processing: '#008e4c', shipped: '#1686e5', delivered: '#00a6a8', cancelled: '#ef4444' }[status] || 'var(--admin-muted)');
 const statusRows = computed(() => {
@@ -187,7 +188,7 @@ watch(data, async (snapshot) => {
   const colors = getComputedStyle(chartCanvas.value);
   const textColor = colors.getPropertyValue('--dashboard-muted').trim();
   const gridColor = colors.getPropertyValue('--dashboard-border').trim();
-  const labels = snapshot.trend.map((point) => new Date(point.date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' }));
+  const labels = snapshot.trend.map((point) => formatSiteDate(point.date, { day: 'numeric', month: 'short' }, ''));
   const datasets = [
     { label: 'Order value', data: snapshot.trend.map((point) => point.booked), borderColor: colors.getPropertyValue('--dashboard-accent').trim(), backgroundColor: 'rgba(11,79,138,.08)', fill: true, tension: .3, pointRadius: snapshot.trend.length > 30 ? 0 : 2 },
     { label: 'Paid sales', data: snapshot.trend.map((point) => point.paid), borderColor: colors.getPropertyValue('--admin-secondary').trim(), borderDash: [5, 4], tension: .3, pointRadius: 0 },

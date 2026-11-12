@@ -117,6 +117,7 @@ import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import AdminIcon from './AdminIcon.vue';
+import { formatSiteDate } from '../../siteTime.js';
 
 const route = useRoute();
 const statuses = ['active', 'inactive', 'pending', 'blocked'];
@@ -169,7 +170,7 @@ let timer;
 let suppress = false;
 let disposed = false;
 const label = value => value ? value.charAt(0).toUpperCase() + value.slice(1).replaceAll('_', ' ') : 'Not recorded';
-const date = (value, full = false) => value ? new Date(value).toLocaleString(undefined, full ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' }) : 'Not recorded';
+const date = (value, full = false) => formatSiteDate(value, full ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' });
 const money = value => new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(Number(value || 0));
 const initials = name => String(name || '?').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
 const message = (failure, fallback) => Object.values(failure.response?.data?.errors || {}).flat().join(' ') || failure.response?.data?.message || fallback;
