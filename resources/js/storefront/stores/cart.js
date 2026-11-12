@@ -3,24 +3,8 @@ import { findBySlug } from '../data/products';
 import { useCurrencyStore } from './currency';
 
 const KEY = 'nexus_cart';
-const LEGACY_KEY = 'zenvy_cart';
-
-function migrateLegacy() {
-    try {
-        const value = localStorage.getItem(LEGACY_KEY);
-        if (value !== null) {
-            if (localStorage.getItem(KEY) === null) {
-                localStorage.setItem(KEY, value);
-            }
-            localStorage.removeItem(LEGACY_KEY);
-        }
-    } catch {
-        // Unreadable legacy data — leave it alone.
-    }
-}
 
 function load() {
-    migrateLegacy();
     try {
         return JSON.parse(localStorage.getItem(KEY)) || [];
     } catch {

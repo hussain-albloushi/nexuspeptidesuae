@@ -5,17 +5,9 @@ import { useWishlistStore } from './wishlist';
 
 const KEY = 'nexus_account';
 const TOKEN_KEY = 'nexus_token';
-const LEGACY_KEY = 'zenvy_account';
 
 function load() {
     try {
-        const legacy = localStorage.getItem(LEGACY_KEY);
-        if (legacy !== null) {
-            if (localStorage.getItem(KEY) === null) {
-                localStorage.setItem(KEY, legacy);
-            }
-            localStorage.removeItem(LEGACY_KEY);
-        }
         return JSON.parse(localStorage.getItem(KEY)) || null;
     } catch {
         return null;

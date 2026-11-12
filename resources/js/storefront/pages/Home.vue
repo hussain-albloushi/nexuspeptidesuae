@@ -204,12 +204,14 @@ const filteredProducts = computed(() => {
                 </div>
 
                 <div class="relative">
-                    <img
-                        :src="home.purityImage"
-                        :alt="site.name"
-                        loading="lazy"
-                        class="mx-auto w-full max-w-md"
-                    />
+                    <div class="mx-auto max-w-md rounded-card bg-white p-8">
+                        <img
+                            :src="home.purityImage"
+                            :alt="site.name"
+                            loading="lazy"
+                            class="w-full"
+                        />
+                    </div>
                 </div>
             </div>
         </section>

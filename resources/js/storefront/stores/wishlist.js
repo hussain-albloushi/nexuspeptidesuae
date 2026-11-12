@@ -2,13 +2,11 @@ import { defineStore } from 'pinia';
 
 // Per-user scope (logged-in users). Guest visitors also get a key so they
 // don't accidentally pick up one account's wishlist while browsing as another.
-const NEW_PREFIX = 'nexus_wishlist:';
-const LEGACY_PREFIX = 'zenvy_wishlist:';
-const LEGACY_GLOBAL = 'zenvy_wishlist';
-const GUEST_KEY = `${NEW_PREFIX}guest`;
+const PREFIX = 'nexus_wishlist:';
+const GUEST_KEY = `${PREFIX}guest`;
 
 function userKey(email) {
-    return `${NEW_PREFIX}${email}`;
+    return `${PREFIX}${email}`;
 }
 
 function read(key) {
@@ -29,42 +27,8 @@ function currentKey() {
     }
 }
 
-/**
- * Move wishlist data stored under the old `zenvy_*` keys forward.
- */
-function migrateLegacy() {
-    try {
-        // Global legacy key from before per-user scoping.
-        const legacy = localStorage.getItem(LEGACY_GLOBAL);
-        if (legacy !== null) {
-            if (localStorage.getItem(GUEST_KEY) === null) {
-                localStorage.setItem(GUEST_KEY, legacy);
-            }
-            localStorage.removeItem(LEGACY_GLOBAL);
-        }
-
-        // Old per-user keys: zenvy_wishlist:<email> -> nexus_wishlist:<email>
-        for (let i = localStorage.length - 1; i >= 0; i -= 1) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith(LEGACY_PREFIX)) {
-                const value = localStorage.getItem(key);
-                const migrated = NEW_PREFIX + key.slice(LEGACY_PREFIX.length);
-                if (value !== null && localStorage.getItem(migrated) === null) {
-                    localStorage.setItem(migrated, value);
-                }
-                localStorage.removeItem(key);
-            }
-        }
-    } catch {
-        // Legacy data unreadable — nothing more to do.
-    }
-}
-
 export const useWishlistStore = defineStore('wishlist', {
-    state: () => {
-        migrateLegacy();
-        return { slugs: read(currentKey()) };
-    },
+    state: () => ({ slugs: read(currentKey()) }),
 
     getters: {
         count: (state) => state.slugs.length,

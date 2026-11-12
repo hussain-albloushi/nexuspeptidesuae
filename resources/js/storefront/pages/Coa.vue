@@ -6,9 +6,8 @@ const content = useContentStore();
 const coa = computed(() => content.coa);
 
 /**
- * Every thumbnail on the source site currently 404s (the files under
- * uploads/2026/05 are gone upstream), so fall back to a styled tile
- * instead of a broken-image icon.
+ * Certificate thumbnails are managed in Website Content. A missing image
+ * falls back to a styled tile instead of a broken-image icon.
  */
 const failed = ref(new Set());
 
@@ -34,6 +33,27 @@ function onImgError(url) {
             <p class="mx-auto max-w-3xl text-center leading-relaxed text-ink">
                 {{ coa.intro }}
             </p>
+
+            <div
+                v-if="!coa.coas?.length"
+                class="mx-auto mt-12 flex max-w-xl flex-col items-center rounded-card border border-black/10 bg-white px-8 py-12 text-center"
+            >
+                <span class="grid h-16 w-16 place-items-center rounded-card bg-neutral-100 text-neutral-400" aria-hidden="true">
+                    <i class="fa-solid fa-file-lines text-2xl"></i>
+                </span>
+                <h2 class="mt-5 font-widget text-lg text-ink">No certificates published yet</h2>
+                <p class="mt-2 text-sm text-muted">
+                    Every order includes its batch certificate. Contact support with your order or batch number and
+                    we'll send the COA right away.
+                </p>
+                <a
+                    :href="`mailto:${content.site.supportEmail || 'info@nexuspeptides.com'}`"
+                    class="wd-btn mt-6"
+                >
+                    <i class="fa-solid fa-envelope"></i>
+                    Contact support
+                </a>
+            </div>
 
             <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <article
