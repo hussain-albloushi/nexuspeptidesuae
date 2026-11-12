@@ -17,6 +17,7 @@ const router = createRouter({
             { path: 'sales-report', name: 'admin-sales-report', component: () => import('./pages/admin/SalesReport.vue') },
             { path: 'settings', name: 'admin-settings', component: () => import('./pages/admin/Settings.vue') },
             { path: 'contents', name: 'admin-contents', component: () => import('./pages/admin/Contents.vue') },
+            { path: 'search', name: 'admin-search', component: () => import('./pages/admin/Search.vue') },
         ]},
         { path: '/login', name: 'login', component: () => import('./pages/Login.vue') },
         { path: '/:pathMatch(.*)*', redirect: '/admin' },

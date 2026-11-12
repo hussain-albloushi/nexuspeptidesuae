@@ -1,9 +1,11 @@
 <script setup>
 import { computed } from 'vue';
+import { confirmAdmin } from '../../adminAlerts';
 import TextField from './TextField.vue';
 import TextareaField from './TextareaField.vue';
 import LinesField from './LinesField.vue';
 import SelectField from './SelectField.vue';
+import IconField from './IconField.vue';
 import UploadField from './UploadField.vue';
 
 const props = defineProps({
@@ -20,6 +22,7 @@ const components = {
     textarea: TextareaField,
     lines: LinesField,
     select: SelectField,
+    icon: IconField,
     image: UploadField,
     file: UploadField,
 };
@@ -89,8 +92,8 @@ function duplicate(index) {
     emit('update:modelValue', next);
 }
 
-function remove(index) {
-    if (!window.confirm('Remove this row? This cannot be undone after saving.')) {
+async function remove(index) {
+    if (!(await confirmAdmin({ title: 'Remove row?', text: 'This cannot be undone after saving.', confirmButtonText: 'Remove row', destructive: true })).isConfirmed) {
         return;
     }
 

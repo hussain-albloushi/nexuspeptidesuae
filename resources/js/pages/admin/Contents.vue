@@ -97,8 +97,17 @@
                             <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
                         </div>
 
-                        <div v-if="savedMessage" class="alert alert-success py-2">
-                            <i class="bi bi-check-circle me-1"></i>{{ savedMessage }}
+                        <div v-if="savedMessage" class="alert py-2" :class="savedAsDraft ? 'alert-warning' : 'alert-success'">
+                            <i class="bi" :class="savedAsDraft ? 'bi-eye-slash' : 'bi-check-circle'"></i>{{ savedMessage }}
+                        </div>
+
+                        <div
+                            v-if="activeGroup && !activeGroup.is_active"
+                            class="alert alert-warning py-2"
+                        >
+                            <i class="bi bi-eye-slash me-1"></i>
+                            This section is a <strong>Draft</strong> — it is hidden from the storefront.
+                            Turn on <strong>Published</strong> above and save to make your changes live.
                         </div>
 
                         <ContentForm
@@ -146,6 +155,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import axios from 'axios';
+import { confirmAdmin, notifyAdmin } from './adminAlerts';
 import ContentForm from './content/ContentForm.vue';
 
 const uploadUrl = '/api/content-editor/upload';
@@ -158,6 +168,7 @@ const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
 const savedMessage = ref('');
+const savedAsDraft = ref(false);
 const validationErrors = ref({});
 
 const activeGroup = computed(
@@ -254,6 +265,7 @@ function selectGroup(key) {
     activeKey.value = key;
     validationErrors.value = {};
     savedMessage.value = '';
+    savedAsDraft.value = false;
     error.value = '';
 }
 
@@ -318,13 +330,29 @@ async function save() {
 
     if (Object.keys(validationErrors.value).length) {
         error.value = 'Please fix the highlighted fields before saving.';
+        notifyAdmin('error', error.value);
         savedMessage.value = '';
         return;
+    }
+
+    // Unpublishing is the #1 reason "saved" changes don't show up on the
+    // storefront — make sure it never happens by accident.
+    const unpublishing = Boolean(activeGroup.value.is_active) && !draft.is_active;
+    if (unpublishing) {
+        const result = await confirmAdmin({
+            title: 'Save as draft?',
+            text: `"${group.label}" will be hidden from the storefront until you publish it again.`,
+            confirmButtonText: 'Save as draft',
+        });
+        if (!result.isConfirmed) {
+            return;
+        }
     }
 
     saving.value = true;
     error.value = '';
     savedMessage.value = '';
+    savedAsDraft.value = false;
 
     try {
         const { data } = await axios.put(`/api/content-editor/${group.key}`, draft);
@@ -337,7 +365,17 @@ async function save() {
         draft.is_active = data.is_active;
         original.value[group.key] = snapshot(draft);
 
-        savedMessage.value = 'Saved. Your changes are live on the storefront.';
+        savedAsDraft.value = !data.is_active;
+        savedMessage.value = data.is_active
+            ? 'Saved. Your changes are live on the storefront.'
+            : 'Saved as a Draft — this section is hidden from the storefront. Turn Published back on and save to publish it.';
+
+        window.__STOREFRONT_CONTENT__ = window.__STOREFRONT_CONTENT__ || {};
+        if (data.is_active) {
+            window.__STOREFRONT_CONTENT__[group.key] = clone(data.data);
+        } else {
+            delete window.__STOREFRONT_CONTENT__[group.key];
+        }
 
         window.setTimeout(() => {
             if (savedMessage.value) {

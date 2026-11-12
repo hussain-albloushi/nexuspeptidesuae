@@ -122,7 +122,7 @@ const symbolPositions = [
                     min="0"
                     max="8"
                     :value="props.modelValue.decimals"
-                    @input="emitChange('decimals', parseInt($event.target.value, 10) || 2)"
+                    @input="emitChange('decimals', Math.max(0, Math.min(8, Number($event.target.value))))"
                 />
             </div>
         </div>
@@ -151,7 +151,7 @@ const symbolPositions = [
                     {{ props.modelValue.symbolText }}
                 </span>
                 <span class="amount">
-                    {{ Number(123.45).toFixed(props.modelValue.decimals || 2) }}
+                    {{ Number(123.45).toFixed(props.modelValue.decimals ?? 2) }}
                 </span>
             </div>
         </div>

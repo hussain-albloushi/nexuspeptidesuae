@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0B4F8A">
-    <title>{{ $seo['title'] ?? 'Zenvy Peptides' }}</title>
+    <title>{{ $seo['title'] ?? 'Nexus Peptide - UAE' }}</title>
 
     <meta name="description" content="{{ $seo['description'] ?? 'Research-grade peptides with verified purity and full traceability.' }}">
 

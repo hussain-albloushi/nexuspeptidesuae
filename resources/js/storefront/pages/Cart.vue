@@ -3,6 +3,7 @@ import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { swalConfirm, swalToast } from '../services/alerts';
 import PriceDisplay from '../components/PriceDisplay.vue';
+import ShippingProgress from '../components/ShippingProgress.vue';
 
 const cart = useCartStore();
 const currency = useCurrencyStore();
@@ -12,6 +13,14 @@ async function remove(slug, name) {
     if (ok) {
         cart.remove(slug);
         swalToast('Item removed from your cart.', 'info');
+    }
+}
+
+async function clearCart() {
+    const ok = await swalConfirm('Clear cart?', 'Remove all items from your cart?', 'Clear cart');
+    if (ok) {
+        cart.clear();
+        swalToast('Your cart has been emptied.', 'info');
     }
 }
 
@@ -138,7 +147,7 @@ function setQty(slug, e) {
                         <button
                             type="button"
                             class="wd-btn wd-btn-outline"
-                            @click="cart.clear(); swalToast('Your cart has been emptied.', 'info')"
+                            @click="clearCart"
                         >
                             Clear cart
                         </button>
@@ -148,6 +157,7 @@ function setQty(slug, e) {
                 <!-- Totals -->
                 <aside class="h-fit rounded-card border border-black/10 p-6">
                     <h2 class="font-widget text-lg text-muted">Cart totals</h2>
+                    <ShippingProgress />
 
                     <dl class="mt-5 space-y-3 text-sm">
                         <div class="flex justify-between border-b border-black/10 pb-3">
@@ -157,13 +167,17 @@ function setQty(slug, e) {
                             </dd>
                         </div>
                         <div class="flex justify-between border-b border-black/10 pb-3">
+                            <dt class="text-neutral-500">Total items</dt>
+                            <dd class="font-semibold text-ink">{{ cart.count }}</dd>
+                        </div>
+                        <div class="flex justify-between border-b border-black/10 pb-3">
                             <dt class="text-neutral-500">Shipping</dt>
                             <dd class="font-semibold text-ink">
                                 <template v-if="cart.shipping === 0">Free</template>
                                 <template v-else><PriceDisplay :value="cart.shipping" /></template>
                             </dd>
                         </div>
-                        <div class="flex justify-between border-b border-black/10 pb-3">
+                        <div v-if="currency.settings.vatEnabled" class="flex justify-between border-b border-black/10 pb-3">
                             <dt class="text-neutral-500">{{ currency.settings.vatLabel || 'VAT' }}</dt>
                             <dd class="font-semibold text-ink">
                                 <PriceDisplay :value="cart.tax" />

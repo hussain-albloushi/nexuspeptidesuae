@@ -1,5 +1,5 @@
-@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Verdana:wght@400;700&display=swap');
+@import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -17,3 +17,482 @@
     --color-charcoal: #20282B;
     --color-white: #FFFFFF;
 }
+
+/* Admin palette */
+:is(.app-wrapper, .login-page) {
+    --admin-primary: #008E4C;
+    --admin-secondary: #009E5A;
+    --admin-background: #F9FAFB;
+    --admin-text: #060D11;
+    --admin-border: #E2E6E8;
+    --admin-success: #22C55E;
+    --admin-warning: #FBBF24;
+    --admin-danger: #EF4444;
+    --admin-surface: #FFFFFF;
+    --admin-canvas: var(--admin-background);
+    --admin-inset: #EEF2F4;
+    --admin-muted: #6B757B;
+    --admin-link: var(--admin-primary);
+    --admin-secondary-text: color-mix(in srgb, var(--admin-secondary) 65%, #000000);
+    --admin-success-text: color-mix(in srgb, var(--admin-success) 50%, #000000);
+    --admin-warning-text: color-mix(in srgb, var(--admin-warning) 45%, #000000);
+    --admin-danger-text: color-mix(in srgb, var(--admin-danger) 75%, #000000);
+    --bs-primary: var(--admin-primary);
+    --bs-primary-rgb: 0, 142, 76;
+    --bs-secondary: var(--admin-secondary);
+    --bs-secondary-rgb: 0, 158, 90;
+    --bs-success: var(--admin-success);
+    --bs-success-rgb: 34, 197, 94;
+    --bs-warning: var(--admin-warning);
+    --bs-warning-rgb: 251, 191, 36;
+    --bs-danger: var(--admin-danger);
+    --bs-danger-rgb: 239, 68, 68;
+    --bs-body-bg: var(--admin-background);
+    --bs-body-bg-rgb: 249, 250, 251;
+    --bs-body-color: var(--admin-text);
+    --bs-body-color-rgb: 6, 13, 17;
+    --bs-emphasis-color: var(--admin-text);
+    --bs-emphasis-color-rgb: 6, 13, 17;
+    --bs-secondary-color: var(--admin-muted);
+    --bs-secondary-bg: var(--admin-inset);
+    --bs-secondary-bg-rgb: 248, 250, 252;
+    --bs-tertiary-bg: var(--admin-inset);
+    --bs-tertiary-bg-rgb: 248, 250, 252;
+    --bs-border-color: var(--admin-border);
+    --bs-border-color-translucent: var(--admin-border);
+    --bs-link-color: var(--admin-link);
+    --bs-link-color-rgb: 0, 142, 76;
+    --bs-link-hover-color: var(--admin-link);
+    --bs-link-hover-color-rgb: 0, 142, 76;
+    --bs-focus-ring-color: rgb(0 142 76 / 25%);
+    background-color: var(--admin-background);
+    color: var(--admin-text);
+}
+[data-bs-theme="dark"] :is(.app-wrapper, .login-page) {
+    --admin-background: #0D1114;
+    --admin-text: #FFFFFF;
+    --admin-border: #293138;
+    --admin-surface: #151A1E;
+    --admin-inset: #1B2227;
+    --admin-link: color-mix(in srgb, var(--admin-primary) 45%, #FFFFFF);
+    --admin-success-text: var(--admin-success);
+    --admin-muted: #929EA6;
+    --admin-secondary-text: var(--admin-secondary);
+    --admin-warning-text: var(--admin-warning);
+    --admin-danger-text: color-mix(in srgb, var(--admin-danger) 75%, #FFFFFF);
+    --bs-body-bg-rgb: 13, 17, 20;
+    --bs-body-color-rgb: 255, 255, 255;
+    --bs-emphasis-color-rgb: 255, 255, 255;
+    --bs-secondary-bg-rgb: 27, 34, 39;
+    --bs-tertiary-bg-rgb: 27, 34, 39;
+}
+:is(.app-wrapper, .login-page) .card,
+:is(.app-wrapper, .login-page) .modal-content,
+:is(.app-wrapper, .login-page) .dropdown-menu {
+    --bs-card-bg: var(--admin-surface);
+    --bs-card-color: var(--admin-text);
+    --bs-card-border-color: var(--admin-border);
+    --bs-modal-bg: var(--admin-surface);
+    --bs-modal-color: var(--admin-text);
+    --bs-modal-border-color: var(--admin-border);
+    --bs-dropdown-bg: var(--admin-surface);
+    --bs-dropdown-color: var(--admin-text);
+    --bs-dropdown-link-color: var(--admin-text);
+    --bs-dropdown-border-color: var(--admin-border);
+    --bs-dropdown-link-hover-bg: var(--admin-inset);
+    --bs-dropdown-link-active-bg: var(--admin-primary);
+}
+:is(.app-wrapper, .login-page) .table {
+    --bs-table-bg: var(--admin-surface);
+    --bs-table-color: var(--admin-text);
+    --bs-table-border-color: var(--admin-border);
+    --bs-table-striped-bg: var(--admin-inset);
+    --bs-table-striped-color: var(--admin-text);
+    --bs-table-hover-bg: var(--admin-inset);
+    --bs-table-hover-color: var(--admin-text);
+}
+:is(.app-wrapper, .login-page) :is(.form-control, .form-select, .input-group-text) {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+    border-color: var(--admin-border);
+}
+:is(.app-wrapper, .login-page) :is(.form-control, .form-select):focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 .2rem rgb(0 142 76 / 15%);
+}
+:is(.app-wrapper, .login-page) .form-check-input:checked {
+    background-color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+.login-page { background-color: var(--admin-background) !important; }
+:is(.app-wrapper, .login-page) .page-link {
+    color: var(--admin-link);
+    background-color: var(--admin-surface);
+    border-color: var(--admin-border);
+}
+:is(.app-wrapper, .login-page) .active > .page-link {
+    color: #FFFFFF;
+    background-color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+:is(.app-wrapper, .login-page) .btn-primary {
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-bg: var(--admin-primary);
+    --bs-btn-border-color: var(--admin-primary);
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-hover-bg: color-mix(in srgb, var(--admin-primary) 85%, #000000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--admin-primary) 85%, #000000);
+    --bs-btn-active-color: #FFFFFF;
+    --bs-btn-active-bg: color-mix(in srgb, var(--admin-primary) 80%, #000000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--admin-primary) 80%, #000000);
+    --bs-btn-disabled-color: #FFFFFF;
+    --bs-btn-disabled-bg: var(--admin-primary);
+    --bs-btn-disabled-border-color: var(--admin-primary);
+}
+:is(.app-wrapper, .login-page) .btn-outline-primary {
+    --bs-btn-color: var(--admin-link);
+    --bs-btn-border-color: var(--admin-primary);
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-hover-bg: var(--admin-primary);
+    --bs-btn-hover-border-color: var(--admin-primary);
+    --bs-btn-active-color: #FFFFFF;
+    --bs-btn-active-bg: var(--admin-primary);
+    --bs-btn-active-border-color: var(--admin-primary);
+    --bs-btn-disabled-color: var(--admin-muted);
+    --bs-btn-disabled-border-color: var(--admin-primary);
+}
+:is(.app-wrapper, .login-page) :is(.text-bg-primary, .bg-primary) {
+    color: #FFFFFF !important;
+    background-color: var(--admin-primary) !important;
+}
+:is(.app-wrapper, .login-page) .text-primary {
+    color: var(--admin-link) !important;
+}
+:is(.app-wrapper, .login-page) .alert-primary {
+    --bs-alert-color: var(--admin-text);
+    --bs-alert-bg: color-mix(in srgb, var(--admin-primary) 10%, var(--admin-surface));
+    --bs-alert-border-color: var(--admin-primary);
+    --bs-alert-link-color: var(--admin-link);
+}
+
+:is(.app-wrapper, .login-page) .btn-secondary {
+    --bs-btn-color: #000000;
+    --bs-btn-bg: var(--admin-secondary);
+    --bs-btn-border-color: var(--admin-secondary);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: color-mix(in srgb, var(--admin-secondary) 85%, #000000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--admin-secondary) 85%, #000000);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: color-mix(in srgb, var(--admin-secondary) 80%, #000000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--admin-secondary) 80%, #000000);
+    --bs-btn-disabled-color: #000000;
+    --bs-btn-disabled-bg: var(--admin-secondary);
+    --bs-btn-disabled-border-color: var(--admin-secondary);
+}
+:is(.app-wrapper, .login-page) .btn-outline-secondary {
+    --bs-btn-color: var(--admin-secondary-text);
+    --bs-btn-border-color: var(--admin-secondary);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: var(--admin-secondary);
+    --bs-btn-hover-border-color: var(--admin-secondary);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: var(--admin-secondary);
+    --bs-btn-active-border-color: var(--admin-secondary);
+    --bs-btn-disabled-color: var(--admin-muted);
+    --bs-btn-disabled-border-color: var(--admin-secondary);
+}
+:is(.app-wrapper, .login-page) :is(.text-bg-secondary, .bg-secondary) {
+    color: #000000 !important;
+    background-color: var(--admin-secondary) !important;
+}
+:is(.app-wrapper, .login-page) .text-secondary {
+    color: var(--admin-muted) !important;
+}
+:is(.app-wrapper, .login-page) .alert-secondary {
+    --bs-alert-color: var(--admin-text);
+    --bs-alert-bg: color-mix(in srgb, var(--admin-secondary) 10%, var(--admin-surface));
+    --bs-alert-border-color: var(--admin-secondary);
+    --bs-alert-link-color: var(--admin-link);
+}
+
+:is(.app-wrapper, .login-page) .btn-success {
+    --bs-btn-color: #000000;
+    --bs-btn-bg: var(--admin-success);
+    --bs-btn-border-color: var(--admin-success);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: color-mix(in srgb, var(--admin-success) 85%, #000000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--admin-success) 85%, #000000);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: color-mix(in srgb, var(--admin-success) 80%, #000000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--admin-success) 80%, #000000);
+    --bs-btn-disabled-color: #000000;
+    --bs-btn-disabled-bg: var(--admin-success);
+    --bs-btn-disabled-border-color: var(--admin-success);
+}
+:is(.app-wrapper, .login-page) .btn-outline-success {
+    --bs-btn-color: var(--admin-success-text);
+    --bs-btn-border-color: var(--admin-success);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: var(--admin-success);
+    --bs-btn-hover-border-color: var(--admin-success);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: var(--admin-success);
+    --bs-btn-active-border-color: var(--admin-success);
+    --bs-btn-disabled-color: var(--admin-muted);
+    --bs-btn-disabled-border-color: var(--admin-success);
+}
+:is(.app-wrapper, .login-page) :is(.text-bg-success, .bg-success) {
+    color: #000000 !important;
+    background-color: var(--admin-success) !important;
+}
+:is(.app-wrapper, .login-page) .text-success {
+    color: var(--admin-success-text) !important;
+}
+:is(.app-wrapper, .login-page) .alert-success {
+    --bs-alert-color: var(--admin-text);
+    --bs-alert-bg: color-mix(in srgb, var(--admin-success) 10%, var(--admin-surface));
+    --bs-alert-border-color: var(--admin-success);
+    --bs-alert-link-color: var(--admin-link);
+}
+
+:is(.app-wrapper, .login-page) .btn-warning {
+    --bs-btn-color: #000000;
+    --bs-btn-bg: var(--admin-warning);
+    --bs-btn-border-color: var(--admin-warning);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: color-mix(in srgb, var(--admin-warning) 85%, #000000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--admin-warning) 85%, #000000);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: color-mix(in srgb, var(--admin-warning) 80%, #000000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--admin-warning) 80%, #000000);
+    --bs-btn-disabled-color: #000000;
+    --bs-btn-disabled-bg: var(--admin-warning);
+    --bs-btn-disabled-border-color: var(--admin-warning);
+}
+:is(.app-wrapper, .login-page) .btn-outline-warning {
+    --bs-btn-color: var(--admin-warning-text);
+    --bs-btn-border-color: var(--admin-warning);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: var(--admin-warning);
+    --bs-btn-hover-border-color: var(--admin-warning);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: var(--admin-warning);
+    --bs-btn-active-border-color: var(--admin-warning);
+    --bs-btn-disabled-color: var(--admin-muted);
+    --bs-btn-disabled-border-color: var(--admin-warning);
+}
+:is(.app-wrapper, .login-page) :is(.text-bg-warning, .bg-warning) {
+    color: #000000 !important;
+    background-color: var(--admin-warning) !important;
+}
+:is(.app-wrapper, .login-page) .text-warning {
+    color: var(--admin-warning-text) !important;
+}
+:is(.app-wrapper, .login-page) .alert-warning {
+    --bs-alert-color: var(--admin-text);
+    --bs-alert-bg: color-mix(in srgb, var(--admin-warning) 10%, var(--admin-surface));
+    --bs-alert-border-color: var(--admin-warning);
+    --bs-alert-link-color: var(--admin-link);
+}
+
+:is(.app-wrapper, .login-page) .btn-danger {
+    --bs-btn-color: #000000;
+    --bs-btn-bg: var(--admin-danger);
+    --bs-btn-border-color: var(--admin-danger);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: color-mix(in srgb, var(--admin-danger) 85%, #000000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--admin-danger) 85%, #000000);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: color-mix(in srgb, var(--admin-danger) 80%, #000000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--admin-danger) 80%, #000000);
+    --bs-btn-disabled-color: #000000;
+    --bs-btn-disabled-bg: var(--admin-danger);
+    --bs-btn-disabled-border-color: var(--admin-danger);
+}
+:is(.app-wrapper, .login-page) .btn-outline-danger {
+    --bs-btn-color: var(--admin-danger-text);
+    --bs-btn-border-color: var(--admin-danger);
+    --bs-btn-hover-color: #000000;
+    --bs-btn-hover-bg: var(--admin-danger);
+    --bs-btn-hover-border-color: var(--admin-danger);
+    --bs-btn-active-color: #000000;
+    --bs-btn-active-bg: var(--admin-danger);
+    --bs-btn-active-border-color: var(--admin-danger);
+    --bs-btn-disabled-color: var(--admin-muted);
+    --bs-btn-disabled-border-color: var(--admin-danger);
+}
+:is(.app-wrapper, .login-page) :is(.text-bg-danger, .bg-danger) {
+    color: #000000 !important;
+    background-color: var(--admin-danger) !important;
+}
+:is(.app-wrapper, .login-page) .text-danger {
+    color: var(--admin-danger-text) !important;
+}
+:is(.app-wrapper, .login-page) .alert-danger {
+    --bs-alert-color: var(--admin-text);
+    --bs-alert-bg: color-mix(in srgb, var(--admin-danger) 10%, var(--admin-surface));
+    --bs-alert-border-color: var(--admin-danger);
+    --bs-alert-link-color: var(--admin-link);
+}
+
+/* SweetAlert2 admin theme */
+.admin-swal-container { z-index: 20000; --admin-surface: #fff; --admin-text: #060d11; --admin-border: #e2e6e8; font-family: system-ui, sans-serif; }
+[data-bs-theme="dark"] .admin-swal-container { --admin-surface: #151a1e; --admin-text: #edf2f4; --admin-border: #293138; }
+.admin-swal-popup { border: 1px solid var(--admin-border); border-radius: 14px; font-size: 14px; box-shadow: 0 12px 45px #0002; }
+.admin-swal-popup .swal2-title { font-size: 22px; font-weight: 600; }
+.admin-swal-popup .swal2-html-container { font-size: 14px; line-height: 1.6; }
+.admin-swal-popup .swal2-styled { border-radius: 8px; font-size: 13px; }
+.admin-swal-popup .swal2-styled:focus-visible { outline: 3px solid #008e4c; outline-offset: 3px; }
+.admin-swal-form { padding: 0; overflow: hidden; }
+.admin-swal-form .admin-swal-form-body { margin: 0; padding: 0; text-align: left; color: inherit; max-height: 90dvh; overflow-y: auto; }
+.admin-alert-dialog-content { width: 100%; padding: 0 !important; margin: 0 !important; max-width: none !important; }
+
+/* Apex reference layout */
+.apex-admin-shell { font-size: 14px; --bs-body-font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.apex-admin-shell .app-main :is(.operations-dashboard, .product-workspace, .orders-workspace) {
+    padding: 24px;
+    max-width: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.apex-admin-shell .app-main > .app-content > .container-fluid > :not(.operations-dashboard):not(.product-workspace):not(.orders-workspace) { margin: 24px; }
+.apex-admin-shell .app-main :is(.card, .catalog-panel, .orders-panel, .dashboard-panel, .dashboard-attention, .dashboard-metric) {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px #0000001a, 0 1px 2px -1px #0000001a;
+}
+.apex-admin-shell .app-main :is(.catalog-heading, .orders-heading, .dashboard-toolbar) {
+    border: 0;
+    padding: 0;
+    margin-bottom: 32px;
+    align-items: center;
+}
+.apex-admin-shell .app-main :is(.catalog-heading h2, .orders-heading h2, .dashboard-toolbar h1) {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    letter-spacing: -.04em;
+    margin: 0 0 4px;
+}
+.apex-admin-shell .app-main :is(.catalog-heading p, .orders-heading p, .dashboard-toolbar p) { font-size: 14px; line-height: 20px; margin: 0; color: var(--admin-muted); }
+.apex-admin-shell :is(.catalog-heading .catalog-eyebrow, .orders-heading .orders-eyebrow, .dashboard-toolbar .dashboard-eyebrow) { display: none; }
+.apex-admin-shell .app-main :is(.card-header, .catalog-panel-heading, .panel-heading, .dashboard-panel-heading) {
+    padding: 24px 24px 16px;
+    background: transparent;
+    border-bottom: 0;
+    align-items: flex-start;
+}
+.apex-admin-shell .app-main :is(.card-title, .catalog-panel-heading h3, .panel-heading h3, .dashboard-panel-heading h3) {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: -.025em;
+    margin: 0;
+}
+.apex-admin-shell .app-main :is(.catalog-panel-heading p, .panel-heading p, .dashboard-panel-heading p) { font-size: 12px; color: var(--admin-muted); margin: 4px 0 0; line-height: 18px; }
+.apex-admin-shell .app-main :is(.catalog-button, .order-button, .dashboard-button, .btn) { font-size: 12px; min-height: 32px; border-radius: 8px; padding: 7px 12px; font-weight: 500; box-shadow: none; }
+.apex-admin-shell .app-main :is(.catalog-button.primary, .order-button.primary) { background: var(--admin-primary); border-color: var(--admin-primary); color: #fff; }
+.apex-admin-shell .app-main :is(.row-action, .row-button) { background: transparent; border-color: transparent; font-size: 12px; min-height: 30px; padding: 5px 8px; border-radius: 6px; font-weight: 400; }
+.apex-admin-shell .app-main :is(.row-action, .row-button):hover { background: var(--admin-inset); }
+.apex-admin-shell .app-main :is(.product-table th, .orders-table th, .dashboard-table th, .table > thead > tr > th) { background: transparent; color: var(--admin-muted); font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 500; padding: 12px 16px; border-bottom: 1px solid var(--admin-border); }
+.apex-admin-shell .app-main :is(.product-table td, .orders-table td, .dashboard-table td) { font-size: 13px; line-height: 20px; padding: 16px; }
+.apex-admin-shell .app-main :is(.product-name, .customer-name, .order-link, .dashboard-order-link) { font-weight: 500; }
+.apex-admin-shell .app-main :is(.catalog-filters, .order-filters) { padding: 8px 24px 20px; gap: 16px; }
+.apex-admin-shell .app-main :is(.catalog-panel, .orders-panel) { margin-bottom: 24px; }
+.apex-admin-shell .app-main :is(.catalog-pagination, .orders-pagination) { font-size: 12px; background: transparent; padding: 16px 24px; }
+.apex-admin-shell .app-main :is(.catalog-pagination nav, .orders-pagination nav) { gap: 12px; }
+.apex-admin-shell .app-main :is(.product-workspace label, .orders-workspace label) { font-size: 12px; font-weight: 500; }
+.apex-admin-shell .app-main :is(.catalog-filters input, .catalog-filters select, .order-filters input, .order-filters select) { min-height: 36px; padding: 7px 10px; font-size: 13px; }
+.apex-admin-shell .app-main :is(.order-badge, .status-pill, .stock-quantity) { font-size: 11px; border-radius: 6px; padding: 3px 7px; font-weight: 500; }
+.apex-admin-shell .app-main :is(.orders-table small, .sku-label, .dashboard-table .small) { font-size: 11px; }
+.apex-admin-shell .app-main .dashboard-performance { margin-bottom: 16px; }
+.apex-admin-shell .app-main .metrics-grid { gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.apex-admin-shell .app-main .dashboard-metric { position: relative; height: 150px; min-height: 150px; padding: 20px; overflow: hidden; --metric-color: #008e4c; }
+.apex-admin-shell .app-main .dashboard-metric.tone-green { --metric-color: #00a6a8; }
+.apex-admin-shell .app-main .dashboard-metric.tone-purple { --metric-color: #1686e5; }
+.apex-admin-shell .app-main .dashboard-metric.tone-orange { --metric-color: #e7a000; }
+.apex-admin-shell .app-main .metric-heading { align-items: flex-start; }
+.apex-admin-shell .app-main .metric-label { font-size: 12px; font-weight: 400; color: var(--admin-muted); }
+.apex-admin-shell .app-main .metric-icon { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 12px; font-size: 18px; color: var(--metric-color); background: color-mix(in srgb, var(--metric-color) 10%, var(--admin-surface)); }
+.apex-admin-shell .app-main .metric-value { font-size: 24px; line-height: 32px; letter-spacing: -.035em; font-weight: 650; margin: 4px 0 6px; max-width: calc(100% - 38px); }
+.apex-admin-shell .app-main .metric-comparison { font-size: 11px; font-weight: 400; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apex-admin-shell .app-main .metric-note { display: none; }
+.apex-admin-shell .app-main .metric-sparkline { color: var(--metric-color); width: 100%; height: 44px; display: block; position: absolute; bottom: 0; left: 0; pointer-events: none; }
+.apex-admin-shell .app-main .dashboard-freshness { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; padding: 0; border: 0; background: transparent; margin: 0; font-size: 11px; max-width: 480px; color: var(--admin-muted); }
+.apex-admin-shell .app-main .dashboard-live-toggle { font-size: 11px; margin: 0; gap: 6px; }
+.apex-admin-shell .app-main .reporting-dates { flex-basis: 100%; text-align: right; margin: 0; font-size: 10px; }
+.apex-admin-shell .app-main .dashboard-periods { background: var(--admin-inset); border: 0; padding: 3px; border-radius: 10px; gap: 0; }
+.apex-admin-shell .app-main .dashboard-periods button { font-size: 11px; font-weight: 400; min-height: 26px; padding: 4px 9px; border-radius: 7px; color: var(--admin-muted); }
+.apex-admin-shell .app-main .dashboard-periods button.selected { background: var(--admin-surface); color: var(--admin-text); box-shadow: 0 1px 2px #00000014; }
+.apex-admin-shell .app-main .dashboard-controls { gap: 8px; width: auto; display: flex; flex-wrap: nowrap; }
+.apex-admin-shell .app-main .dashboard-controls .dashboard-button { min-height: 30px; width: 30px; padding: 5px; font-size: 0; gap: 0; }
+.apex-admin-shell .app-main .dashboard-controls .dashboard-button i { font-size: 12px; }
+.apex-admin-shell .app-main .dashboard-panel-body { padding: 8px 24px 24px; }
+.apex-overview-grid, .apex-lower-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; margin-bottom: 24px; align-items: stretch; }
+.apex-dashboard-rail { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-content: start; }
+.apex-bottom-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.apex-admin-shell .app-main .apex-overview .dashboard-chart { height: 456px; }
+.apex-admin-shell .app-main .apex-overview .dashboard-panel-heading { flex-wrap: nowrap; }
+.apex-admin-shell .app-main .apex-overview .dashboard-panel-heading h3 { min-width: 110px; }
+.apex-admin-shell .app-main .apex-overview .dashboard-panel-heading p { max-width: 220px; }
+.apex-admin-shell .app-main .apex-overview .dashboard-controls { align-self: center; }
+.apex-admin-shell .app-main .apex-donut-row { display: grid; grid-template-columns: 144px minmax(0, 1fr); gap: 16px; align-items: center; padding-top: 0; }
+.apex-donut { display: grid; place-items: center; width: 144px; height: 144px; border-radius: 50%; }
+.apex-donut > div { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100px; height: 100px; border-radius: 50%; background: var(--admin-surface); }
+.apex-donut strong { font-size: 20px; font-weight: 650; letter-spacing: -.035em; }
+.apex-donut > div > span { font-size: 10px; color: var(--admin-muted); }
+.apex-donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.apex-donut-legend > div { display: flex; align-items: center; gap: 7px; font-size: 11px; min-width: 0; }
+.legend-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; }
+.apex-donut-legend strong { font-size: 11px; font-weight: 500; margin-left: auto; }
+.apex-admin-shell .app-main .apex-attention-card .dashboard-panel-heading { padding-bottom: 12px; }
+.apex-priorities { display: flex; flex-direction: column; gap: 16px; padding: 0 24px 24px; }
+.apex-priority { display: block; color: var(--admin-text); text-decoration: none; font-size: 12px; --priority-color: #008e4c; }
+.apex-priority.alert-danger { --priority-color: #ef4444; }.apex-priority.alert-warning { --priority-color: #e7a000; }
+.apex-priority > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+.apex-priority strong { font-size: 11px; font-weight: 400; color: var(--admin-muted); }
+.apex-priority:hover { color: var(--admin-primary); }
+.apex-priority-track { height: 6px; background: color-mix(in srgb, var(--priority-color) 14%, var(--admin-surface)); border-radius: 8px; overflow: hidden; }
+.apex-priority-track > span { display: block; height: 100%; background: var(--priority-color); border-radius: 8px; min-width: 0; }
+.apex-admin-shell .app-main .customer-avatar { width: 32px; height: 32px; border-radius: 50%; font-size: 11px; background: #009e5a; color: #fff; }
+.apex-customer-cell { display: flex; align-items: center; gap: 12px; min-width: 140px; }
+.apex-customer-cell strong { display: block; font-size: 12px; font-weight: 500; }
+.apex-customer-cell small { display: block; font-size: 11px; color: var(--admin-muted); margin-top: 3px; }
+.apex-admin-shell .app-main .dashboard-text-link { font-size: 11px; font-weight: 400; }
+.apex-admin-shell .app-main .customer-item, .apex-admin-shell .app-main .stock-item { padding: 14px 0; gap: 12px; }
+.apex-admin-shell .app-main .customer-item strong, .apex-admin-shell .app-main .stock-item strong { font-size: 12px; font-weight: 500; }
+.apex-admin-shell .app-main .customer-item div span, .apex-admin-shell .app-main .stock-item div span, .apex-admin-shell .app-main .customer-item small { font-size: 11px; }
+.apex-admin-shell .app-main .panel-footer-link { font-size: 12px; padding: 12px 24px; background: transparent; }
+.apex-admin-shell .app-footer { display: none; }
+@media (max-width: 1199px) {
+    .apex-overview-grid, .apex-lower-grid { grid-template-columns: minmax(0, 1fr); }
+    .apex-dashboard-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+    .apex-admin-shell .app-main .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+    .apex-admin-shell .app-main :is(.operations-dashboard, .product-workspace, .orders-workspace) { padding: 20px 16px; }
+    .apex-admin-shell .app-main > .app-content > .container-fluid > :not(.operations-dashboard):not(.product-workspace):not(.orders-workspace) { margin: 16px; }
+    .apex-admin-shell .app-main :is(.catalog-heading, .orders-heading, .dashboard-toolbar) { margin-bottom: 24px; gap: 12px; }
+    .apex-admin-shell .app-main :is(.catalog-heading h2, .orders-heading h2, .dashboard-toolbar h1) { font-size: 22px; line-height: 28px; }
+    .apex-admin-shell .app-main :is(.card-header, .catalog-panel-heading, .panel-heading, .dashboard-panel-heading) { padding: 20px 20px 16px; }
+    .apex-admin-shell .app-main :is(.catalog-heading p, .orders-heading p, .dashboard-toolbar p) { font-size: 12px; line-height: 18px; }
+    .apex-admin-shell .app-main .dashboard-freshness { max-width: none; justify-content: flex-start; gap: 6px; font-size: 10px; }
+    .apex-admin-shell .app-main .dashboard-live-toggle { font-size: 10px; }
+    .apex-admin-shell .app-main .reporting-dates { text-align: left; font-size: 10px; }
+    .apex-admin-shell .app-main .dashboard-metric { height: 150px; min-height: 150px; }
+    .apex-admin-shell .app-main .metrics-grid, .apex-dashboard-rail, .apex-bottom-grid { grid-template-columns: minmax(0, 1fr); }
+    .apex-admin-shell .app-main .metrics-grid { gap: 16px; }
+    .apex-admin-shell .app-main .apex-overview .dashboard-panel-heading { padding: 20px 20px 12px; gap: 8px; }
+    .apex-admin-shell .app-main .apex-overview .dashboard-panel-heading p { max-width: 110px; }
+    .apex-admin-shell .app-main .dashboard-controls .dashboard-button { display: none; }
+    .apex-admin-shell .app-main .apex-overview .dashboard-chart { height: 400px; }
+    .apex-admin-shell .app-main .dashboard-panel-body { padding: 8px 20px 20px; }
+    .apex-admin-shell .app-main :is(.order-button, .catalog-button) { min-height: 38px; }
+    .apex-admin-shell .app-main .apex-donut-row { grid-template-columns: 144px minmax(0, 1fr); padding-top: 0; }
+    .apex-priorities { padding: 0 20px 20px; }
+    .apex-admin-shell .app-main .orders-table .order-row td, .apex-admin-shell .app-main .product-table .product-row td { padding: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .apex-admin-shell * { scroll-behavior: auto; } }

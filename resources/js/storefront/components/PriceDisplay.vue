@@ -9,12 +9,14 @@ const props = defineProps({
     amountClass: { type: String, default: '' },
     /** CSS class for the currency symbol/image. */
     symbolClass: { type: String, default: 'h-[1.1em] w-auto inline-block align-baseline' },
+    /** Optional sign (e.g. "+" or "-") prepended to the amount, so the currency symbol stays first. */
+    sign: { type: String, default: '' },
 });
 
 const currency = useCurrencyStore();
 
 const formattedAmount = computed(() => {
-    return Number(props.value).toFixed(currency.settings.decimals);
+    return props.sign + Number(props.value).toFixed(currency.settings.decimals);
 });
 
 const isSvg = computed(() => currency.settings.symbolStyle === 'svg');

@@ -8,7 +8,7 @@ import PriceDisplay from '../components/PriceDisplay.vue';
 
 const currency = useCurrencyStore();
 import ProductGrid from '../components/ProductGrid.vue';
-import { swalToast } from '../services/alerts';
+import { swalConfirm, swalToast } from '../services/alerts';
 
 const wishlist = useWishlistStore();
 const cart = useCartStore();
@@ -16,6 +16,18 @@ const cart = useCartStore();
 const items = computed(() =>
     wishlist.slugs.map((slug) => findBySlug(slug)).filter(Boolean),
 );
+
+async function clearWishlist() {
+    const ok = await swalConfirm(
+        'Clear wishlist?',
+        'Remove all products from your wishlist?',
+        'Clear wishlist',
+    );
+    if (ok) {
+        wishlist.clear();
+        swalToast('Your wishlist has been cleared.', 'info');
+    }
+}
 
 function remove(product) {
     wishlist.remove(product.slug);
@@ -144,7 +156,7 @@ function moveToCart(product) {
                     <button
                         type="button"
                         class="wd-btn wd-btn-outline"
-                        @click="wishlist.clear(); swalToast('Your wishlist has been cleared.', 'info')"
+                        @click="clearWishlist"
                     >
                         Clear wishlist
                     </button>

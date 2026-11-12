@@ -6,6 +6,22 @@ import { swalToast } from '../services/alerts';
 const content = useContentStore();
 const site = computed(() => content.site);
 
+/**
+ * Copyright line with a live year so the footer never goes stale.
+ * Accepts an explicit {{year}} / {year} placeholder; otherwise the first
+ * 4-digit year in the stored text is swapped for the current one.
+ */
+const copyright = computed(() => {
+    const text = site.value.copyright || '';
+    const year = String(new Date().getFullYear());
+
+    if (/{\{?year\}?}/.test(text)) {
+        return text.replace(/\{\{?year\}?\}/g, year);
+    }
+
+    return text.replace(/(?:19|20)\d{2}/, year);
+});
+
 const email = ref('');
 
 function subscribe() {
@@ -24,7 +40,7 @@ function subscribe() {
         <div class="wd-container grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
             <!-- Brand -->
             <div>
-                <img :src="site.logo" :alt="site.name" class="h-12 w-auto" />
+                <img :src="site.logo" :alt="site.name" class="h-16 w-auto" />
                 <p class="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500">
                     {{ site.tagline }}
                 </p>
@@ -101,7 +117,7 @@ function subscribe() {
             <div class="wd-container py-7">
                 <div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
                     <div>
-                        <p class="text-sm font-semibold text-ink">{{ site.copyright }}</p>
+                        <p class="text-sm font-semibold text-ink">{{ copyright }}</p>
                         <p class="mt-1 text-sm font-semibold text-ink">
                             {{ site.ruo }}
                         </p>

@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useContentStore } from '../stores/content';
+import { useRouter } from 'vue-router';
 import TopBar from './TopBar.vue';
 import SiteHeader from './SiteHeader.vue';
 import MobileMenu from './MobileMenu.vue';
@@ -12,8 +13,14 @@ import SiteFooter from './SiteFooter.vue';
 const searchOpen = ref(false);
 const menuOpen = ref(false);
 const cartOpen = ref(false);
+const searchQuery = ref('');
+const router = useRouter();
 
-const route = useRoute();
+function openSearch(query = '') {
+    searchQuery.value = query;
+    searchOpen.value = true;
+    menuOpen.value = false;
+}
 
 function closeAll() {
     searchOpen.value = false;
@@ -22,14 +29,28 @@ function closeAll() {
 }
 
 // Any navigation dismisses the overlays, matching the source site.
-route?.afterEach?.(closeAll);
+const content = useContentStore();
+const refreshSettings = () => { if (!document.hidden) void content.refreshStoreSettings(); };
+watch(cartOpen, open => { if (open) refreshSettings(); });
+const stopNavigation = router.afterEach(() => { closeAll(); refreshSettings(); });
+let settingsTimer;
+onMounted(() => {
+    refreshSettings();
+    settingsTimer = setInterval(refreshSettings, 30000);
+    document.addEventListener('visibilitychange', refreshSettings);
+});
+onBeforeUnmount(() => {
+    stopNavigation();
+    clearInterval(settingsTimer);
+    document.removeEventListener('visibilitychange', refreshSettings);
+});
 </script>
 
 <template>
     <div class="flex min-h-screen flex-col bg-background">
         <TopBar />
         <SiteHeader
-            @open-search="searchOpen = true"
+            @open-search="openSearch()"
             @open-menu="menuOpen = true"
             @open-cart="cartOpen = true"
         />
@@ -41,8 +62,16 @@ route?.afterEach?.(closeAll);
         <FeatureBar />
         <SiteFooter />
 
-        <SearchOverlay :open="searchOpen" @close="searchOpen = false" />
-        <MobileMenu :open="menuOpen" @close="menuOpen = false" />
+        <SearchOverlay
+            :open="searchOpen"
+            :initial-query="searchQuery"
+            @close="searchOpen = false"
+        />
+        <MobileMenu
+            :open="menuOpen"
+            @close="menuOpen = false"
+            @open-search="openSearch"
+        />
         <CartDrawer :open="cartOpen" @close="cartOpen = false" />
     </div>
 </template>

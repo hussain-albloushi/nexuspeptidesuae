@@ -8,7 +8,10 @@ import { swalToast } from '../services/alerts';
 
 const currency = useCurrencyStore();
 
-const props = defineProps({ open: Boolean });
+const props = defineProps({
+    open: Boolean,
+    initialQuery: { type: String, default: '' },
+});
 const emit = defineEmits(['close']);
 
 const query = ref('');
@@ -16,17 +19,17 @@ const input = ref(null);
 
 const results = computed(() => {
     const q = query.value.trim().toLowerCase();
-    if (q.length < 2) return [];
+    if (q.length === 0) return [];
     return products
         .filter((p) => p.name.toLowerCase().includes(q) || p.tags.some((t) => t.toLowerCase().includes(q)))
-        .slice(0, 6);
+        .slice(0, 10);
 });
 
 watch(
     () => props.open,
     async (open) => {
         if (open) {
-            query.value = '';
+            query.value = props.initialQuery || '';
             await nextTick();
             input.value?.focus();
         }
@@ -41,6 +44,7 @@ function addToCart(slug) {
     const cart = useCartStore();
     cart.add(slug, 1);
     swalToast('Added to your basket.', 'success');
+    emit('close');
 }
 </script>
 
@@ -77,7 +81,7 @@ function addToCart(slug) {
                     </form>
 
                     <p
-                        v-if="query.trim().length < 2"
+                        v-if="!query.trim()"
                         class="mt-10 text-center text-sm text-neutral-500"
                     >
                         Start typing to see products you are looking for.

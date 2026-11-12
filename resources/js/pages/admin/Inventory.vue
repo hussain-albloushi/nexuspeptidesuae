@@ -234,7 +234,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 
 const products = ref([]);
@@ -247,7 +248,12 @@ const saving = ref(false);
 const flash = ref('');
 const formError = ref('');
 const q = ref('');
-const statusFilter = ref('');
+const route = useRoute();
+const statusFilter = ref(['low_stock', 'out_of_stock', 'in_stock'].includes(route.query.status) ? route.query.status : '');
+watch(() => route.query.status, (status) => {
+  statusFilter.value = ['low_stock', 'out_of_stock', 'in_stock'].includes(status) ? status : '';
+  void load();
+});
 const historyType = ref('');
 const historyProduct = ref('');
 const selected = ref(null);

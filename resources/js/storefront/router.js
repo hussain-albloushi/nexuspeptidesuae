@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import StoreLayout from './layout/StoreLayout.vue';
+import { useAuthStore } from './stores/auth';
 
 const routes = [
     {
@@ -26,6 +27,9 @@ const routes = [
             { path: 'checkout', name: 'checkout', component: () => import('./pages/Checkout.vue') },
             { path: 'wishlist', name: 'wishlist', component: () => import('./pages/Wishlist.vue') },
             { path: 'my-account', name: 'account', component: () => import('./pages/Account.vue') },
+            { path: 'reset-password', name: 'reset-password', component: () => import('./pages/ResetPassword.vue') },
+            { path: 'my-orders', name: 'orders', component: () => import('./pages/Orders.vue') },
+
 
             // Legal
             { path: 'terms-conditions', name: 'terms', component: () => import('./pages/Legal.vue'), props: { page: 'terms' } },
@@ -47,6 +51,17 @@ const router = createRouter({
         if (to.hash) return { el: to.hash, top: 90 };
         return { top: 0 };
     },
+});
+
+// Re-check the session on every navigation (throttled to once a minute inside
+// pingSession) so a customer whose account was deleted elsewhere is signed out
+// automatically instead of browsing on a revoked token. A 401 lands in the
+// global response interceptor, which clears the session and sends them to log in.
+router.beforeEach(async () => {
+    const auth = useAuthStore();
+    await auth.pingSession();
+
+    return true;
 });
 
 export default router;

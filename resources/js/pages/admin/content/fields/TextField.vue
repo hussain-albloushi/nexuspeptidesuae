@@ -15,6 +15,9 @@ defineEmits(['update:modelValue']);
             <span v-if="field.required" class="text-danger">*</span>
         </label>
         <input
+            :type="field.input_type || 'text'"
+            :min="field.min"
+            :step="field.step"
             class="form-control"
             :class="{ 'is-invalid': error }"
             :value="modelValue ?? ''"

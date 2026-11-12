@@ -1,17 +1,70 @@
 import { defineStore } from 'pinia';
 
-const KEY = 'zenvy_wishlist';
+// Per-user scope (logged-in users). Guest visitors also get a key so they
+// don't accidentally pick up one account's wishlist while browsing as another.
+const NEW_PREFIX = 'nexus_wishlist:';
+const LEGACY_PREFIX = 'zenvy_wishlist:';
+const LEGACY_GLOBAL = 'zenvy_wishlist';
+const GUEST_KEY = `${NEW_PREFIX}guest`;
 
-function load() {
+function userKey(email) {
+    return `${NEW_PREFIX}${email}`;
+}
+
+function read(key) {
     try {
-        return JSON.parse(localStorage.getItem(KEY)) || [];
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) || [] : [];
     } catch {
         return [];
     }
 }
 
+function currentKey() {
+    try {
+        const user = JSON.parse(localStorage.getItem('nexus_account')) || {};
+        return user.email ? userKey(user.email) : GUEST_KEY;
+    } catch {
+        return GUEST_KEY;
+    }
+}
+
+/**
+ * Move wishlist data stored under the old `zenvy_*` keys forward.
+ */
+function migrateLegacy() {
+    try {
+        // Global legacy key from before per-user scoping.
+        const legacy = localStorage.getItem(LEGACY_GLOBAL);
+        if (legacy !== null) {
+            if (localStorage.getItem(GUEST_KEY) === null) {
+                localStorage.setItem(GUEST_KEY, legacy);
+            }
+            localStorage.removeItem(LEGACY_GLOBAL);
+        }
+
+        // Old per-user keys: zenvy_wishlist:<email> -> nexus_wishlist:<email>
+        for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(LEGACY_PREFIX)) {
+                const value = localStorage.getItem(key);
+                const migrated = NEW_PREFIX + key.slice(LEGACY_PREFIX.length);
+                if (value !== null && localStorage.getItem(migrated) === null) {
+                    localStorage.setItem(migrated, value);
+                }
+                localStorage.removeItem(key);
+            }
+        }
+    } catch {
+        // Legacy data unreadable — nothing more to do.
+    }
+}
+
 export const useWishlistStore = defineStore('wishlist', {
-    state: () => ({ slugs: load() }),
+    state: () => {
+        migrateLegacy();
+        return { slugs: read(currentKey()) };
+    },
 
     getters: {
         count: (state) => state.slugs.length,
@@ -20,7 +73,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
     actions: {
         persist() {
-            localStorage.setItem(KEY, JSON.stringify(this.slugs));
+            localStorage.setItem(currentKey(), JSON.stringify(this.slugs));
         },
 
         has(slug) {
@@ -43,6 +96,22 @@ export const useWishlistStore = defineStore('wishlist', {
         clear() {
             this.slugs = [];
             this.persist();
+        },
+
+        /** Pull every item from the guest wishlist into the current scope. */
+        mergeGuestIntoCurrent() {
+            const guest = read(GUEST_KEY);
+            if (!guest.length) return;
+
+            // Union the user's saved wishlist with the guest's slugs, keeping order.
+            this.slugs = Array.from(new Set([...this.slugs, ...guest]));
+            this.persist();
+            localStorage.removeItem(GUEST_KEY);
+        },
+
+        /** Rebuild the live `slugs` array from the current user's wishlist. */
+        switch() {
+            this.slugs = read(currentKey());
         },
     },
 });

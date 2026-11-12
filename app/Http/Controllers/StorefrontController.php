@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -12,11 +13,12 @@ class StorefrontController extends Controller
     public function index()
     {
         $content = $this->publishedContent();
+        $content['store'] = array_replace(config('storefront-content.shipping_defaults'), $content['store'] ?? []);
 
         $site = $content['site'] ?? [];
 
         $seo = [
-            'title' => $site['seoTitle'] ?? 'Zenvy Peptides — Research-Grade Peptides',
+            'title' => $site['seoTitle'] ?? 'Nexus Peptide - UAE',
             'description' => $site['seoDescription'] ?? 'Research-grade peptides with verified purity and full traceability.',
         ];
 
@@ -30,6 +32,14 @@ class StorefrontController extends Controller
      * Load every published content group, falling back to the storefront's
      * static defaults if the database or cache is temporarily unavailable.
      */
+    public function storeSettings(): JsonResponse
+    {
+        $content = $this->publishedContent();
+
+        return response()->json(array_replace(config('storefront-content.shipping_defaults'), $content['store'] ?? []))
+            ->header('Cache-Control', 'no-store');
+    }
+
     protected function publishedContent(): array
     {
         try {

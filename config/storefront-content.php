@@ -17,6 +17,12 @@ return [
 
     'cache_key' => 'storefront:content',
     'cache_ttl' => 3600,
+    'shipping_defaults' => [
+        'shippingMode' => 'flat',
+        'flatRate' => 25,
+        'freeShippingThreshold' => 300,
+        'codFee' => 0,
+    ],
 
     'upload' => [
         'disk' => 'public',
@@ -62,7 +68,7 @@ return [
                 [
                     'title' => 'Footer legal copy',
                     'fields' => [
-                        ['name' => 'copyright', 'type' => 'text', 'label' => 'Copyright line', 'max' => 120],
+                        ['name' => 'copyright', 'type' => 'text', 'label' => 'Copyright line', 'max' => 120, 'help' => 'The year is always rendered dynamically — use {year} where the year should appear (any year already in the text is replaced with the current one).'],
                         ['name' => 'ruo', 'type' => 'text', 'label' => 'Research-use line', 'max' => 160],
                         ['name' => 'legalNotice', 'type' => 'textarea', 'label' => 'Full legal notice', 'rows' => 5, 'max' => 1200],
                     ],
@@ -105,7 +111,7 @@ return [
                             'add_label' => 'Add social link', 'item_label' => 'name', 'max_items' => 8,
                             'fields' => [
                                 ['name' => 'name', 'type' => 'text', 'label' => 'Name', 'required' => true, 'max' => 40],
-                                ['name' => 'icon', 'type' => 'text', 'label' => 'Icon class', 'max' => 80, 'help' => 'Font Awesome class, for example fa-brands fa-instagram.'],
+                                ['name' => 'icon', 'type' => 'icon', 'label' => 'Icon', 'sets' => ['brands', 'solid'], 'help' => 'Pick the social or contact icon. No code needed.'],
                                 ['name' => 'url', 'type' => 'text', 'label' => 'Link', 'max' => 200],
                             ],
                         ],
@@ -126,7 +132,7 @@ return [
                             'name' => 'standards', 'type' => 'repeater', 'label' => 'Cards',
                             'add_label' => 'Add card', 'item_label' => 'title', 'max_items' => 6,
                             'fields' => [
-                                ['name' => 'icon', 'type' => 'text', 'label' => 'Icon class', 'max' => 80, 'help' => 'Font Awesome class, for example fa-solid fa-award.'],
+                                ['name' => 'icon', 'type' => 'icon', 'label' => 'Icon', 'help' => 'Pick an icon from the list. No code needed.'],
                                 ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'required' => true, 'max' => 80],
                                 ['name' => 'body', 'type' => 'textarea', 'label' => 'Description', 'required' => true, 'max' => 300, 'rows' => 3],
                             ],
@@ -141,7 +147,7 @@ return [
                             'name' => 'features', 'type' => 'repeater', 'label' => 'Items',
                             'add_label' => 'Add item', 'item_label' => 'title', 'max_items' => 8,
                             'fields' => [
-                                ['name' => 'icon', 'type' => 'text', 'label' => 'Icon class', 'max' => 80],
+                                ['name' => 'icon', 'type' => 'icon', 'label' => 'Icon', 'help' => 'Pick an icon from the list. No code needed.'],
                                 ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'required' => true, 'max' => 80],
                                 ['name' => 'body', 'type' => 'textarea', 'label' => 'Description', 'required' => true, 'max' => 240, 'rows' => 2],
                             ],
@@ -181,17 +187,21 @@ return [
                 ],
                 [
                     'title' => 'Shipping',
-                    'description' => 'Shipping modes and costs used on the storefront.',
+                    'description' => 'Shared by cart totals, checkout, and order calculations. Eligibility uses the item subtotal before coupons, tax, and shipping.',
                     'fields' => [
                         ['name' => 'shippingMode', 'type' => 'select', 'label' => 'Shipping mode', 'required' => true, 'options' => [
                             ['value' => 'flat', 'label' => 'Flat rate'],
                             ['value' => 'free', 'label' => 'Free shipping'],
-                            ['value' => 'weight', 'label' => 'Weight-based'],
                         ]],
-                        ['name' => 'shippingOptions', 'type' => 'repeater', 'label' => 'Shipping options', 'add_label' => 'Add shipping option', 'item_label' => 'name', 'max_items' => 8, 'fields' => [
-                            ['name' => 'name', 'type' => 'text', 'label' => 'Name', 'required' => true, 'max' => 80],
-                            ['name' => 'cost', 'type' => 'text', 'label' => 'Cost (AED)', 'required' => true, 'max' => 10, 'help' => 'Shipping cost in AED, for example 50.'],
-                        ]],
+                        ['name' => 'flatRate', 'type' => 'text', 'input_type' => 'number', 'min' => 0, 'step' => '0.01', 'label' => 'Delivery charge (AED)', 'help' => 'Charged below the free-shipping threshold when Flat rate is selected.'],
+                        ['name' => 'freeShippingThreshold', 'type' => 'text', 'input_type' => 'number', 'min' => 0, 'step' => '0.01', 'label' => 'Free-shipping minimum subtotal (AED)', 'help' => 'Shipping is free at or above this amount. Leave blank to disable the threshold.'],
+                    ],
+                ],
+                [
+                    'title' => 'Cash on delivery',
+                    'description' => 'Handling fee for cash-on-delivery payment, charged only when Cash on delivery is selected at checkout. Eligibility uses the item subtotal before coupons, tax, and shipping.',
+                    'fields' => [
+                        ['name' => 'codFee', 'type' => 'text', 'input_type' => 'number', 'min' => 0, 'step' => '0.01', 'label' => 'Cash on delivery fee (AED)', 'help' => 'Charged once per order when the customer pays cash on delivery. Leave 0 to disable.'],
                     ],
                 ],
                 [

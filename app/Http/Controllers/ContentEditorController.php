@@ -26,7 +26,7 @@ class ContentEditorController extends Controller
                     'live_url' => $group['live_url'] ?? '/',
                     'sections' => $group['sections'] ?? [],
                     'is_active' => $record?->is_active ?? true,
-                    'data' => $record?->data ?? [],
+                    'data' => $key === 'store' ? array_replace(config('storefront-content.shipping_defaults'), $record?->data ?? []) : ($record?->data ?? []),
                     'updated_at' => $record?->updated_at?->toIso8601String(),
                 ];
             })->values(),
@@ -44,6 +44,14 @@ class ContentEditorController extends Controller
         ]);
 
         $group = $groups[$key];
+        if ($key === 'store') {
+            $request->validate([
+                'data.shippingMode' => ['required', 'in:flat,free'],
+                'data.flatRate' => ['required_if:data.shippingMode,flat', 'nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:1000000'],
+                'data.freeShippingThreshold' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:1000000'],
+                'data.codFee' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:1000000'],
+            ]);
+        }
 
         $content = Content::updateOrCreate(
             ['key' => $key],

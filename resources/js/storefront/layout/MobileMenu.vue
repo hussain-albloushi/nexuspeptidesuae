@@ -1,12 +1,14 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useContentStore } from '../stores/content';
 
 const content = useContentStore();
 const site = computed(() => content.site);
 
 defineProps({ open: Boolean });
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'open-search']);
+
+const query = ref('');
 </script>
 
 <template>
@@ -26,10 +28,21 @@ const emit = defineEmits(['close']);
                 aria-label="Mobile navigation"
             >
                 <div class="flex items-center justify-between border-b border-black/10 px-6 py-5">
-                    <img :src="site.logo" :alt="site.name" class="h-9 w-auto" />
+                    <img :src="site.logo" :alt="site.name" class="h-11 w-auto" />
                     <button type="button" aria-label="Close" @click="emit('close')">
                         <i class="fa-solid fa-xmark text-xl text-ink"></i>
                     </button>
+                </div>
+
+                <div class="relative px-6 py-4">
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        class="wd-field w-full py-2 pr-10 rounded-md text-sm"
+                        v-model="query"
+                        @input="emit('open-search', query)"
+                    />
+                    <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"></i>
                 </div>
 
                 <nav class="flex flex-col px-6 py-4">

@@ -10,7 +10,7 @@ export const faqs = [
     },
     {
         q: 'Are these products for human use?',
-        a: 'No. Every product sold by Zenvy Peptides is supplied strictly for laboratory research use only. They are not intended for human or veterinary use, consumption, injection, or any diagnostic, therapeutic or clinical application.',
+        a: 'No. Every product sold by Nexus Peptides is supplied strictly for laboratory research use only. They are not intended for human or veterinary use, consumption, injection, or any diagnostic, therapeutic or clinical application.',
     },
     {
         q: 'Do you provide dosing or guidance?',

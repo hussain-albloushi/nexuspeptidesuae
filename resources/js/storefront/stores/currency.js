@@ -8,8 +8,29 @@
  */
 
 import { defineStore } from 'pinia';
-import { computed } from 'vue';
 import { useContentStore } from './content';
+
+/**
+ * The admin panel stores boolean values from <select> controls as the strings
+ * 'true'/'false' (and occasionally as actual booleans). A naive Boolean('false')
+ * is truthy, which would leave VAT/age confirmation always enabled. Normalize all
+ * boolean-ish paylods before use.
+ */
+function asBool(value, fallback) {
+    if (value === undefined || value === null || value === '') return fallback;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+        return ['true', '1', 'yes', 'on', 'y'].includes(value.trim().toLowerCase());
+    }
+    return Boolean(value);
+}
+
+function asNumber(value, fallback) {
+    if (value === undefined || value === null || value === '') return fallback;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+}
 
 export const useCurrencyStore = defineStore('currency', {
     state: () => ({
@@ -24,8 +45,11 @@ export const useCurrencyStore = defineStore('currency', {
             vatRate: 5,
             vatIncludedInPrice: false,
             vatLabel: 'VAT',
-            shippingMode: 'custom',
+            shippingMode: 'flat',
             shippingOptions: [],
+            flatRate: 25,
+            freeShippingThreshold: 300,
+            codFee: 0,
             returnWindowDays: 14,
             ageConfirmation: true,
         },
@@ -36,21 +60,27 @@ export const useCurrencyStore = defineStore('currency', {
         settings(state) {
             const content = useContentStore();
             const store = content.store || {};
+            const display = typeof store.currency === 'object' && store.currency !== null
+                ? { ...store, ...store.currency }
+                : store;
 
             return {
-                currency: store.currency || state.defaults.currency,
-                symbolStyle: store.symbolStyle || state.defaults.symbolStyle,
-                symbolPosition: store.symbolPosition || state.defaults.symbolPosition,
-                symbolText: store.symbolText || state.defaults.symbolText,
-                decimals: parseInt(store.decimals, 10) || state.defaults.decimals,
-                vatEnabled: Boolean(store.vatEnabled ?? state.defaults.vatEnabled),
-                vatRate: parseFloat(store.vatRate) || state.defaults.vatRate,
-                vatIncludedInPrice: Boolean(store.vatIncludedInPrice ?? state.defaults.vatIncludedInPrice),
+                currency: typeof display.currency === 'string' ? display.currency : state.defaults.currency,
+                symbolStyle: display.symbolStyle || state.defaults.symbolStyle,
+                symbolPosition: display.symbolPosition || state.defaults.symbolPosition,
+                symbolText: display.symbolText || state.defaults.symbolText,
+                decimals: Math.max(0, Math.min(8, Math.trunc(asNumber(display.decimals, state.defaults.decimals)))),
+                vatEnabled: asBool(store.vatEnabled, state.defaults.vatEnabled),
+                vatRate: asNumber(store.vatRate, state.defaults.vatRate),
+                vatIncludedInPrice: asBool(store.vatIncludedInPrice, state.defaults.vatIncludedInPrice),
                 vatLabel: store.vatLabel || state.defaults.vatLabel,
                 shippingMode: store.shippingMode || state.defaults.shippingMode,
                 shippingOptions: store.shippingOptions || state.defaults.shippingOptions,
-                returnWindowDays: parseInt(store.returnWindowDays, 10) || state.defaults.returnWindowDays,
-                ageConfirmation: Boolean(store.ageConfirmation ?? state.defaults.ageConfirmation),
+                flatRate: Math.max(0, asNumber(store.flatRate ?? store.shippingOptions?.[0]?.cost, 25)),
+                freeShippingThreshold: asNumber(store.freeShippingThreshold, null),
+                codFee: Math.max(0, asNumber(store.codFee, state.defaults.codFee)),
+                returnWindowDays: asNumber(store.returnWindowDays, state.defaults.returnWindowDays),
+                ageConfirmation: asBool(store.ageConfirmation, state.defaults.ageConfirmation),
             };
         },
 
@@ -113,7 +143,7 @@ export const useCurrencyStore = defineStore('currency', {
          */
         formatText(value) {
             const s = this.settings;
-            const decimals = parseInt(s.decimals, 10) || 2;
+            const decimals = s.decimals;
             const amount = Number(value).toFixed(decimals);
             const position = s.symbolPosition;
 
@@ -131,7 +161,10 @@ export const useCurrencyStore = defineStore('currency', {
         calculateVAT(subtotal) {
             const s = this.settings;
             if (!s.vatEnabled) return 0;
-            return subtotal * (s.vatRate / 100);
+            const vat = s.vatIncludedInPrice
+                ? subtotal * (s.vatRate / (100 + s.vatRate))
+                : subtotal * (s.vatRate / 100);
+            return Math.round(vat * 100) / 100;
         },
 
         /**
@@ -141,10 +174,10 @@ export const useCurrencyStore = defineStore('currency', {
          * @param {number} shipping
          * @returns {{ subtotal: number, vat: number, shipping: number, total: number }}
          */
-        calculateTotal(subtotal, shipping) {
+        calculateTotal(subtotal, shipping = 0) {
             const s = this.settings;
             const vat = s.vatEnabled ? this.calculateVAT(subtotal) : 0;
-            const total = subtotal + shipping + vat;
+            const total = Math.round((subtotal + shipping + (s.vatIncludedInPrice ? 0 : vat)) * 100) / 100;
             return { subtotal, vat, shipping, total };
         },
     },

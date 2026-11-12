@@ -1,10 +1,26 @@
 import { defineStore } from 'pinia';
-import { products, findBySlug } from '../data/products';
+import { findBySlug } from '../data/products';
 import { useCurrencyStore } from './currency';
 
-const KEY = 'zenvy_cart';
+const KEY = 'nexus_cart';
+const LEGACY_KEY = 'zenvy_cart';
+
+function migrateLegacy() {
+    try {
+        const value = localStorage.getItem(LEGACY_KEY);
+        if (value !== null) {
+            if (localStorage.getItem(KEY) === null) {
+                localStorage.setItem(KEY, value);
+            }
+            localStorage.removeItem(LEGACY_KEY);
+        }
+    } catch {
+        // Unreadable legacy data — leave it alone.
+    }
+}
 
 function load() {
+    migrateLegacy();
     try {
         return JSON.parse(localStorage.getItem(KEY)) || [];
     } catch {
@@ -19,7 +35,6 @@ export const useCartStore = defineStore('cart', {
         count: (state) => state.items.reduce((n, i) => n + i.qty, 0),
 
         lines(state) {
-            const currencyStore = useCurrencyStore();
             return state.items
                 .map((i) => {
                     const product = findBySlug(i.slug);
@@ -29,9 +44,7 @@ export const useCartStore = defineStore('cart', {
         },
 
         subtotal() {
-            const currencyStore = useCurrencyStore();
-            const decimals = currencyStore.settings.decimals;
-            return this.lines.reduce((sum, l) => sum + l.total, 0);
+            return Math.round(this.lines.reduce((sum, l) => sum + l.total, 0) * 100) / 100;
         },
 
         shipping() {
@@ -46,7 +59,7 @@ export const useCartStore = defineStore('cart', {
 
             if (currencyStore.settings.shippingMode === 'flat') {
                 const flatRate = currencyStore.settings.flatRate || 0;
-                const freeThreshold = currencyStore.settings.freeShippingThreshold || Infinity;
+                const freeThreshold = currencyStore.settings.freeShippingThreshold ?? Infinity;
                 if (subtotal >= freeThreshold) return 0;
                 return flatRate;
             }
@@ -55,31 +68,25 @@ export const useCartStore = defineStore('cart', {
             return 0;
         },
 
+        freeShippingRemaining() {
+            const settings = useCurrencyStore().settings;
+            if (settings.shippingMode !== 'flat' || settings.freeShippingThreshold === null || settings.flatRate <= 0) return null;
+            return Math.max(0, Math.round((settings.freeShippingThreshold - this.subtotal) * 100) / 100);
+        },
+
+        freeShippingProgress() {
+            const threshold = useCurrencyStore().settings.freeShippingThreshold;
+            return threshold > 0 ? Math.max(0, Math.min(100, this.subtotal / threshold * 100)) : 100;
+        },
+
         tax() {
             const currencyStore = useCurrencyStore();
-            const subtotal = this.subtotal;
-
-            if (!currencyStore.settings.vatEnabled) return 0;
-
-            if (currencyStore.settings.vatIncludedInPrice) {
-                // VAT is already included in the price; extract it for display
-                return subtotal * (currencyStore.settings.vatRate / (100 + currencyStore.settings.vatRate));
-            }
-
-            return subtotal * (currencyStore.settings.vatRate / 100);
+            return currencyStore.calculateVAT(this.subtotal);
         },
 
         total() {
             const currencyStore = useCurrencyStore();
-            const subtotal = this.subtotal;
-            const shipping = this.shipping;
-            const tax = this.tax;
-
-            if (currencyStore.settings.vatIncludedInPrice) {
-                return subtotal + shipping;
-            }
-
-            return subtotal + shipping + tax;
+            return currencyStore.calculateTotal(this.subtotal, this.shipping).total;
         },
 
         formattedTotal() {

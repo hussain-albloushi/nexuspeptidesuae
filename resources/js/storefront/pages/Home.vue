@@ -1,13 +1,50 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useContentStore } from '../stores/content';
-import { allPeptides } from '../data/products';
+import { allPeptides, categories } from '../data/products';
 import StandardsSection from '../components/StandardsSection.vue';
 import ProductGrid from '../components/ProductGrid.vue';
 
 const content = useContentStore();
 const home = computed(() => content.home);
 const site = computed(() => content.site);
+
+// Filter state
+const search = ref('');
+const category = ref('all');
+const sort = ref('price-asc');
+
+// Filtered products
+const filteredProducts = computed(() => {
+    let list = [...allPeptides];
+
+    // Category filter
+    if (category.value !== 'all') {
+        list = list.filter(p => p.category === category.value);
+    }
+
+    // Search filter
+    if (search.value.trim()) {
+        const term = search.value.trim().toLowerCase();
+        list = list.filter(p =>
+            p.name.toLowerCase().includes(term) ||
+            p.tags.some(tag => tag.toLowerCase().includes(term))
+        );
+    }
+
+    // Sort
+    switch (sort.value) {
+        case 'price-desc':
+            return list.sort((a, b) => b.price - a.price);
+        case 'name-asc':
+            return list.sort((a, b) => a.name.localeCompare(b.name));
+        case 'name-desc':
+            return list.sort((a, b) => b.name.localeCompare(a.name));
+        default: // price-asc
+            return list.sort((a, b) => a.price - b.price);
+    }
+});
+
 </script>
 
 <template>
@@ -16,7 +53,7 @@ const site = computed(() => content.site);
         <section class="overflow-hidden bg-neutral-50">
             <div class="wd-container grid items-center gap-10 py-16 md:py-24 lg:grid-cols-2">
                 <div>
-                    <p class="font-nav text-sm uppercase tracking-[0.2em] text-primary">
+                    <p v-if="home.heroKicker" class="font-nav text-sm uppercase tracking-[0.2em] text-primary">
                         {{ home.heroKicker }}
                     </p>
                     <h1 class="mt-4 text-4xl leading-[1.15] md:text-5xl lg:text-6xl">
@@ -56,8 +93,46 @@ const site = computed(() => content.site);
                     </p>
                 </div>
 
-                <div class="mt-12">
-                    <ProductGrid :products="allPeptides" />
+                <!-- Filters -->
+                <div class="mt-12 space-y-4">
+                    <div class="flex flex-wrap items-center gap-3 text-sm">
+                        <label class="flex items-center gap-1 text-neutral-500">
+                            <span class="font-medium">Category</span>
+                            <select v-model="category" class="wd-field !w-40 !py-2 !px-3">
+                                <option value="all">All</option>
+                                <template v-for="cat in categories" :key="cat.slug">
+                                    <option :value="cat.slug">{{ cat.name }}</option>
+                                </template>
+                            </select>
+                        </label>
+
+                        <label class="relative flex-1 min-w-[200px]">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input
+                                v-model="search"
+                                placeholder="Search products..."
+                                class="wd-field w-full pl-10 py-2 pr-3 rounded-lg text-sm"
+                            />
+                        </label>
+
+                        <label class="flex items-center gap-1 text-neutral-500">
+                            <span class="font-medium">Sort by</span>
+                            <select v-model="sort" class="wd-field !w-52 !py-2 !px-3">
+                                <option value="price-asc">Price: low to high</option>
+                                <option value="price-desc">Price: high to low</option>
+                                <option value="name-asc">Name: A to Z</option>
+                                <option value="name-desc">Name: Z to A</option>
+                            </select>
+                        </label>
+
+
+                    </div>
+                </div>
+
+                <div class="mt-16">
+                    <ProductGrid :products="filteredProducts" />
                 </div>
 
                 <div class="mt-12 text-center">
@@ -108,7 +183,7 @@ const site = computed(() => content.site);
         <section class="bg-navy-dark text-white">
             <div class="wd-container grid items-center gap-12 py-16 md:py-24 lg:grid-cols-2">
                 <div>
-                    <p class="font-nav text-sm uppercase tracking-[0.2em] text-secondary">
+                    <p v-if="home.purityKicker" class="font-nav text-sm uppercase tracking-[0.2em] text-secondary">
                         {{ home.purityKicker }}
                     </p>
                     <h2 class="mt-4 text-3xl text-white md:text-4xl">

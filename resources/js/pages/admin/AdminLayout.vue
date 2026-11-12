@@ -1,60 +1,68 @@
 <template>
-  <div class="app-wrapper">
+  <div class="app-wrapper apex-admin-shell">
     <!-- Header -->
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Toggle sidebar"><i class="bi bi-list"></i></a>
-          </li>
-          <li class="nav-item d-none d-md-block">
-            <router-link to="/admin" class="nav-link"><i class="bi bi-grid-1x2 me-1"></i> Dashboard</router-link>
-          </li>
-          <li class="nav-item d-none d-md-block">
-            <a href="/" class="nav-link"><i class="bi bi-shop me-1"></i> Storefront</a>
-          </li>
-        </ul>
+        <button type="button" class="apex-mobile-menu" data-lte-toggle="sidebar" aria-label="Toggle navigation"><AdminIcon name="menu" /></button>
 
-        <form class="navbar-search d-none d-xl-block ms-3" role="search" @submit.prevent>
+        <form class="navbar-search admin-global-search" :class="{ 'mobile-open': mobileSearchOpen }" @keydown.esc="mobileSearchOpen = false" role="search" @submit.prevent="handleSearch">
           <label for="navbar-search-input" class="visually-hidden">Search</label>
           <div class="navbar-search-field">
-            <input type="search" id="navbar-search-input" class="form-control" placeholder="Search…" autocomplete="off" />
-            <button class="navbar-search-submit" type="submit" aria-label="Submit search"><i class="bi bi-search" aria-hidden="true"></i></button>
+            <input v-model="searchQuery" type="search" id="navbar-search-input" class="form-control" placeholder="Search anything…" autocomplete="off" maxlength="255" />
+            <button class="navbar-search-submit" type="submit" aria-label="Submit search"><AdminIcon name="search" :size="16" /></button>
+            <kbd class="search-shortcut">Ctrl K</kbd>
           </div>
         </form>
 
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-label="Notifications"><i class="bi bi-bell-fill"></i><span class="navbar-badge badge text-bg-warning">3</span></a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-              <span class="dropdown-item dropdown-header">3 Notifications</span>
-              <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item"><i class="bi bi-envelope me-2"></i> New order received <span class="float-end text-secondary fs-7">3 mins</span></a>
-              <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item"><i class="bi bi-people-fill me-2"></i> New customer registered <span class="float-end text-secondary fs-7">12 mins</span></a>
-              <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-            </div>
-          </li>
+        <ul class="navbar-nav ms-auto apex-header-actions">
+          <li class="nav-item apex-mobile-search"><button type="button" class="nav-link" aria-label="Search admin panel" :aria-expanded="mobileSearchOpen" @click="toggleMobileSearch"><AdminIcon name="search" /></button></li>
+          <li class="nav-item apex-header-cta"><router-link to="/admin/orders" class="apex-header-button"><AdminIcon name="orders" :size="15" /> Manage orders</router-link></li>
+
 
           <li class="nav-item dropdown">
             <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-label="Color mode">
-              <i class="bi bi-circle-half"></i>
+              <AdminIcon name="moon" />
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><button type="button" class="dropdown-item" data-bs-theme-value="light"><i class="bi bi-sun-fill me-2"></i> Light</button></li>
-              <li><button type="button" class="dropdown-item" data-bs-theme-value="dark"><i class="bi bi-moon-fill me-2"></i> Dark</button></li>
-              <li><button type="button" class="dropdown-item" data-bs-theme-value="auto"><i class="bi bi-circle-half me-2"></i> Auto</button></li>
+              <li><button type="button" class="dropdown-item" data-bs-theme-value="light"><i class="fa-solid fa-sun me-2" aria-hidden="true"></i> Light</button></li>
+              <li><button type="button" class="dropdown-item" data-bs-theme-value="dark"><i class="fa-solid fa-moon me-2" aria-hidden="true"></i> Dark</button></li>
+              <li><button type="button" class="dropdown-item" data-bs-theme-value="auto"><i class="fa-solid fa-circle-half-stroke me-2" aria-hidden="true"></i> Auto</button></li>
             </ul>
           </li>
 
+          <li class="nav-item"><router-link to="/admin/settings" class="nav-link apex-settings-link" aria-label="Settings"><AdminIcon name="palette" /></router-link></li>
+
+          <li class="nav-item dropdown">
+            <button type="button" class="nav-link position-relative" data-bs-toggle="dropdown"
+                    :aria-label="`Notifications: ${activeAlerts.length} alert categories`" aria-expanded="false" @click="refreshNotifications">
+              <AdminIcon name="bell" />
+              <span v-if="activeAlerts.length" class="navbar-badge badge text-bg-danger">{{ activeAlerts.length }}</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end admin-notifications">
+              <div class="px-3 py-3 border-bottom"><strong>Needs attention</strong><div class="small text-secondary">Live store alerts · {{ activeAlerts.length }} categories</div></div>
+              <div v-if="notificationError" class="px-3 py-3" role="alert">
+                <p class="mb-2">Alerts could not be refreshed. {{ notificationData ? 'Showing the last update.' : '' }}</p>
+                <button class="btn btn-outline-primary btn-sm" type="button" @click="refreshNotifications">Retry</button>
+              </div>
+              <div v-if="!notificationData && notificationLoading" class="px-3 py-3" role="status">Loading alerts…</div>
+              <div v-else-if="notificationData && !activeAlerts.length" class="px-3 py-4 text-secondary">You're all caught up. No items need attention.</div>
+              <router-link v-for="alert in activeAlerts" :key="alert.key" :to="alert.to" class="dropdown-item notification-item">
+                <i :class="alert.icon" class="fs-5" :style="{ color: alert.color }" aria-hidden="true"></i>
+                <div><strong>{{ notificationData.attention[alert.key] }} {{ alert.label }}</strong><small class="d-block text-secondary">{{ alert.note }}</small></div>
+                <i class="fa-solid fa-chevron-right ms-auto" aria-hidden="true"></i>
+              </router-link>
+              <router-link to="/admin" class="dropdown-item text-center py-3 border-top">View store overview</router-link>
+            </div>
+          </li>
+
           <li class="nav-item dropdown user-menu">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-              <span class="d-none d-xl-inline">Admin</span>
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-label="Account menu">
+              <span class="admin-avatar" aria-hidden="true">{{ adminUser?.name?.charAt(0).toUpperCase() || 'A' }}</span>
+              <span class="d-none d-xl-inline">{{ adminUser?.name || 'Administrator' }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
               <li class="user-header text-bg-primary">
-                <p>Admin <small>NexusPeptides</small></p>
+                <p>{{ adminUser?.name || 'Administrator' }} <small>{{ adminUser?.email || 'NexusPeptides' }}</small></p>
               </li>
               <li class="user-footer">
                 <router-link to="/admin" class="btn btn-outline-secondary">Dashboard</router-link>
@@ -67,78 +75,80 @@
     </nav>
 
     <!-- Sidebar -->
-    <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <aside class="app-sidebar">
+      <button type="button" class="sidebar-edge-toggle" data-lte-toggle="sidebar" aria-label="Collapse navigation"><AdminIcon name="chevron" :size="14" /></button>
       <div class="sidebar-brand">
         <router-link to="/admin" class="brand-link">
-          <i class="bi bi-capsule brand-image opacity-75 shadow fs-4"></i>
-          <span class="brand-text fw-light">NexusPeptides</span>
+          <span class="apex-brand-mark"><AdminIcon name="bolt" :size="20" /></span>
+          <span class="brand-identity"><span class="brand-text">NexusPeptides</span><small>DASHBOARD</small></span>
         </router-link>
       </div>
 
-      <div class="sidebar-search" role="search">
-        <label for="sidebar-search-input" class="visually-hidden">Filter menu</label>
-        <input type="search" id="sidebar-search-input" class="form-control form-control-sm" placeholder="Filter menu…" autocomplete="off" data-lte-toggle="sidebar-search" data-lte-target="#navigation" />
-        <p class="fs-7 text-secondary mt-2 mb-0" data-lte-search-empty role="status" hidden>No matching pages.</p>
-      </div>
-
       <div class="sidebar-wrapper">
-        <nav class="mt-2" aria-label="Main navigation">
+        <nav class="apex-navigation" aria-label="Main navigation">
           <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" data-accordion="false" id="navigation">
+            <li class="nav-header">OVERVIEW</li>
             <li class="nav-item">
-              <router-link to="/admin" class="nav-link" :class="{ active: $route.path === '/admin' }"><i class="nav-icon bi bi-speedometer2"></i><p>Dashboard</p></router-link>
+              <router-link to="/admin" class="nav-link" :class="{ active: $route.path === '/admin' }"><AdminIcon name="dashboard" class="nav-icon" /><p>Dashboard</p></router-link>
             </li>
-            <li class="nav-header">SALES</li>
+            <li class="nav-header">COMMERCE</li>
             <li class="nav-item">
-              <router-link to="/admin/orders" class="nav-link" :class="{ active: $route.path.startsWith('/admin/orders') }"><i class="nav-icon bi bi-receipt"></i><p>Orders</p></router-link>
-            </li>
-            <li class="nav-header">CATALOG</li>
-            <li class="nav-item">
-              <router-link to="/admin/products" class="nav-link" :class="{ active: $route.path.startsWith('/admin/products') }"><i class="nav-icon bi bi-box-seam-fill"></i><p>Products</p></router-link>
+              <router-link to="/admin/orders" class="nav-link" :class="{ active: $route.path.startsWith('/admin/orders') }"><AdminIcon name="orders" class="nav-icon" /><p>Orders</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/categories" class="nav-link" :class="{ active: $route.path === '/admin/categories' }"><i class="nav-icon bi bi-tags-fill"></i><p>Categories</p></router-link>
+              <router-link to="/admin/customers" class="nav-link" :class="{ active: $route.path === '/admin/customers' }"><AdminIcon name="users" class="nav-icon" /><p>Customers</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/inventory" class="nav-link" :class="{ active: $route.path === '/admin/inventory' }"><i class="nav-icon bi bi-clipboard-data"></i><p>Inventory</p></router-link>
+              <router-link to="/admin/coupons" class="nav-link" :class="{ active: $route.path === '/admin/coupons' }"><AdminIcon name="ticket" class="nav-icon" /><p>Coupons</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/customers" class="nav-link" :class="{ active: $route.path === '/admin/customers' }"><i class="nav-icon bi bi-people-fill"></i><p>Customers</p></router-link>
-            </li>
-            <li class="nav-header">PROCUREMENT</li>
-            <li class="nav-item">
-              <router-link to="/admin/purchase-orders" class="nav-link" :class="{ active: $route.path.startsWith('/admin/purchase-orders') }"><i class="nav-icon bi bi-file-earmark-text"></i><p>Purchase Orders</p></router-link>
+              <router-link to="/admin/products" class="nav-link" :class="{ active: $route.path.startsWith('/admin/products') }"><AdminIcon name="box" class="nav-icon" /><p>Products</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/suppliers" class="nav-link" :class="{ active: $route.path === '/admin/suppliers' }"><i class="nav-icon bi bi-truck"></i><p>Suppliers</p></router-link>
+              <router-link to="/admin/categories" class="nav-link" :class="{ active: $route.path === '/admin/categories' }"><AdminIcon name="tags" class="nav-icon" /><p>Categories</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/coupons" class="nav-link" :class="{ active: $route.path === '/admin/coupons' }"><i class="nav-icon bi bi-ticket-perforated"></i><p>Coupons</p></router-link>
+              <router-link to="/admin/inventory" class="nav-link" :class="{ active: $route.path === '/admin/inventory' }"><AdminIcon name="inventory" class="nav-icon" /><p>Inventory</p></router-link>
             </li>
+
+            <li class="nav-header">SUPPLY CHAIN</li>
+            <li class="nav-item">
+              <router-link to="/admin/purchase-orders" class="nav-link" :class="{ active: $route.path.startsWith('/admin/purchase-orders') }"><AdminIcon name="document" class="nav-icon" /><p>Purchase Orders</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/suppliers" class="nav-link" :class="{ active: $route.path === '/admin/suppliers' }"><AdminIcon name="truck" class="nav-icon" /><p>Suppliers</p></router-link>
+            </li>
+
             <li class="nav-header">FINANCE</li>
             <li class="nav-item">
-              <router-link to="/admin/accounting" class="nav-link" :class="{ active: $route.path === '/admin/accounting' }"><i class="nav-icon bi bi-cash-stack"></i><p>Accounting</p></router-link>
+              <router-link to="/admin/accounting" class="nav-link" :class="{ active: $route.path === '/admin/accounting' }"><AdminIcon name="billing" class="nav-icon" /><p>Accounting</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/sales-report" class="nav-link" :class="{ active: $route.path === '/admin/sales-report' }"><i class="nav-icon bi bi-graph-up"></i><p>Sales Report</p></router-link>
+              <router-link to="/admin/sales-report" class="nav-link" :class="{ active: $route.path === '/admin/sales-report' }"><AdminIcon name="chart" class="nav-icon" /><p>Sales Report</p></router-link>
             </li>
             <li class="nav-header">SYSTEM</li>
             <li class="nav-item">
-              <router-link to="/admin/settings" class="nav-link" :class="{ active: $route.path === '/admin/settings' }"><i class="nav-icon bi bi-gear-fill"></i><p>Settings</p></router-link>
+              <router-link to="/admin/settings" class="nav-link" :class="{ active: $route.path === '/admin/settings' }"><AdminIcon name="settings" class="nav-icon" /><p>Settings</p></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/admin/contents" class="nav-link" :class="{ active: $route.path === '/admin/contents' }"><i class="nav-icon bi bi-file-richtext"></i><p>Website Content</p></router-link>
+              <router-link to="/admin/contents" class="nav-link" :class="{ active: $route.path === '/admin/contents' }"><AdminIcon name="document" class="nav-icon" /><p>Website Content</p></router-link>
             </li>
             <li class="nav-item">
-              <a href="/" class="nav-link"><i class="nav-icon bi bi-shop"></i><p>Storefront</p></a>
+              <a href="/" class="nav-link"><AdminIcon name="store" class="nav-icon" /><p>Storefront</p></a>
             </li>
           </ul>
         </nav>
+      </div>
+      <div class="sidebar-account">
+        <span class="sidebar-avatar">{{ adminUser?.name?.charAt(0).toUpperCase() || 'A' }}</span>
+        <div><strong>{{ adminUser?.name || 'Administrator' }}</strong><small>Admin</small></div>
+        <button type="button" aria-label="Sign out" @click="logout"><AdminIcon name="logout" :size="17" /></button>
       </div>
     </aside>
 
     <!-- Main -->
     <main class="app-main">
-      <div class="app-content-header">
+      <div v-if="!['/admin', '/admin/products', '/admin/orders', '/admin/customers'].includes(route.path)" class="app-content-header">
         <div class="container-fluid">
           <div class="row">
             <div class="col-sm-6"><h1 class="mb-0 fs-3">{{ pageTitle }}</h1></div>
@@ -166,17 +176,75 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import AdminIcon from './AdminIcon.vue';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { searchQuery as normalizeSearchQuery } from './search';
+import { useDashboard } from './dashboard';
+
 const route = useRoute();
+const router = useRouter();
+const adminUser = ref(null);
+const mobileSearchOpen = ref(false);
+async function toggleMobileSearch() {
+  mobileSearchOpen.value = !mobileSearchOpen.value;
+  await nextTick();
+  if (mobileSearchOpen.value) document.getElementById('navbar-search-input')?.focus();
+}
+const { data: notificationData, loading: notificationLoading, error: notificationError, refresh: refreshNotifications, start: startNotifications } = useDashboard('/api/dashboard/notifications');
+const alertTypes = [
+  { key: 'out_of_stock', label: 'products out of stock', icon: 'fa-solid fa-box', color: 'var(--admin-danger)', note: 'Replenish unavailable products', to: { path: '/admin/inventory', query: { status: 'out_of_stock' } } },
+  { key: 'low_stock', label: 'products running low', icon: 'fa-solid fa-triangle-exclamation', color: 'var(--admin-warning)', note: 'Stock has reached its alert threshold', to: { path: '/admin/inventory', query: { status: 'low_stock' } } },
+  { key: 'failed_payments', label: 'failed payments', icon: 'fa-solid fa-credit-card', color: 'var(--admin-danger)', note: 'Review payment issues in Orders', to: '/admin/orders' },
+  { key: 'to_process', label: 'orders awaiting fulfillment', icon: 'fa-solid fa-box-open', color: 'var(--admin-primary)', note: 'Review pending and processing orders', to: '/admin/orders' },
+  { key: 'awaiting_payment', label: 'orders awaiting payment', icon: 'fa-solid fa-wallet', color: 'var(--admin-warning)', note: 'Review outstanding payments in Orders', to: '/admin/orders' },
+];
+const activeAlerts = computed(() => alertTypes.filter((alert) => notificationData.value?.attention[alert.key] > 0));
+onMounted(startNotifications);
+watch(() => route.path, () => { void refreshNotifications(); });
+
+onMounted(async () => {
+  try {
+    const { data } = await axios.get('/api/me');
+    adminUser.value = data;
+  } catch {
+    adminUser.value = null;
+  }
+});
+
 const titles = {
   '/admin': 'Dashboard', '/admin/orders': 'Orders', '/admin/products': 'Products',
   '/admin/categories': 'Categories', '/admin/inventory': 'Inventory', '/admin/customers': 'Customers',
   '/admin/purchase-orders': 'Purchase Orders', '/admin/suppliers': 'Suppliers',
   '/admin/coupons': 'Coupons', '/admin/accounting': 'Accounting',
   '/admin/sales-report': 'Sales Report', '/admin/settings': 'Settings', '/admin/contents': 'Website Content',
+  '/admin/search': 'Search Results',
 };
+
+const searchQuery = ref('');
+
+watch(() => route.query.q, (value) => {
+  searchQuery.value = normalizeSearchQuery(value);
+}, { immediate: true });
+
+async function focusSearch(event) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault();
+    if (window.matchMedia('(max-width: 767px)').matches) mobileSearchOpen.value = true;
+    await nextTick();
+    document.getElementById('navbar-search-input')?.focus();
+  }
+}
+onMounted(() => window.addEventListener('keydown', focusSearch));
+onBeforeUnmount(() => window.removeEventListener('keydown', focusSearch));
+
+function handleSearch() {
+  if (searchQuery.value.trim()) {
+    router.push({ path: '/admin/search', query: { q: searchQuery.value.trim() } });
+    mobileSearchOpen.value = false;
+  }
+}
 const pageTitle = computed(() => {
   if (titles[route.path]) return titles[route.path];
   if (route.path.startsWith('/admin/orders')) return 'Orders';
@@ -192,3 +260,80 @@ function logout() {
   });
 }
 </script>
+
+<style scoped>
+.apex-admin-shell { --lte-sidebar-width: 260px; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.app-main { background: var(--admin-canvas); min-width: 0; }
+.app-sidebar {
+  background: #090909 !important; color: #d1d5d7; border-right: 1px solid #1b1b1b;
+  --lte-sidebar-color: #a4aaad; --lte-sidebar-hover-color: #ebeff1; --lte-sidebar-hover-bg: #161616;
+  --lte-sidebar-menu-active-bg: #161616; --lte-sidebar-menu-active-color: #009e5a; --lte-sidebar-header-color: #626b70;
+  box-shadow: none !important;
+}
+.sidebar-brand { height: 64px; min-height: 64px; padding: 0 16px; border-bottom: 1px solid #1b1b1b; justify-content: flex-start; }
+.sidebar-brand .brand-link { display: flex; align-items: center; gap: 12px; padding: 0; text-decoration: none; }
+.apex-brand-mark { display: grid; place-items: center; width: 32px; height: 32px; background: #009e5a; color: #fff; border-radius: 10px; flex-shrink: 0; }
+.brand-identity { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; line-height: 1.2; }
+.sidebar-brand .brand-text { color: #f5f6f7; font-size: 14px; font-weight: 650; letter-spacing: -.025em; }
+.brand-identity small { color: #697379; font-size: 9px; font-weight: 500; letter-spacing: .08em; }
+.sidebar-wrapper { padding: 12px 12px 20px; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #292929 transparent; }
+.sidebar-menu { gap: 2px; }
+.sidebar-menu .nav-link { display: flex; align-items: center; gap: 12px; min-height: 36px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 500; margin: 0; }
+.sidebar-menu .nav-icon { width: 17px; height: 17px; margin: 0; flex-shrink: 0; opacity: .75; }
+.sidebar-menu .nav-link p { margin: 0; line-height: 20px; }
+.sidebar-menu .nav-link.active { box-shadow: none; font-weight: 600; }
+.sidebar-menu .nav-link.active .nav-icon { color: #009e5a; opacity: 1; }
+.sidebar-menu .nav-header { padding: 14px 12px 6px; color: #626b70; font-size: 10px; font-weight: 500; letter-spacing: .08em; }
+.sidebar-menu .nav-header:first-child { padding-top: 8px; }
+.sidebar-edge-toggle { position: absolute; top: 80px; right: -12px; z-index: 5; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--admin-border); background: #fff; color: #303a40; border-radius: 50%; box-shadow: 0 1px 3px #0000000d; padding: 0; }
+.sidebar-edge-toggle svg { transform: rotate(180deg); }
+.sidebar-account { display: flex; align-items: center; gap: 12px; padding: 20px; min-height: 77px; border-top: 1px solid #1b1b1b; }
+.sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; background: #008e4c; color: #fff; display: grid; place-items: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+.sidebar-account > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sidebar-account strong { color: #e9edf0; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 145px; }
+.sidebar-account small { font-size: 11px; color: #667176; }
+.sidebar-account button { background: transparent; border: 0; color: #737e83; padding: 4px; margin-left: auto; }
+.app-header { height: 64px; min-height: 64px; border-bottom: 1px solid var(--admin-border); box-shadow: none; background: color-mix(in srgb, var(--admin-canvas) 80%, transparent) !important; backdrop-filter: blur(20px); position: relative; }
+.app-header > .container-fluid { padding-left: 24px; padding-right: 24px; gap: 12px; flex-wrap: nowrap; }
+.admin-global-search { flex: 0 1 288px; max-width: 288px; margin: 0; }
+.admin-global-search .navbar-search-field, .admin-global-search:focus-within .navbar-search-field { width: 100%; }
+.admin-global-search .form-control { min-height: 36px; height: 36px; padding: 7px 48px 7px 36px; border-radius: 10px; border: 1px solid var(--admin-border); background: transparent; box-shadow: none; font-size: 13px; }
+.admin-global-search .navbar-search-submit { left: 12px; color: #929fa6; }
+.search-shortcut { position: absolute; right: 10px; top: 10px; border: 1px solid var(--admin-border); border-radius: 3px; background: var(--admin-inset); color: var(--admin-muted); padding: 0 3px; font: 9px/14px ui-monospace, monospace; }
+.apex-header-actions { align-items: center; gap: 6px; }
+.apex-header-actions .nav-link { display: flex; align-items: center; justify-content: center; padding: 6px 8px; width: 32px; height: 32px; color: var(--admin-muted); border-radius: 6px; }
+.apex-header-actions .nav-link:hover { background: var(--admin-inset); color: var(--admin-text); }
+.apex-header-cta { padding-right: 12px; margin-right: 4px; border-right: 1px solid var(--admin-border); }
+.apex-header-button { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; background: var(--admin-primary); color: #fff; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.apex-header-button:hover { color: #fff; filter: brightness(.95); }
+.apex-header-actions .user-menu .nav-link { width: auto; }
+.user-menu .nav-link > .d-none { display: none !important; }
+.admin-avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--admin-primary) 10%, var(--admin-surface)); color: var(--admin-primary); font-size: 11px; font-weight: 600; }
+.user-menu .dropdown-toggle::after { display: none; }
+.navbar-badge { min-width: 7px; width: 7px; height: 7px; padding: 0; font-size: 0; border-radius: 50%; right: 5px; top: 5px; }
+.admin-notifications { width: min(400px, calc(100vw - 1.5rem)); max-height: min(650px, 80vh); overflow-y: auto; border-radius: 12px; box-shadow: 0 8px 30px #00000014; }
+.notification-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; white-space: normal; border-bottom: 1px solid var(--admin-border); }
+.notification-item strong { font-size: 13px; font-weight: 500; }.notification-item small { margin-top: 3px; font-size: 12px; }
+.app-content { padding: 0; }.app-content > .container-fluid { padding: 0; }
+.app-content-header { padding: 24px 24px 0; }.app-content-header h1 { font-size: 24px !important; font-weight: 600; letter-spacing: -.035em; }.app-content-header .breadcrumb { font-size: 12px; }
+.app-footer { display: none; }
+.apex-mobile-menu, .apex-mobile-search { display: none; }
+:global(.sidebar-collapse .apex-admin-shell .brand-identity), :global(.sidebar-collapse .apex-admin-shell .sidebar-account > div), :global(.sidebar-collapse .apex-admin-shell .sidebar-account button) { display: none; }
+:global(.sidebar-collapse .apex-admin-shell .sidebar-edge-toggle svg) { transform: none; }
+:global(.sidebar-collapse .apex-admin-shell .sidebar-brand) { padding-left: 20px; }
+:global(.sidebar-collapse .apex-admin-shell .sidebar-account) { padding-left: 20px; }
+@media (max-width: 991px) {
+  .apex-mobile-menu { display: grid; place-items: center; border: 0; background: transparent; color: var(--admin-muted); padding: 4px; width: 28px; height: 32px; }
+  .sidebar-edge-toggle { display: none; }
+}
+@media (max-width: 767px) {
+  .app-header > .container-fluid { padding-left: 16px; padding-right: 16px; gap: 8px; }
+  .apex-header-cta, .admin-global-search { display: none; }
+  .apex-mobile-search { display: list-item; }
+  .admin-global-search.mobile-open { display: block; position: absolute; top: 64px; left: 12px; right: 12px; width: auto; max-width: none; margin: 0; padding: 8px; background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 10px; box-shadow: 0 8px 24px #00000014; z-index: 10; }
+  .search-shortcut { display: none; }
+  .admin-global-search .form-control { padding-right: 12px; }
+  .apex-header-actions { gap: 2px; }
+  .app-content-header { padding: 20px 16px 0; }
+}
+</style>

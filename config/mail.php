@@ -101,6 +101,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Markdown Mail Settings
+    |--------------------------------------------------------------------------
+    |
+    | These settings control the Markdown to HTML conversion used for
+    | Markdown based emails. A custom "nexus" theme matching the
+    | storefront's design is used for all branded emails.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'nexus',
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Global "From" Address
     |--------------------------------------------------------------------------
     |

@@ -25,7 +25,7 @@ const site = computed(() => content.site);
         <section class="wd-container py-16 md:py-20">
             <div class="grid items-center gap-12 lg:grid-cols-2">
                 <div>
-                    <p class="font-nav text-sm uppercase tracking-[0.2em] text-primary">{{ about.kicker }}</p>
+                    <p v-if="about.kicker" class="font-nav text-sm uppercase tracking-[0.2em] text-primary">{{ about.kicker }}</p>
                     <h2 class="mt-4 text-3xl leading-tight md:text-4xl">
                         {{ about.heading }}
                     </h2>
@@ -62,7 +62,7 @@ const site = computed(() => content.site);
         <section class="wd-container py-16 md:py-20">
             <div class="grid items-center gap-12 lg:grid-cols-2">
                 <div>
-                    <p class="font-nav text-sm uppercase tracking-[0.2em] text-primary">
+                    <p v-if="about.qualityKicker" class="font-nav text-sm uppercase tracking-[0.2em] text-primary">
                         {{ about.qualityKicker }}
                     </p>
                     <h2 class="mt-4 text-3xl md:text-4xl">{{ about.qualityTitle }}</h2>

@@ -1,36 +1,122 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useContentStore } from '../stores/content';
 import { swalToast, swalConfirm } from '../services/alerts';
+import { UAE_CITIES } from '../constants';
 
+const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const content = useContentStore();
 const site = computed(() => content.site);
 
 const login = ref({ email: '', password: '', remember: false });
-const register = ref({ email: '', password: '', agree: false });
+const register = ref({ email: '', password: '', agree: false, ageAgree: false });
 const lostOpen = ref(false);
 const lostEmail = ref('');
+const lostBusy = ref(false);
 const busy = ref(false);
+const resendBusy = ref(false);
+const addressBusy = ref(false);
 
-function doLogin() {
+const addressForm = ref({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    zip: '',
+    city: '',
+    country: 'United Arab Emirates',
+});
+
+// Hydrate the address form from the saved details on the customer's account.
+onMounted(async () => {
+    // The verification email links back here with ?verified=1 / ?verified=invalid.
+    if (route.query.verified === '1') {
+        swalToast('Your email address has been verified. Thank you!');
+    } else if (route.query.verified === 'invalid') {
+        swalToast('That verification link is invalid or has expired. Request a new one below.', 'error');
+    }
+    if (route.query.verified !== undefined) {
+        const query = { ...route.query };
+        delete query.verified;
+        router.replace({ query });
+    }
+
+    if (!auth.isAuthenticated) {
+        return;
+    }
+
+    try {
+        await auth.refreshUser();
+    } catch {
+        // Keep whatever is already in the store.
+    }
+
+    hydrateAddressForm();
+});
+
+function hydrateAddressForm() {
+    const saved = auth.user?.saved_address;
+
+    addressForm.value = {
+        name: saved?.name ?? auth.user?.name ?? '',
+        email: saved?.email ?? auth.user?.email ?? '',
+        phone: saved?.phone ?? auth.user?.phone ?? '',
+        address: saved?.address ?? '',
+        zip: saved?.zip ?? '',
+        city: saved?.city ?? '',
+        country: saved?.country ?? 'United Arab Emirates',
+    };
+}
+
+async function doSaveAddress() {
+    const f = addressForm.value;
+    const required = ['name', 'email', 'phone', 'address', 'city', 'country'];
+    const missing = required.filter((k) => !String(f[k]).trim());
+
+    if (missing.length) {
+        swalToast('Please complete all required fields.', 'error');
+        return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+        swalToast('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    addressBusy.value = true;
+    try {
+        await auth.saveAddress({ ...f });
+        swalToast('Your billing details have been saved.');
+    } catch (err) {
+        swalToast(apiError(err, 'Unable to save your details. Please try again.'), 'error');
+    } finally {
+        addressBusy.value = false;
+    }
+}
+
+async function doLogin() {
     const f = login.value;
     if (!f.email.trim() || !f.password) {
         swalToast('Please enter your username or email and password.', 'error');
         return;
     }
     busy.value = true;
-    auth.login(f.email.trim());
-    busy.value = false;
-    login.value = { email: '', password: '', remember: false };
-    swalToast('You are now logged in.');
-    router.push('/');
+    try {
+        await auth.login(f.email.trim(), f.password);
+        login.value = { email: '', password: '', remember: false };
+        swalToast('You are now logged in.');
+        router.push('/');
+    } catch (err) {
+        swalToast(apiError(err, 'Unable to log in. Please check your email and password.'), 'error');
+    } finally {
+        busy.value = false;
+    }
 }
 
-function doRegister() {
+async function doRegister() {
     const f = register.value;
     if (!f.email.trim() || !f.password) {
         swalToast('Please enter your email address and password.', 'error');
@@ -40,38 +126,78 @@ function doRegister() {
         swalToast('Please enter a valid email address.', 'error');
         return;
     }
-    if (f.password.length < 6) {
-        swalToast('Your password must be at least 6 characters.', 'error');
+    if (f.password.length < 8) {
+        swalToast('Your password must be at least 8 characters.', 'error');
         return;
     }
     if (!f.agree) {
         swalToast('Please read and accept the privacy policy to continue.', 'error');
         return;
     }
+    if (!f.ageAgree) {
+        swalToast('Please confirm you are 18 years or older to register.', 'error');
+        return;
+    }
     busy.value = true;
-    auth.register({ name: f.email.split('@')[0], email: f.email.trim() });
-    busy.value = false;
-    register.value = { email: '', password: '', agree: false };
-    swalToast('Your account has been created.');
-    router.push('/');
+    try {
+        await auth.register({ name: f.email.split('@')[0], email: f.email.trim(), password: f.password });
+        register.value = { email: '', password: '', agree: false, ageAgree: false };
+        swalToast('Your account has been created. Check your inbox for a verification link.');
+        router.push('/');
+    } catch (err) {
+        swalToast(apiError(err, 'Unable to create your account. Please try again.'), 'error');
+    } finally {
+        busy.value = false;
+    }
 }
 
 async function doLogout() {
     const ok = await swalConfirm('Log out?', 'Are you sure you want to log out?', 'Log out');
     if (!ok) return;
-    auth.logout();
+    await auth.logout();
     swalToast('You have been logged out.', 'info');
 }
 
-function sendReset() {
+/** Pull the first readable message out of a Laravel validation/API error. */
+function apiError(err, fallback) {
+    const data = err?.response?.data;
+    if (data?.message && !data?.errors) return data.message;
+    const first = data?.errors ? Object.values(data.errors)[0] : null;
+    if (Array.isArray(first) && first.length) return first[0];
+    if (typeof first === 'string' && first) return first;
+    return fallback;
+}
+
+async function sendReset() {
     const value = lostEmail.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
         swalToast('Please enter a valid email address.', 'error');
         return;
     }
-    lostEmail.value = '';
-    lostOpen.value = false;
-    swalToast('If that email address is on file, a reset link has been sent.');
+    lostBusy.value = true;
+    try {
+        await auth.forgotPassword(value);
+        lostEmail.value = '';
+        lostOpen.value = false;
+        swalToast('If that email address is on file, a reset link has been sent.');
+    } catch {
+        swalToast('Unable to send the reset link right now. Please try again later.', 'error');
+    } finally {
+        lostBusy.value = false;
+    }
+}
+
+async function resendVerification() {
+    resendBusy.value = true;
+    try {
+        const { message } = await auth.resendVerification();
+        await auth.refreshUser();
+        swalToast(message);
+    } catch (err) {
+        swalToast(apiError(err, 'Unable to send the verification email right now.'), 'error');
+    } finally {
+        resendBusy.value = false;
+    }
 }
 </script>
 
@@ -101,7 +227,21 @@ function sendReset() {
                     </div>
                 </div>
 
-                <div class="mt-8 grid gap-4 sm:grid-cols-3">
+                <div v-if="auth.user && !auth.user.email_verified_at" class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <span><i class="fa-solid fa-triangle-exclamation mr-1" aria-hidden="true"></i> Your email address is not verified yet. Check your inbox for the verification link.</span>
+                    <button type="button" class="font-semibold underline decoration-dotted underline-offset-4 hover:text-amber-700 disabled:opacity-60" :disabled="resendBusy" @click="resendVerification">
+                        {{ resendBusy ? 'Sending…' : 'Resend email' }}
+                    </button>
+                </div>
+
+                <div class="mt-8 grid gap-4 sm:grid-cols-4">
+                    <router-link
+                        to="/my-orders"
+                        class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
+                    >
+                        <i class="fa-solid fa-box-open text-primary"></i>
+                        <p class="mt-2 text-sm font-medium text-ink">Orders</p>
+                    </router-link>
                     <router-link
                         to="/peptide-shop"
                         class="rounded-card border border-black/10 p-5 text-center transition hover:border-secondary"
@@ -124,6 +264,88 @@ function sendReset() {
                         <p class="mt-2 text-sm font-medium text-ink">Cart</p>
                     </router-link>
                 </div>
+
+                <!-- Saved billing details -->
+                <form class="mt-8 border-t border-black/10 pt-8" @submit.prevent="doSaveAddress">
+                    <h2 class="text-xl">Billing &amp; delivery details</h2>
+                    <p class="mt-1 text-sm text-neutral-500">
+                        Saved to your account and pre-filled at checkout. Changing them here does not
+                        affect past orders.
+                    </p>
+
+                    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="aname">
+                                Full name *
+                            </label>
+                            <input id="aname" v-model="addressForm.name" type="text" class="wd-field" required />
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="aemail">
+                                Email address *
+                            </label>
+                            <input id="aemail" v-model="addressForm.email" type="email" class="wd-field" required />
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="aphone">
+                                Phone *
+                            </label>
+                            <input id="aphone" v-model="addressForm.phone" type="tel" class="wd-field" required />
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="acountry">
+                                Country *
+                            </label>
+                            <input
+                                id="acountry"
+                                v-model="addressForm.country"
+                                type="text"
+                                class="wd-field cursor-not-allowed opacity-70"
+                                disabled
+                            />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="mb-2 block text-sm font-medium text-ink" for="aaddress">
+                                Street address *
+                            </label>
+                            <input
+                                id="aaddress"
+                                v-model="addressForm.address"
+                                type="text"
+                                class="wd-field"
+                                placeholder="House number and street name"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="acity">
+                                Town / City *
+                            </label>
+                            <select
+                                id="acity"
+                                v-model="addressForm.city"
+                                class="wd-field !w-full py-2 px-3 rounded-md text-sm bg-white"
+                                required
+                            >
+                                <option value="" disabled>Select your city…</option>
+                                <option v-for="city in UAE_CITIES" :key="city" :value="city">
+                                    {{ city }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="azip">
+                                Zip / postal code
+                            </label>
+                            <input id="azip" v-model="addressForm.zip" type="text" class="wd-field" placeholder="Optional" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="wd-btn !px-7 !py-3 text-sm" :disabled="addressBusy">
+                        <i v-if="addressBusy" class="fa-solid fa-circle-notch fa-spin"></i>
+                        Save details
+                    </button>
+                </form>
 
                 <button type="button" class="wd-btn wd-btn-outline mt-8" @click="doLogout">
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -187,9 +409,10 @@ function sendReset() {
                             <label class="mb-2 block text-sm font-medium text-ink" for="remail">
                                 Username or email address
                             </label>
-                            <input id="remail" v-model="lostEmail" type="email" class="wd-field" />
-                            <button type="button" class="wd-btn !px-7 !py-3 text-sm" @click="sendReset">
-                                Reset password
+                            <input id="remail" v-model="lostEmail" type="email" class="wd-field" :disabled="lostBusy" />
+                            <button type="button" class="wd-btn !px-7 !py-3 text-sm" :disabled="lostBusy" @click="sendReset">
+                                <i v-if="lostBusy" class="fa-solid fa-circle-notch fa-spin"></i>
+                                {{ lostBusy ? 'Sending…' : 'Reset password' }}
                             </button>
                         </div>
 
@@ -264,6 +487,15 @@ function sendReset() {
                                 class="mt-1 accent-primary"
                             />
                             I have read and accept the privacy policy
+                        </label>
+
+                        <label class="flex cursor-pointer items-start gap-2 text-sm text-ink">
+                            <input
+                                v-model="register.ageAgree"
+                                type="checkbox"
+                                class="mt-1 accent-primary"
+                            />
+                            I confirm that I am 18 years of age or older
                         </label>
 
                         <button type="submit" class="wd-btn" :disabled="busy">

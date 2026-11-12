@@ -3,6 +3,7 @@ import TextField from './fields/TextField.vue';
 import TextareaField from './fields/TextareaField.vue';
 import LinesField from './fields/LinesField.vue';
 import SelectField from './fields/SelectField.vue';
+import IconField from './fields/IconField.vue';
 import UploadField from './fields/UploadField.vue';
 import RepeaterField from './fields/RepeaterField.vue';
 import CurrencyField from './fields/CurrencyField.vue';
@@ -22,6 +23,7 @@ const components = {
     textarea: TextareaField,
     lines: LinesField,
     select: SelectField,
+    icon: IconField,
     image: UploadField,
     file: UploadField,
     repeater: RepeaterField,

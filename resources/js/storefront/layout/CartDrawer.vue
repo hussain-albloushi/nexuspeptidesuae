@@ -3,6 +3,7 @@ import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { swalToast } from '../services/alerts';
 import PriceDisplay from '../components/PriceDisplay.vue';
+import ShippingProgress from '../components/ShippingProgress.vue';
 
 defineProps({ open: Boolean });
 const emit = defineEmits(['close']);
@@ -124,9 +125,11 @@ function setQty(slug, e) {
                             <PriceDisplay :value="cart.subtotal" />
                         </span>
                     </div>
-                    <p class="mt-1 text-xs text-neutral-400">
-                        Shipping and taxes calculated at checkout.
-                    </p>
+                    <div class="mt-2 flex items-center justify-between text-sm text-ink">
+                        <span>Shipping</span><strong><template v-if="cart.shipping === 0">Free</template><PriceDisplay v-else :value="cart.shipping" /></strong>
+                    </div>
+                    <ShippingProgress />
+                    <p class="mt-2 text-xs text-neutral-500">Shipping eligibility is based on the item subtotal.</p>
 
                     <div class="mt-4 grid grid-cols-2 gap-3">
                         <router-link
