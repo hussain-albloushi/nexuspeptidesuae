@@ -35,11 +35,14 @@ class AdminOrderController extends Controller
 
     public function show(int $id): Order
     {
-        return $this->withTransitions(Order::with([
+        $order = $this->withTransitions(Order::with([
             'user:id,name,email', 'items', 'statusHistory' => fn ($history) => $history->orderBy('created_at')->orderBy('id'),
             'returnRequests' => fn ($requests) => $requests->orderBy('created_at'),
             'returnRequests.items.orderItem',
         ])->findOrFail($id));
+        $order->setAttribute('remaining_refundable', round(max(0, (float) $order->total_amount - $this->refundedSoFar($order)), 2));
+
+        return $order;
     }
 
     private function withTransitions(Order $order): Order
@@ -250,6 +253,15 @@ class AdminOrderController extends Controller
                 ]);
             }
 
+            // Approval needs item lines: the customer must have selected what
+            // they are sending back. Requests from before item selection was
+            // introduced can only be rejected, so the customer can re-request.
+            if ($data['decision'] === 'approved' && $return->items->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'decision' => 'This request has no items selected. Reject it and ask the customer to submit a new return request choosing the items.',
+                ]);
+            }
+
             $notes = trim((string) ($data['decision_notes'] ?? ''));
 
             if ($data['decision'] === 'rejected') {
@@ -263,16 +275,12 @@ class AdminOrderController extends Controller
                 return;
             }
 
-            // Requests created before item-level returns existed have no lines:
-            // they are whole-order returns and keep the old approval behaviour.
-            $legacy = $return->items->isEmpty();
-
             // Refunds cover the returned items only — shipping and cash-on-
             // delivery fees are not refunded on partial returns. When every
-            // item comes back (or the request is a legacy whole-order one),
-            // the remaining order balance, including those fees, is refunded.
+            // item comes back, the remaining order balance (including those
+            // fees) is refunded, as with a full-order return.
             $claimed = $return->refundAmount();
-            $fullyReturned = $legacy || $order->items->every(fn ($item) => $item->returned_quantity >= $item->quantity);
+            $fullyReturned = $order->items->every(fn ($item) => $item->returned_quantity >= $item->quantity);
             $alreadyRefunded = $this->refundedSoFar($order);
             $balance = round(max(0, (float) $order->total_amount - $alreadyRefunded), 2);
             $cap = $fullyReturned ? $balance : min($claimed, $balance);
@@ -285,7 +293,7 @@ class AdminOrderController extends Controller
                 ]);
             }
 
-            $lines = $legacy ? 'whole order' : $return->items->map(fn (ReturnRequestItem $item) => $item->quantity.' × '.$item->orderItem->name)->implode(', ');
+            $lines = $return->items->map(fn (ReturnRequestItem $item) => $item->quantity.' × '.$item->orderItem->name)->implode(', ');
             $historyNotes = 'Return approved ('.$lines.'). A refund of AED '.number_format($amount, 2).' was issued'.($notes !== '' ? ': '.$notes : '.');
             $state = round($alreadyRefunded + $amount, 2) >= (float) $order->total_amount ? 'refunded' : 'partially_refunded';
             $order->update(['payment_status' => $state]);
@@ -302,12 +310,7 @@ class AdminOrderController extends Controller
                     'notes' => $historyNotes,
                 ]);
             }
-            if ($legacy) {
-                // Whole-order request: restock everything sold on this order.
-                $this->restoreStock($order, 'Returned order '.$order->order_number);
-            } else {
-                $this->restoreReturnedStock($return, 'Returned order '.$order->order_number);
-            }
+            $this->restoreReturnedStock($return, 'Returned order '.$order->order_number);
 
             $return->update(['status' => ReturnRequest::STATUS_APPROVED, 'refund_amount' => $amount, 'decision_notes' => $notes ?: null]);
         }, 3);

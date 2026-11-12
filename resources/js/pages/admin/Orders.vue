@@ -87,13 +87,14 @@
         <section v-if="detail?.return_requests?.length" class="detail-section"><h3><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Return requests</h3>
           <div v-for="ret in detail.return_requests" :key="ret.id" class="order-notes">
             <p><span class="payment-badge" :class="ret.status === 'approved' ? 'refunded' : ret.status === 'rejected' ? 'failed' : ''">{{ orderLabel(ret.status) }}</span> <strong>Return request</strong> <small>{{ dateTime(ret.created_at) }}</small></p>
-            <ul class="change-preview"><li v-for="line in ret.items" :key="line.id"><strong>{{ line.quantity }} × {{ line.order_item?.name || 'Item unavailable' }}</strong><span>{{ orderMoney(line.order_item ? line.order_item.price * line.quantity : 0) }}</span></li><li v-if="!ret.items?.length"><strong>Whole-order return</strong><span>requested before item-level returns</span></li></ul>
+            <ul class="change-preview"><li v-for="line in ret.items" :key="line.id"><strong>{{ line.quantity }} × {{ line.order_item?.name || 'Item unavailable' }}</strong><span>{{ orderMoney(line.order_item ? line.order_item.price * line.quantity : 0) }}</span></li><li v-if="!ret.items?.length"><strong>No items selected</strong><span>requested before item selection was available</span></li></ul>
             <p v-if="ret.reason" class="order-notes">“{{ ret.reason }}”</p>
-            <p v-if="ret.status === 'requested' && !ret.items?.length" class="order-notes">Approving this returns and refunds the whole order. Reject it to let the customer request specific items instead.</p>
-            <p v-if="ret.status === 'requested'" class="order-notes">Refund to issue: {{ orderMoney(defaultRefund(detail, ret)) }} <small>({{ isFullyReturned(detail, ret) ? 'remaining order balance, including shipping and COD' : 'item prices only; shipping and COD are not refunded' }})</small></p>
+            <p v-if="ret.status === 'requested' && !ret.items?.length" class="order-notes">This request has no item selection. Reject it so the customer can choose which items to return.</p>
+            <p v-if="ret.status === 'requested' && ret.items?.length" class="order-notes">Refund to issue: {{ orderMoney(defaultRefund(detail, ret)) }} <small>({{ isFullyReturned(detail, ret) ? 'full order total, including shipping and COD' : 'selected item prices only; shipping and COD are not refunded' }})</small></p>
             <p v-if="ret.refund_amount" class="order-notes">Refunded: {{ orderMoney(ret.refund_amount) }}</p>
             <p v-if="ret.decision_notes" class="order-notes">Decision note: {{ ret.decision_notes }}</p>
-            <form v-if="ret.status === 'requested'" class="status-form" @submit.prevent="decideReturn(detail, ret, 'approved')"><div><label :for="'refund-amount-' + ret.id">Refund amount (AED)</label><input :id="'refund-amount-' + ret.id" v-model.number="decisionFor(detail, ret).amount" type="number" min="0.01" step="0.01" required :disabled="busy" /></div><div><label :for="'return-notes-' + ret.id">Decision note (optional)</label><input :id="'return-notes-' + ret.id" v-model="decisionFor(detail, ret).notes" maxlength="1000" :disabled="busy" /></div><button type="submit" class="order-button primary" :disabled="busy">{{ busy ? 'Saving…' : 'Approve & refund' }}</button><button type="button" class="order-button destructive" :disabled="busy" @click="decideReturn(detail, ret, 'rejected')">Reject</button></form>
+            <form v-if="ret.status === 'requested' && ret.items?.length" class="status-form" @submit.prevent="decideReturn(detail, ret, 'approved')"><div><label :for="'refund-amount-' + ret.id">Refund amount (AED)</label><input :id="'refund-amount-' + ret.id" v-model.number="decisionFor(detail, ret).amount" type="number" min="0.01" step="0.01" required :disabled="busy" /></div><div><label :for="'return-notes-' + ret.id">Decision note (optional)</label><input :id="'return-notes-' + ret.id" v-model="decisionFor(detail, ret).notes" maxlength="1000" :disabled="busy" /></div><label class="confirm-checkbox"><input v-model="decisionFor(detail, ret).received" type="checkbox" required :disabled="busy" /> I confirm the returned item(s) were received and inspected.</label><button type="submit" class="order-button primary" :disabled="busy">{{ busy ? 'Saving…' : 'Approve & refund' }}</button><button type="button" class="order-button destructive" :disabled="busy" @click="decideReturn(detail, ret, 'rejected')">Reject</button></form>
+            <button v-else-if="ret.status === 'requested'" type="button" class="order-button destructive" :disabled="busy" @click="decideReturn(detail, ret, 'rejected')">Reject</button>
           </div>
         </section>
         <section class="detail-section"><h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Order history</h3><ol class="order-history"><li><strong>Order created</strong><small>{{ dateTime(detail.created_at) }}</small></li><li v-for="entry in detail.status_history" :key="entry.id"><strong>{{ orderLabel(entry.old_status) }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i> {{ orderLabel(entry.new_status) }}</strong><small>{{ dateTime(entry.created_at) }}</small><p v-if="entry.notes" class="order-notes">{{ entry.notes }}</p></li></ol></section>
@@ -124,6 +125,7 @@
 
 <script setup>
 import AdminAlertDialog from './AdminAlertDialog.vue';
+import { notifyAdmin } from './adminAlerts';
 import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { addressFields, orderColumns, orderLabel, orderMoney, orderStatuses, paymentMethodLabel, paymentStates, useOrders } from './orders.js';
@@ -153,9 +155,6 @@ function returnRefund(ret) {
 
 /** Whether approving this request returns every item on the order. */
 function isFullyReturned(order, ret) {
-  // Requests created before item-level returns were introduced have no lines
-  // and represent a whole-order return.
-  if (!(ret.items || []).length) return true;
   const returned = new Map();
   for (const request of order?.return_requests || []) {
     if (request.status === 'rejected' || request.id === ret.id) continue;
@@ -171,20 +170,25 @@ function isFullyReturned(order, ret) {
 
 /** Default refund: item prices for a partial return, order balance for a full one. */
 function defaultRefund(order, ret) {
-  const approvedTotal = (order?.return_requests || [])
-    .filter((request) => request.status === 'approved')
-    .reduce((sum, request) => sum + Number(request.refund_amount || 0), 0);
-  const balance = Math.max(0, Number(order?.total_amount || 0) - approvedTotal);
+  const balance = Number.isFinite(order?.remaining_refundable)
+    ? Math.max(0, Number(order.remaining_refundable))
+    : Math.max(0, Number(order?.total_amount || 0) - (order?.return_requests || [])
+      .filter((request) => request.status === 'approved')
+      .reduce((sum, request) => sum + Number(request.refund_amount || 0), 0));
   const amount = isFullyReturned(order, ret) ? balance : Math.min(returnRefund(ret), balance);
   return Number(amount.toFixed(2));
 }
 
 function decisionFor(order, ret) {
-  if (!returnDecisions[ret.id]) returnDecisions[ret.id] = { amount: defaultRefund(order, ret), notes: '' };
+  if (!returnDecisions[ret.id]) returnDecisions[ret.id] = { amount: defaultRefund(order, ret), notes: '', received: false };
   return returnDecisions[ret.id];
 }
 async function decideReturn(order, ret, decision) {
   const state = decisionFor(order, ret);
+  if (decision === 'approved' && !state.received) {
+    notifyAdmin('error', 'Confirm that the returned items were received before issuing the refund.');
+    return;
+  }
   const payload = decision === 'approved'
     ? { refund_amount: state.amount, decision_notes: state.notes }
     : { decision_notes: state.notes };

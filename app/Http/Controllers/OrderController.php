@@ -96,9 +96,11 @@ class OrderController extends Controller
             ]);
         }
 
-        // Only one request may be in review at a time. Approved requests don't
-        // block follow-ups: remaining items can be returned in later requests.
-        if ($order->returnRequests->where('status', ReturnRequest::STATUS_REQUESTED)->isNotEmpty()) {
+        // Only one item-level request may be in review at a time. Approved
+        // requests don't block follow-ups, and stale requests from before item
+        // selection existed are superseded when the customer picks items now.
+        $openRequests = $order->returnRequests->where('status', ReturnRequest::STATUS_REQUESTED);
+        if ($openRequests->filter(fn (ReturnRequest $open) => $open->items->isNotEmpty())->isNotEmpty()) {
             throw ValidationException::withMessages([
                 'order' => 'A return request already exists for this order.',
             ]);
@@ -142,7 +144,16 @@ class OrderController extends Controller
             ]);
         }
 
-        $request = DB::transaction(function () use ($order, $r, $data, $lines): ReturnRequest {
+        $request = DB::transaction(function () use ($order, $r, $data, $lines, $openRequests): ReturnRequest {
+            foreach ($openRequests as $stale) {
+                if ($stale->items->isEmpty()) {
+                    $stale->update([
+                        'status' => ReturnRequest::STATUS_REJECTED,
+                        'decision_notes' => 'Superseded: the customer submitted a new request with item selection.',
+                    ]);
+                }
+            }
+
             $return = ReturnRequest::create([
                 'order_id' => $order->id,
                 'user_id' => $r->user()->id,

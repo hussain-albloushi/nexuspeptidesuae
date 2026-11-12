@@ -211,15 +211,14 @@ class ReturnRefundTest extends TestCase
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'cancelled', 'payment_status' => 'refunded']);
     }
 
-    public function test_a_legacy_whole_order_return_can_still_be_approved(): void
+    public function test_a_request_without_item_selection_cannot_be_approved(): void
     {
         Sanctum::actingAs($customer = $this->customer());
-        $product = $this->product(['stock_quantity' => 10, 'low_stock_threshold' => 2]);
         $order = $this->deliveredOrder(['user_id' => $customer->id, 'total_amount' => 200]);
-        $this->orderItems($order, [['name' => 'BPC-157 10mg', 'price' => 100, 'quantity' => 2, 'product_id' => $product->id]]);
-        $this->saleMovement($order, $product, 10, 8);
+        $this->orderItems($order, [['name' => 'BPC-157 10mg', 'price' => 100, 'quantity' => 2]]);
 
-        // A request created before item-level returns existed has no lines.
+        // A request created before item selection existed has no lines. The
+        // customer must choose items — the admin cannot approve a blank one.
         $return = ReturnRequest::create([
             'order_id' => $order->id, 'user_id' => $customer->id,
             'reason' => 'The whole order arrived damaged in transit.',
@@ -227,21 +226,39 @@ class ReturnRefundTest extends TestCase
         ]);
 
         Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
-        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'approved', 'refund_amount' => 250])
+        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'approved', 'refund_amount' => 200])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('refund_amount');
+            ->assertJsonValidationErrors('decision');
+        $this->assertDatabaseHas('return_requests', ['id' => $return->id, 'status' => 'requested']);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'delivered']);
 
-        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'approved'])
-            ->assertOk()
-            ->assertJsonPath('order.status', 'cancelled')
-            ->assertJsonPath('order.payment_status', 'refunded');
+        $this->patchJson('/api/orders/'.$order->id.'/returns/'.$return->id, ['decision' => 'rejected', 'decision_notes' => 'Please select the items you want to return.'])
+            ->assertOk();
+        $this->assertDatabaseHas('return_requests', ['id' => $return->id, 'status' => 'rejected']);
+    }
 
-        $this->assertDatabaseHas('return_requests', ['id' => $return->id, 'status' => 'approved', 'refund_amount' => 200]);
-        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'cancelled', 'shipping_status' => 'cancelled', 'payment_status' => 'refunded']);
-        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock_quantity' => 12]);
-        $this->assertDatabaseHas('order_status_history', [
-            'order_id' => $order->id, 'old_status' => 'delivered', 'new_status' => 'cancelled',
+    public function test_a_stale_request_without_items_is_superseded_when_the_customer_selects_items(): void
+    {
+        Sanctum::actingAs($customer = $this->customer());
+        $order = $this->deliveredOrder(['user_id' => $customer->id, 'total_amount' => 200]);
+        [$item] = $this->orderItems($order, [['name' => 'BPC-157 10mg', 'price' => 100, 'quantity' => 2]]);
+        $stale = ReturnRequest::create([
+            'order_id' => $order->id, 'user_id' => $customer->id,
+            'reason' => 'I want to return one of the vials.',
+            'status' => ReturnRequest::STATUS_REQUESTED,
         ]);
+
+        $this->postJson('/api/orders/'.$order->id.'/return', [
+            'reason' => 'Returning one vial that arrived damaged in transit.',
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('return_requests', [
+            'id' => $stale->id, 'status' => 'rejected',
+            'decision_notes' => 'Superseded: the customer submitted a new request with item selection.',
+        ]);
+        $this->assertDatabaseCount('return_request_items', 1);
+        $this->assertDatabaseHas('return_requests', ['order_id' => $order->id, 'status' => 'requested']);
     }
 
     public function test_a_full_return_refunds_the_remaining_order_balance_including_shipping(): void

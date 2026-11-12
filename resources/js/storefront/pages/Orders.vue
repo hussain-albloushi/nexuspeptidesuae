@@ -96,9 +96,9 @@ function returnLineLabel(order, request) {
     return lines.length ? lines.join(', ') : 'whole order';
 }
 
-/** Latest in-review return request, if any. */
+/** Latest in-review item-level return request, if any. */
 function pendingReturn(order) {
-    return (order.return_requests || []).find((entry) => entry.status === 'requested');
+    return (order.return_requests || []).find((entry) => entry.status === 'requested' && entry.items?.length);
 }
 
 /** Latest approved return request, if any. */
