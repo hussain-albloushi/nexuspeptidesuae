@@ -104,7 +104,7 @@ export const contentDefaults = {
             'Dedicated Support when you need it',
         ],
         trustedCta: 'View certificates',
-        trustedImage: 'https://zenvypeptides.com/wp-content/uploads/2026/09/123.png',
+        trustedImage: '/catalog-images/trusted-quality.png',
         purityKicker: 'Premium Quality Is Our Standard',
         purityTitle: '99% Purity, Precision Products & Advanced Solutions',
         puritySubtitle: 'Products Consistently Pure That You Can Trust',
@@ -114,7 +114,7 @@ export const contentDefaults = {
             'Our mission is simple: to be a dependable partner for the scientific community by combining stringent quality assurance with responsive service and clear, accessible documentation. From sourcing to shipping, Nexus Peptides is built around one goal, supporting research that researchers can stand behind.',
         ],
         purityNotice: 'Products for Research Use Only. Not for human or animal consumption.',
-        purityImage: 'https://zenvypeptides.com/wp-content/uploads/2026/09/321.png',
+        purityImage: '/catalog-images/purity-standard.png',
     },
 
     about: {
@@ -123,7 +123,7 @@ export const contentDefaults = {
         heading: 'Advancing Peptide Research with Precision and Integrity',
         body: 'Nexus Peptides is a US-based supplier of high-purity, COA-verified research peptides, trusted by laboratories and researchers across the country. Every product is independently tested to confirm purity, identity, and consistency, and is supported with full batch traceability and accredited laboratory documentation to ensure dependable, reproducible results. Built on a research-first approach, we focus on strict quality control, transparent sourcing, and controlled manufacturing standards to support accurate laboratory outcomes.',
         cta: 'Explore Catalogue',
-        image: 'https://zenvypeptides.com/wp-content/uploads/2026/07/569ce316-e32d-42ad-96cd-aa9ed39e5909.png',
+        image: '/catalog-images/about-lab.png',
         whyTitle: 'Why Choose Nexus Peptides?',
         whyIntro:
             'Each peptide is rigorously tested for purity, accuracy, and consistency to ensure dependable laboratory results. From controlled production to secure delivery, Nexus Peptides supports reliable scientific research at every stage.',
@@ -134,7 +134,7 @@ export const contentDefaults = {
             'Quality is at the core of everything we do. Every product supplied by Nexus Peptides undergoes rigorous quality verification processes to help ensure consistency, reliability, and research suitability.',
             'Our commitment includes comprehensive batch documentation, verified testing procedures, and strict handling protocols designed to maintain product integrity from production through delivery. By prioritising quality at every stage, we help researchers access materials they can trust for their laboratory work.',
         ],
-        qualityImage: 'https://zenvypeptides.com/wp-content/uploads/2026/07/b69dec56-63c2-4f91-a619-13e10beaaa89.jpg',
+        qualityImage: '/catalog-images/quality-lab.jpg',
     },
 
     help: {
@@ -166,8 +166,6 @@ export const contentDefaults = {
             batch: coa.batch,
             date: coa.date,
             purity: coa.purity,
-            image: coa.image,
-            file: coa.pdf,
         })),
     },
 
