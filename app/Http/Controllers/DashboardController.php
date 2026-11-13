@@ -99,7 +99,7 @@ class DashboardController extends Controller
 
     private function orderTotals(Builder $query): array
     {
-        $totals = $query->selectRaw('COUNT(*) AS orders_count')
+        $totals = $query->selectRaw("COUNT(CASE WHEN status != 'cancelled' THEN 1 END) AS orders_count")
             ->selectRaw("COALESCE(SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END), 0) AS booked")
             ->selectRaw("COALESCE(SUM(CASE WHEN status != 'cancelled' AND payment_status = 'paid' THEN total_amount ELSE 0 END), 0) AS paid")
             ->first();

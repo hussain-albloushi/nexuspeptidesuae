@@ -157,6 +157,7 @@ const raw = defs.map(([slug, name, price, format, image, amount, compoundKey]) =
         price,
         discount: 0,
         image,
+        stock: null,
         category: 'peptides',
         tags: [...copy.tags, format === 'pen' ? 'Pen' : 'Vial'],
         amount,
@@ -230,6 +231,7 @@ const catalogue = publishedBySlug.size
                 regular: hasCompare ? compare : effectivePrice,
                 discount: hasCompare ? Math.round(((compare - effectivePrice) / compare) * 100) : 0,
                 image: typeof live.image === 'string' && live.image !== '' ? live.image : p.image,
+                stock: Number.isFinite(Number(live.stock)) ? Number(live.stock) : p.stock,
             };
         })
     : raw;

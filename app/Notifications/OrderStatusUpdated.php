@@ -4,48 +4,74 @@ namespace App\Notifications;
 
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
-use Illuminate\Notifications\Messages\MailMessage;
+use App\Notifications\Concerns\RendersEmailTemplate;
 use Illuminate\Notifications\Notification;
 
 class OrderStatusUpdated extends Notification
 {
+    use RendersEmailTemplate;
+
+    public const TEMPLATE_KEY = 'order_status';
+
     public function __construct(public Order $order, public OrderStatusHistory $history) {}
 
-    /** @return array<int, string> */
-    public function via(object $notifiable): array
+    /**
+     * @return array{0: array<string, mixed>, 1: array<string, string>}
+     */
+    public function parts(string $name = 'there'): array
     {
-        return ['mail'];
+        $base = rtrim((string) config('app.url'), '/');
+        $changed = $this->history->old_status !== $this->history->new_status;
+
+        // Built-in default keeps the original conditional wording exactly.
+        $defaultLines = [];
+        $defaultLines[] = $changed
+            ? 'Your order status changed from '.$this->label($this->history->old_status).' to '.$this->label($this->history->new_status).'.'
+            : 'We added an update to your order.';
+
+        if (filled($this->history->notes)) {
+            $defaultLines[] = 'Note: '.$this->history->notes;
+        }
+
+        if (filled($this->order->tracking_number)) {
+            $defaultLines[] = 'Tracking number: '.$this->order->tracking_number;
+        }
+
+        $defaultLines[] = 'Order total: AED '.number_format((float) $this->order->total_amount, 2);
+
+        return [[
+            'subject' => 'Order #'.$this->order->order_number.' — update',
+            'greeting' => 'Hello {name},',
+            'lines' => $defaultLines,
+            'action' => ['label' => 'View order history', 'url' => $base.'/my-orders'],
+            'salutation' => '— Nexus Peptides | UAE Team',
+        ], [
+            'name' => $name,
+            'order_number' => (string) $this->order->order_number,
+            'old_status' => $this->label($this->history->old_status),
+            'new_status' => $this->label($this->history->new_status),
+            'note' => (string) ($this->history->notes ?? ''),
+            'tracking' => (string) ($this->order->tracking_number ?? ''),
+            'total' => number_format((float) $this->order->total_amount, 2),
+        ]];
     }
 
-    public function toMail(object $notifiable): MailMessage
+    /** Sample order + history for admin preview and test-send; nothing is persisted. */
+    public static function sample(): static
     {
-        $order = $this->order;
-        $history = $this->history;
+        $order = (new Order)->forceFill([
+            'order_number' => 'NP-000123',
+            'total_amount' => 249.00,
+            'tracking_number' => 'AED-TRACK-00099',
+        ]);
 
-        $mail = (new MailMessage)
-            ->subject('Order #'.$order->order_number.' — update')
-            ->greeting('Hello '.(($notifiable->name ?? null) ?: 'there').',');
+        $history = (new OrderStatusHistory)->forceFill([
+            'old_status' => 'processing',
+            'new_status' => 'shipped',
+            'notes' => 'Packed and handed to the courier.',
+        ]);
 
-        if ($history->old_status !== $history->new_status) {
-            $mail->line('Your order status changed from '.$this->label($history->old_status).' to '.$this->label($history->new_status).'.');
-        } else {
-            $mail->line('We added an update to your order.');
-        }
-
-        if (filled($history->notes)) {
-            $mail->line('Note: '.$history->notes);
-        }
-
-        if (filled($order->tracking_number)) {
-            $mail->line('Tracking number: '.$order->tracking_number);
-        }
-
-        $mail->line('Order total: AED '.number_format((float) $order->total_amount, 2));
-
-        return $mail
-            ->action('View order history', rtrim((string) config('app.url'), '/').'/my-orders')
-            ->line('Thank you for shopping with us!')
-            ->salutation('— Nexus Peptides | UAE Team');
+        return new static($order, $history);
     }
 
     private function label(?string $status): string

@@ -42,8 +42,14 @@ function select() {
 
 function addToCart(slug) {
     const cart = useCartStore();
-    cart.add(slug, 1);
-    swalToast('Added to your basket.', 'success');
+    const product = products.find((p) => p.slug === slug);
+    if (product && product.stock !== null && product.stock !== undefined && Number(product.stock) <= 0) {
+        swalToast('This item is out of stock.', 'info');
+        emit('close');
+        return;
+    }
+    const added = cart.add(slug, 1);
+    swalToast(added ? 'Added to your basket.' : 'This item is out of stock.', added ? 'success' : 'info');
     emit('close');
 }
 </script>

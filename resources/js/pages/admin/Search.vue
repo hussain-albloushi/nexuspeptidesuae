@@ -9,7 +9,9 @@
         <button class="btn btn-outline-secondary" type="submit">Search</button>
       </form>
       <p class="form-text">
-        Find orders by number or customer, products by name or SKU, and customers by name, email, or phone.
+        Find orders by number or customer, products by name or SKU, customers by name, email, or phone —
+        plus coupons, suppliers, purchase orders, categories, and expenses. Section names like
+        “settings” or “inventory” link straight to that page.
       </p>
 
       <div aria-live="polite">
@@ -41,7 +43,8 @@
                 <span class="badge text-bg-light">{{ group.items.length }}</span>
               </h6>
               <router-link
-                :to="{ path: `/admin/${group.type}`, query: { q: activeQuery } }"
+                v-if="group.type !== 'sections'"
+                :to="viewAllTarget(group)"
                 class="small text-decoration-none"
               >
                 View all <i class="fa-solid fa-chevron-right ms-1" aria-hidden="true"></i>
@@ -49,7 +52,7 @@
             </div>
             <div class="list-group">
               <router-link v-for="result in group.items" :key="`${group.type}-${result.id}`"
-                           :to="result.link ?? { path: `/admin/${group.type}`, query: { q: activeQuery } }"
+                           :to="result.link ?? viewAllTarget(group)"
                            class="list-group-item list-group-item-action d-flex align-items-center gap-3">
                 <span class="search-result-icon" aria-hidden="true"><AdminIcon :name="iconFor(group.type)" :size="16" /></span>
                 <span class="flex-grow-1 min-w-0">
@@ -78,11 +81,33 @@ const router = useRouter();
 const { q, results, loading, error, activeQuery, search } = useAdminSearch(route, router);
 
 const sectionMeta = {
+  sections: { label: 'Jump to', icon: 'bolt' },
   orders: { label: 'Orders', icon: 'orders' },
   products: { label: 'Products', icon: 'box' },
   customers: { label: 'Customers', icon: 'users' },
+  coupons: { label: 'Coupons', icon: 'ticket' },
+  suppliers: { label: 'Suppliers', icon: 'truck' },
+  'purchase-orders': { label: 'Purchase Orders', icon: 'document' },
+  categories: { label: 'Categories', icon: 'tags' },
+  expenses: { label: 'Expenses', icon: 'billing' },
 };
 const iconFor = (type) => sectionMeta[type]?.icon ?? 'search';
+
+/** The admin page each result type opens — Expenses live under Accounting. */
+const sectionPage = {
+  orders: '/admin/orders',
+  products: '/admin/products',
+  customers: '/admin/customers',
+  coupons: '/admin/coupons',
+  suppliers: '/admin/suppliers',
+  'purchase-orders': '/admin/purchase-orders',
+  categories: '/admin/categories',
+  expenses: '/admin/accounting',
+};
+
+function viewAllTarget(group) {
+  return { path: sectionPage[group.type] ?? '/admin', query: { q: activeQuery.value } };
+}
 
 function statusClass(status) {
   return {

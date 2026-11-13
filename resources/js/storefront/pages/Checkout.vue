@@ -439,8 +439,9 @@ async function placeOrder() {
                                     <span class="min-w-6 text-center text-sm">{{ line.qty }}</span>
                                     <button
                                         type="button"
-                                        class="px-2 py-1 text-ink transition hover:text-secondary"
+                                        class="px-2 py-1 text-ink transition hover:text-secondary disabled:opacity-40"
                                         aria-label="Increase quantity"
+                                        :disabled="line.product.stock !== null && line.product.stock !== undefined && line.qty >= Number(line.product.stock)"
                                         @click="cart.setQty(line.slug, line.qty + 1)"
                                     >
                                         +

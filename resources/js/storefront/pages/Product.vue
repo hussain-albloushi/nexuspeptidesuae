@@ -8,6 +8,7 @@ const currency = useCurrencyStore();
 import { useCartStore } from '../stores/cart';
 import { useWishlistStore } from '../stores/wishlist';
 import ProductGrid from '../components/ProductGrid.vue';
+import PriceDisplay from '../components/PriceDisplay.vue';
 import { swalToast, swal } from '../services/alerts';
 
 const route = useRoute();
@@ -39,14 +40,16 @@ watch(
     { immediate: true },
 );
 
+const isInStock = computed(() => product.value?.stock === null || product.value?.stock === undefined || Number(product.value.stock) > 0);
+
 function addToCart() {
-    if (!product.value) return;
+    if (!product.value || !isInStock.value) return;
     cart.add(product.value.slug, qty.value);
     swalToast(`${product.value.name} added to your cart.`);
 }
 
 async function buyNow() {
-    if (!product.value) return;
+    if (!product.value || !isInStock.value) return;
     cart.add(product.value.slug, qty.value);
     router.push('/checkout');
 }
@@ -145,21 +148,27 @@ function goTo(p) {
             <div>
                 <h1 class="text-3xl md:text-4xl">{{ product.name }}</h1>
 
-                <p class="mt-4 text-lg">
+                <div v-if="isInStock" class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <span class="text-3xl font-bold text-navy">
+                        <PriceDisplay :value="product.price" />
+                    </span>
                     <template v-if="product.discount">
-                        <span class="text-neutral-400 line-through">
-                            Original price was: <PriceDisplay :value="product.regular" />.
+                        <span class="text-lg text-neutral-400 line-through" aria-label="Original price">
+                            <PriceDisplay :value="product.regular" />
                         </span>
-                        <span class="ml-2 font-semibold text-navy">
-                            Current price is: <PriceDisplay :value="product.price" />.
+                        <span class="rounded-full bg-danger/10 px-3 py-1 text-sm font-bold text-danger">
+                            -{{ product.discount }}%
+                        </span>
+                        <span class="text-sm font-medium text-success">
+                            You save <PriceDisplay :value="product.regular - product.price" />
+                        </span>
+                        <span class="sr-only">
+                            Original price was <PriceDisplay :value="product.regular" />; now
+                            <PriceDisplay :value="product.price" />.
                         </span>
                     </template>
-                    <template v-else>
-                        <span class="font-semibold text-navy">
-                            <PriceDisplay :value="product.price" />
-                        </span>
-                    </template>
-                </p>
+                </div>
+                <div v-else class="mt-4 text-lg font-semibold text-red-600">Out of stock</div>
 
                 <p class="mt-5 leading-relaxed text-ink" v-html="product.description.intro"></p>
 
@@ -183,16 +192,18 @@ function goTo(p) {
                         />
                         <button
                             type="button"
-                            class="px-4 py-3 text-ink hover:text-secondary"
+                            class="px-4 py-3 text-ink hover:text-secondary disabled:opacity-40"
                             aria-label="Increase quantity"
-                            @click="qty++"
+                            :disabled="product.stock !== null && product.stock !== undefined && qty >= Number(product.stock)"
+                            @click="qty = Math.min((product.stock ?? Infinity), qty + 1)"
                         >
                             +
                         </button>
                     </div>
 
-                    <button type="button" class="wd-btn" @click="addToCart">Add to basket</button>
-                    <button type="button" class="wd-btn wd-btn-outline" @click="buyNow">
+                    <button v-if="isInStock" type="button" class="wd-btn" @click="addToCart">Add to basket</button>
+                    <button v-else type="button" class="wd-btn" disabled>Out of stock</button>
+                    <button v-if="isInStock" type="button" class="wd-btn wd-btn-outline" @click="buyNow">
                         Buy now
                     </button>
                 </div>

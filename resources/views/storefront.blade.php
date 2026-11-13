@@ -12,6 +12,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=McLaren&family=Mona+Sans:wght@400;500;600;700&family=Noto+Sans+Mandaic&display=swap" rel="stylesheet">
 
+    {{-- reCAPTCHA v3: warm the connections Google's api.js and token calls use. --}}
+    <link rel="preconnect" href="https://www.google.com">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
     <script>
         window.__STOREFRONT_CONTENT__ = @json($content ?: new \stdClass());
         window.__STOREFRONT_PRODUCTS__ = @json($products ?? []);

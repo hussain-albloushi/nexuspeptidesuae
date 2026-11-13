@@ -114,8 +114,9 @@ function setQty(slug, e) {
                                             />
                                             <button
                                                 type="button"
-                                                class="px-3 py-1.5 hover:text-secondary"
+                                                class="px-3 py-1.5 hover:text-secondary disabled:opacity-40"
                                                 aria-label="Increase"
+                                                :disabled="line.product.stock !== null && line.product.stock !== undefined && line.qty >= Number(line.product.stock)"
                                                 @click="cart.setQty(line.slug, line.qty + 1)"
                                             >
                                                 +

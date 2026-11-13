@@ -74,8 +74,10 @@ export const useAuthStore = defineStore('auth', {
                 password,
                 password_confirmation: password,
             });
-            this.rememberSession(data.user, data.access_token);
-            return this.user;
+            if (data.access_token) {
+                this.rememberSession(data.user, data.access_token);
+            }
+            return data.user;
         },
 
         /** Ask the server to email a reset link for (hopefully) this address. Never reveals whether it exists. */

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, afterEach, before, beforeEach, test } from 'node:test';
-import { effectScope, reactive } from 'vue';
+import { effectScope, reactive, ref } from 'vue';
 import { createServer } from 'vite';
 import axios from 'axios';
 
 let server;
 let useAdminSearch;
+let useCollectionSearch;
 let originalAdapter;
 let respond;
 let scopes = [];
@@ -16,7 +17,7 @@ before(async () => {
         server: { middlewareMode: true, watch: null, hmr: false, ws: false },
         appType: 'custom',
     });
-    ({ useAdminSearch } = await server.ssrLoadModule('/resources/js/pages/admin/search.js'));
+    ({ useAdminSearch, useCollectionSearch } = await server.ssrLoadModule('/resources/js/pages/admin/search.js'));
 });
 
 beforeEach((context) => {
@@ -50,14 +51,18 @@ function createSearch(query = '', endpoint = null) {
     return { route, ...scope.run(() => useAdminSearch(route, router, endpoint)) };
 }
 
-function productResponse(config) {
-    return config.url === '/api/products'
-        ? [{ id: 1, name: `${config.params.q} product`, sku: 'SKU', is_active: true }]
-        : [];
+function globalResponse(config) {
+    if (config.url !== '/api/global-search') return [];
+    const query = config.params.q;
+
+    return {
+        results: [{ id: 1, type: 'products', name: `${query} product`, link: { path: '/admin/products', query: { q: `${query} product` } } }],
+        sections: [],
+    };
 }
 
 test('submitting a second navbar query updates the existing results page', async (context) => {
-    respond = async (config) => productResponse(config);
+    respond = async (config) => globalResponse(config);
     const state = createSearch('first');
     await flush();
     assert.equal(state.results.value[0].name, 'first product');
@@ -81,13 +86,13 @@ test('a late response cannot overwrite the latest query results', async (context
     context.mock.timers.tick(250);
     await flush();
     for (const request of pending.filter(({ config }) => config.params.q === 'new')) {
-        request.resolve(productResponse(request.config));
+        request.resolve(globalResponse(request.config));
     }
     await flush();
     assert.equal(state.results.value[0].name, 'new product');
 
     for (const request of pending.filter(({ config }) => config.params.q === 'old')) {
-        request.resolve(productResponse(request.config));
+        request.resolve(globalResponse(request.config));
     }
     await flush();
 
@@ -96,7 +101,7 @@ test('a late response cannot overwrite the latest query results', async (context
 });
 
 test('clearing a global query clears results and cancels pending searches', async () => {
-    respond = async (config) => productResponse(config);
+    respond = async (config) => globalResponse(config);
     const state = createSearch('first');
     await flush();
     assert.equal(state.results.value.length, 1);
@@ -109,7 +114,7 @@ test('clearing a global query clears results and cancels pending searches', asyn
     assert.equal(state.activeQuery.value, '');
 });
 
-test('collection pages send SKU queries to the API and reload when the route query is cleared', async () => {
+test('collection pages send SKU queries to their own endpoint and reload when the route query is cleared', async () => {
     const queries = [];
     respond = async (config) => {
         queries.push(config.params.q);
@@ -127,22 +132,22 @@ test('collection pages send SKU queries to the API and reload when the route que
     assert.equal(state.results.value.length, 1);
 });
 
-test('global search results deep link to the matching record', async () => {
-    respond = async (config) => {
-        if (config.url === '/api/orders') {
-            return [{ id: 10, order_number: 'NP-12345678', status: 'processing', total_amount: '250.00', user: { name: 'Ada' } }];
-        }
-        if (config.url === '/api/products') {
-            return [{ id: 3, name: 'BPC-157 10mg', sku: 'BPC-157-10MG', is_active: true }];
-        }
-        return [{ id: 7, name: 'Ada Lovelace', email: 'ada@example.com' }];
-    };
-    const state = createSearch('ada');
+test('global search merges section navigation links ahead of record results', async () => {
+    respond = async () => ({
+        results: [
+            { id: 10, type: 'orders', name: 'NP-12345678', link: { path: '/admin/orders', query: { q: '#NP-12345678' } } },
+            { id: 3, type: 'coupons', name: 'SAVE10', link: { path: '/admin/coupons', query: { q: 'SAVE10' } } },
+        ],
+        sections: [{ title: 'Coupons', path: '/admin/coupons' }],
+    });
+    const state = createSearch('coupon');
     await flush();
 
-    assert.deepEqual(state.results.value[0].link, { path: '/admin/orders', query: { q: '#NP-12345678' } });
-    assert.deepEqual(state.results.value[1].link, { path: '/admin/products', query: { q: 'BPC-157-10MG' } });
-    assert.deepEqual(state.results.value[2].link, { path: '/admin/customers', query: { q: 'ada@example.com' } });
+    assert.equal(state.results.value[0].type, 'sections');
+    assert.deepEqual(state.results.value[0].link, { path: '/admin/coupons' });
+    assert.equal(state.results.value[0].name, 'Open Coupons');
+    assert.deepEqual(state.results.value[1].link, { path: '/admin/orders', query: { q: '#NP-12345678' } });
+    assert.deepEqual(state.results.value[2].link, { path: '/admin/coupons', query: { q: 'SAVE10' } });
 });
 
 test('request failures are shown as errors and can be retried', async () => {
@@ -152,7 +157,7 @@ test('request failures are shown as errors and can be retried', async () => {
     assert.equal(state.error.value, 'Unable to load search results. Please try again.');
     assert.equal(state.loading.value, false);
 
-    respond = async (config) => productResponse(config);
+    respond = async (config) => globalResponse(config);
     await state.search();
 
     assert.equal(state.error.value, '');
@@ -161,7 +166,7 @@ test('request failures are shown as errors and can be retried', async () => {
 
 test('empty global searches make no API requests', async () => {
     let requests = 0;
-    respond = async () => { requests++; return []; };
+    respond = async () => { requests++; return { results: [], sections: [] }; };
     const state = createSearch();
     await flush();
 
@@ -170,9 +175,9 @@ test('empty global searches make no API requests', async () => {
     assert.deepEqual(state.results.value, []);
 });
 
-test('typing several queries only requests the final query after the debounce', async (context) => {
+test('typing several queries requests only the final query after the debounce', async (context) => {
     const queries = [];
-    respond = async (config) => { queries.push(config.params.q); return []; };
+    respond = async (config) => { queries.push(config.params.q); return { results: [], sections: [] }; };
     const state = createSearch();
 
     state.q.value = 'n';
@@ -181,6 +186,26 @@ test('typing several queries only requests the final query after the debounce', 
     context.mock.timers.tick(250);
     await flush();
 
-    assert.deepEqual(queries, ['nx_100', 'nx_100', 'nx_100']);
+    assert.deepEqual(queries, ['nx_100']);
     assert.equal(state.activeQuery.value, 'nx_100');
+});
+
+test('collection search hydrates from the deep link, filters rows, and follows route changes', async () => {
+    const list = ref([{ code: 'SAVE10' }, { code: 'ZEPHYR10' }]);
+    const route = reactive({ query: { q: 'zephyr' } });
+    const scope = effectScope();
+    scopes.push(scope);
+    const { term, filtered } = scope.run(() => useCollectionSearch(list, route, [(c) => c.code]));
+
+    assert.equal(term.value, 'zephyr');
+    assert.deepEqual(filtered.value.map((c) => c.code), ['ZEPHYR10']);
+
+    route.query = { q: 'save' };
+    await flush();
+    assert.equal(term.value, 'save');
+    assert.deepEqual(filtered.value.map((c) => c.code), ['SAVE10']);
+
+    route.query = {};
+    await flush();
+    assert.equal(filtered.value.length, 2);
 });

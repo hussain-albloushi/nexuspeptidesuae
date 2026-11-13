@@ -15,7 +15,7 @@ class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_sends_verification_and_welcome_emails(): void
+    public function test_registration_sends_a_single_welcome_email_with_verification_link(): void
     {
         Notification::fake();
 
@@ -25,8 +25,8 @@ class EmailVerificationTest extends TestCase
         ])->assertCreated()->assertJsonPath('user.email', 'customer@example.com');
 
         $user = User::where('email', 'customer@example.com')->firstOrFail();
-        Notification::assertSentTo($user, VerifyEmail::class);
         Notification::assertSentTo($user, WelcomeEmail::class);
+        Notification::assertNotSentTo($user, VerifyEmail::class);
     }
 
     public function test_verification_link_marks_the_email_verified(): void

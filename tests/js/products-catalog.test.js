@@ -46,6 +46,28 @@ test('storefront catalogue overlays admin-published products from the database',
     assert.equal(vial.discount, 0);
 });
 
+test('storefront derives percentage discounts from admin-published compare prices', async () => {
+    globalThis.window = {
+        __STOREFRONT_PRODUCTS__: [
+            {
+                slug: 'semax-10mg-pen',
+                name: 'Semax 10mg Pen',
+                price: 100,
+                compare_at_price: 133.33,
+                image: '/storage/semax.jpg',
+            },
+        ],
+    };
+
+    const { products } = await import(`${SOURCE}?published-discount`);
+
+    const semax = products.find((p) => p.slug === 'semax-10mg-pen');
+    assert.ok(semax, 'published product is listed');
+    assert.equal(semax.price, 100);
+    assert.equal(semax.regular, 133.33);
+    assert.equal(semax.discount, 25);
+});
+
 test('storefront catalogue falls back to the static list without a published payload', async () => {
     globalThis.window = {};
 

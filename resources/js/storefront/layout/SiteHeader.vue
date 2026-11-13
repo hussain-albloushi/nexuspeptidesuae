@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useContentStore } from '../stores/content';
 import { useCartStore } from '../stores/cart';
 import { useWishlistStore } from '../stores/wishlist';
@@ -15,6 +16,7 @@ const site = computed(() => content.site);
 const cart = useCartStore();
 const wishlist = useWishlistStore();
 const auth = useAuthStore();
+const router = useRouter();
 
 const accountMenuOpen = ref(false);
 const accountDropdown = ref(null);
@@ -37,7 +39,8 @@ async function doLogout() {
     accountMenuOpen.value = false;
     const ok = await swalConfirm('Log out?', 'Are you sure you want to log out?', 'Log out');
     if (!ok) return;
-    auth.logout();
+    await auth.logout();
+    router.push('/');
 }
 
 </script>

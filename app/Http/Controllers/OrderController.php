@@ -6,6 +6,7 @@ use App\Models\Content;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderStatusHistory;
 use App\Models\Product;
 use App\Models\ReturnRequest;
 use App\Services\StripePayment;
@@ -50,11 +51,52 @@ class OrderController extends Controller
     public function myOrders(Request $r)
     {
         $userId = $r->user()->id;
+        $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+        $status = $r->query('status');
 
-        return Order::with(['items', 'statusHistory', 'items.product', 'returnRequests.items'])
-            ->where('user_id', $userId)
-            ->latest()
-            ->get();
+        $query = Order::with(['items', 'statusHistory', 'items.product', 'returnRequests.items'])
+            ->where('user_id', $userId);
+
+        // Cancelled orders stay out of the default list; the customer asks for
+        // them explicitly by filtering on the status.
+        if (in_array($status, $statuses, true)) {
+            $query->where('status', $status);
+        } else {
+            $query->where('status', '!=', 'cancelled');
+        }
+
+        return $query->latest()->get();
+    }
+
+    /**
+     * Customer cancels their own pending COD order. Restores reserved stock.
+     */
+    public function cancel(Request $r, int $id): JsonResponse
+    {
+        $order = Order::with('items')->where('user_id', $r->user()->id)->findOrFail($id);
+
+        if ($order->status !== 'pending' || $order->payment_method !== 'cod') {
+            return response()->json(['message' => 'Only pending cash-on-delivery orders can be cancelled.'], 422);
+        }
+
+        DB::transaction(function () use ($order): void {
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->adjustStock((int) $item->quantity, 'return', 'Order '.$order->order_number.' cancelled by customer');
+                }
+            }
+
+            $order->update(['status' => 'cancelled']);
+
+            OrderStatusHistory::create([
+                'order_id' => $order->id,
+                'old_status' => 'pending',
+                'new_status' => 'cancelled',
+                'notes' => 'Cancelled by customer.',
+            ]);
+        });
+
+        return response()->json(['message' => 'Order cancelled.', 'order' => $order->fresh(['items', 'statusHistory'])]);
     }
 
     /**

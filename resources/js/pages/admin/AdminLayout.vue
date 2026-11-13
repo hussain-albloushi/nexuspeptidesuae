@@ -58,7 +58,7 @@
                 <p>{{ adminUser?.name || 'Administrator' }} <small>{{ adminUser?.email || 'NexusPeptides' }}</small></p>
               </li>
               <li class="user-footer">
-                <router-link to="/admin" class="btn btn-outline-secondary">Dashboard</router-link>
+                <router-link to="/admin/account" class="btn btn-outline-secondary">Account settings</router-link>
                 <a href="#" @click.prevent="logout" class="btn btn-outline-danger float-end">Sign out</a>
               </li>
             </ul>
@@ -112,6 +112,38 @@
               <router-link to="/admin/suppliers" class="nav-link" :class="{ active: $route.path === '/admin/suppliers' }"><AdminIcon name="truck" class="nav-icon" /><p>Suppliers</p></router-link>
             </li>
 
+            <li class="nav-header">AI BUSINESS ASSISTANT</li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-overview" class="nav-link" :class="{ active: $route.path === '/admin/ai-overview' }"><AdminIcon name="sparkles" class="nav-icon" /><p>AI Overview</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-business-analytics" class="nav-link" :class="{ active: $route.path === '/admin/ai-business-analytics' }"><AdminIcon name="chart" class="nav-icon" /><p>Business Analytics</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-product-intelligence" class="nav-link" :class="{ active: $route.path === '/admin/ai-product-intelligence' }"><AdminIcon name="box" class="nav-icon" /><p>Product Intelligence</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-sales-intelligence" class="nav-link" :class="{ active: $route.path === '/admin/ai-sales-intelligence' }"><AdminIcon name="chart" class="nav-icon" /><p>Sales Intelligence</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-profit-intelligence" class="nav-link" :class="{ active: $route.path === '/admin/ai-profit-intelligence' }"><AdminIcon name="billing" class="nav-icon" /><p>Profit Intelligence</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-inventory-intelligence" class="nav-link" :class="{ active: $route.path === '/admin/ai-inventory-intelligence' }"><AdminIcon name="inventory" class="nav-icon" /><p>Inventory Intelligence</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-recommendations" class="nav-link" :class="{ active: $route.path === '/admin/ai-recommendations' }"><AdminIcon name="bolt" class="nav-icon" /><p>AI Recommendations</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-business-chat" class="nav-link" :class="{ active: $route.path === '/admin/ai-business-chat' }"><AdminIcon name="chat" class="nav-icon" /><p>AI Business Chat</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-reports" class="nav-link" :class="{ active: $route.path === '/admin/ai-reports' }"><AdminIcon name="document" class="nav-icon" /><p>AI Reports</p></router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin/ai-settings" class="nav-link" :class="{ active: $route.path === '/admin/ai-settings' }"><AdminIcon name="settings" class="nav-icon" /><p>AI Settings</p></router-link>
+            </li>
+
             <li class="nav-header">FINANCE</li>
             <li class="nav-item">
               <router-link to="/admin/accounting" class="nav-link" :class="{ active: $route.path === '/admin/accounting' }"><AdminIcon name="billing" class="nav-icon" /><p>Accounting</p></router-link>
@@ -124,10 +156,13 @@
               <router-link to="/admin/settings" class="nav-link" :class="{ active: $route.path === '/admin/settings' }"><AdminIcon name="settings" class="nav-icon" /><p>Settings</p></router-link>
             </li>
             <li class="nav-item">
+              <router-link to="/admin/email-templates" class="nav-link" :class="{ active: $route.path === '/admin/email-templates' }"><AdminIcon name="email" class="nav-icon" /><p>Email Templates</p></router-link>
+            </li>
+            <li class="nav-item">
               <router-link to="/admin/contents" class="nav-link" :class="{ active: $route.path === '/admin/contents' }"><AdminIcon name="document" class="nav-icon" /><p>Website Content</p></router-link>
             </li>
             <li class="nav-item">
-              <a href="/" class="nav-link"><AdminIcon name="store" class="nav-icon" /><p>Storefront</p></a>
+              <a href="/" target="_blank" rel="noopener noreferrer" class="nav-link"><AdminIcon name="store" class="nav-icon" /><p>Storefront</p></a>
             </li>
           </ul>
         </nav>
@@ -189,24 +224,36 @@ const alertTypes = [
 ];
 const activeAlerts = computed(() => alertTypes.filter((alert) => notificationData.value?.attention[alert.key] > 0));
 onMounted(startNotifications);
-watch(() => route.path, () => { void refreshNotifications(); });
+watch(() => route.path, () => { void refreshNotifications(); void loadAdminUser(); });
 
-onMounted(async () => {
+async function loadAdminUser() {
   try {
     const { data } = await axios.get('/api/me');
     adminUser.value = data;
   } catch {
     adminUser.value = null;
   }
-});
+}
+
+onMounted(loadAdminUser);
 
 const titles = {
   '/admin': 'Dashboard', '/admin/orders': 'Orders', '/admin/products': 'Products',
   '/admin/categories': 'Categories', '/admin/inventory': 'Inventory', '/admin/customers': 'Customers',
   '/admin/purchase-orders': 'Purchase Orders', '/admin/suppliers': 'Suppliers',
   '/admin/coupons': 'Coupons', '/admin/accounting': 'Accounting',
-  '/admin/sales-report': 'Sales Report', '/admin/settings': 'Settings', '/admin/contents': 'Website Content',
+  '/admin/sales-report': 'Sales Report', '/admin/settings': 'Settings', '/admin/account': 'Account Settings', '/admin/contents': 'Website Content',
   '/admin/search': 'Search Results',
+  '/admin/ai-overview': 'AI Overview',
+  '/admin/ai-business-analytics': 'Business Analytics',
+  '/admin/ai-product-intelligence': 'Product Intelligence',
+  '/admin/ai-sales-intelligence': 'Sales Intelligence',
+  '/admin/ai-profit-intelligence': 'Profit Intelligence',
+  '/admin/ai-inventory-intelligence': 'Inventory Intelligence',
+  '/admin/ai-recommendations': 'AI Recommendations',
+  '/admin/ai-business-chat': 'AI Business Chat',
+  '/admin/ai-reports': 'AI Reports',
+  '/admin/ai-settings': 'AI Settings',
 };
 
 const pageTitle = computed(() => {

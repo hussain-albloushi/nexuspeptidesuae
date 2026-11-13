@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue';
 import { useCartStore } from '../stores/cart';
 import { useWishlistStore } from '../stores/wishlist';
 import { useCurrencyStore } from '../stores/currency';
@@ -13,7 +14,10 @@ const cart = useCartStore();
 const wishlist = useWishlistStore();
 const currency = useCurrencyStore();
 
+const isInStock = computed(() => props.product?.stock === null || props.product?.stock === undefined || Number(props.product.stock) > 0);
+
 function addToCart() {
+    if (!isInStock.value) return;
     cart.add(props.product.slug, 1);
     swalToast(`${props.product.name} added to your cart.`);
 }
@@ -69,7 +73,7 @@ function toggleWishlist() {
                 {{ product.name }}
             </router-link>
 
-            <p class="mt-2 text-sm text-neutral-500">
+            <p v-if="isInStock" class="mt-2 text-sm text-neutral-500">
                 <template v-if="product.discount">
                     <del class="text-neutral-400">
                         <PriceDisplay :value="product.regular" />
@@ -84,11 +88,22 @@ function toggleWishlist() {
                     </span>
                 </template>
             </p>
-            <span class="sr-only">Original price was: <PriceDisplay :value="product.regular" />.</span>
+            <span v-if="isInStock && product.discount" class="sr-only">
+                Original price was <PriceDisplay :value="product.regular" />, now
+                <PriceDisplay :value="product.price" />.
+            </span>
 
-            <button type="button" class="wd-btn mt-4 w-full self-start" @click="addToCart">
+            <button
+                v-if="isInStock"
+                type="button"
+                class="wd-btn mt-4 w-full self-start"
+                @click="addToCart"
+            >
                 Add to basket
             </button>
+            <span v-else class="mt-4 inline-block rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-600">
+                Out of stock
+            </span>
         </div>
     </div>
 </template>

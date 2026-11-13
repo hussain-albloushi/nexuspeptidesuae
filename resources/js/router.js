@@ -16,8 +16,21 @@ const router = createRouter({
             { path: 'accounting', name: 'admin-accounting', component: () => import('./pages/admin/Accounting.vue') },
             { path: 'sales-report', name: 'admin-sales-report', component: () => import('./pages/admin/SalesReport.vue') },
             { path: 'settings', name: 'admin-settings', component: () => import('./pages/admin/Settings.vue') },
+            { path: 'account', name: 'admin-account', component: () => import('./pages/admin/AccountSettings.vue') },
+            { path: 'email-templates', name: 'admin-email-templates', component: () => import('./pages/admin/EmailTemplates.vue') },
             { path: 'contents', name: 'admin-contents', component: () => import('./pages/admin/Contents.vue') },
             { path: 'search', name: 'admin-search', component: () => import('./pages/admin/Search.vue') },
+
+            { path: 'ai-overview', name: 'admin-ai-overview', component: () => import('./pages/admin/AiOverview.vue') },
+            { path: 'ai-business-analytics', name: 'admin-ai-business-analytics', component: () => import('./pages/admin/BusinessAnalytics.vue') },
+            { path: 'ai-product-intelligence', name: 'admin-ai-product-intelligence', component: () => import('./pages/admin/ProductIntelligence.vue') },
+            { path: 'ai-sales-intelligence', name: 'admin-ai-sales-intelligence', component: () => import('./pages/admin/SalesIntelligence.vue') },
+            { path: 'ai-profit-intelligence', name: 'admin-ai-profit-intelligence', component: () => import('./pages/admin/ProfitIntelligence.vue') },
+            { path: 'ai-inventory-intelligence', name: 'admin-ai-inventory-intelligence', component: () => import('./pages/admin/InventoryIntelligence.vue') },
+            { path: 'ai-recommendations', name: 'admin-ai-recommendations', component: () => import('./pages/admin/AiRecommendations.vue') },
+            { path: 'ai-business-chat', name: 'admin-ai-business-chat', component: () => import('./pages/admin/AiBusinessChat.vue') },
+            { path: 'ai-reports', name: 'admin-ai-reports', component: () => import('./pages/admin/AiReports.vue') },
+            { path: 'ai-settings', name: 'admin-ai-settings', component: () => import('./pages/admin/AiSettings.vue') },
 
             // Wrong admin URLs land on a themed 404 instead of redirecting silently.
             { path: ':pathMatch(.*)*', name: 'admin-not-found', component: () => import('./pages/admin/NotFound.vue') },

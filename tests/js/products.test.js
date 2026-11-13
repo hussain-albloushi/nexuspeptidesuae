@@ -247,3 +247,23 @@ test('image uploads use multipart with method spoofing and preserve boolean valu
     assert.equal(body.get('is_active'), '0');
     assert.equal(body.get('image').name, 'new.png');
 });
+
+test('save carries discount fields for the pricing comparison price', async () => {
+    const state = catalog();
+    await flush();
+    await state.loadProduct(1);
+    const form = productForm(state.activeProduct.value);
+    form.price = '150';
+    form.discount_percent = '20';
+    form.discount_amount = '';
+    let payload;
+    respond = async (config) => {
+        if (config.method === 'put') { payload = JSON.parse(config.data); return { product: { ...product, name: 'Edited name' } }; }
+        return pageData([{ ...product, name: 'Edited name' }]);
+    };
+
+    assert.equal(await state.saveProduct(form), true);
+    assert.equal(payload.discount_percent, '20');
+    assert.equal(payload.discount_amount, null);
+    assert.equal(payload.compare_at_price, null);
+});

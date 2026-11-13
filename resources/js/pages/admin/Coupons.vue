@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="card mb-4">
-      <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <h3 class="card-title">Coupons</h3>
-        <div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <input v-model="term" type="search" class="form-control form-control-sm w-auto" placeholder="Search code…" aria-label="Search coupons" />
           <button type="button" class="btn btn-primary" @click="resetAddForm">Add coupon</button>
         </div>
       </div>
@@ -21,10 +22,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="list.length === 0">
-              <td colspan="6" class="text-center text-secondary py-4">No coupons found.</td>
+            <tr v-if="filtered.length === 0">
+              <td colspan="6" class="text-center text-secondary py-4">{{ term.trim() ? 'No coupons match this search.' : 'No coupons found.' }}</td>
             </tr>
-            <tr v-for="c in list" :key="c.id">
+            <tr v-for="c in filtered" :key="c.id">
               <td class="fw-semibold font-monospace">{{ c.code }}</td>
               <td>{{ typeLabel(c.type) }}</td>
               <td class="text-end">{{ formatMoney(c.value ?? 0) }}</td>
@@ -196,9 +197,12 @@
 import axios from 'axios';
 import { confirmAdmin } from './adminAlerts';
 import { ref, reactive, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useCollectionSearch } from './search.js';
 
 const list = ref([]);
 const saving = ref(false);
+const { term, filtered } = useCollectionSearch(list, useRoute(), [(c) => c.code]);
 
 const addForm = reactive({
   code: '',

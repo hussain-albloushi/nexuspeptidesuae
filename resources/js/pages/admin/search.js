@@ -1,61 +1,54 @@
-import { onScopeDispose, ref, watch } from 'vue';
+import { computed, onScopeDispose, ref, watch } from 'vue';
 import axios from 'axios';
 
 export function searchQuery(value) {
     return String((Array.isArray(value) ? value[0] : value) ?? '').trim();
 }
 
-/** Where a record opens: the admin page filtered to exactly that record. */
-function linkFor(record) {
-    switch (record.type) {
-        case 'orders': return { path: '/admin/orders', query: { q: `#${record.name}` } };
-        case 'products': return { path: '/admin/products', query: { q: record.sku || record.name } };
-        case 'customers': return { path: '/admin/customers', query: { q: record.email || record.name } };
-        default: return { path: `/admin/${record.type}`, query: { q: record.name } };
-    }
-}
-
-/** Combined results across the admin lists, each with a deep link. */
+/** Combined results across every searchable admin section, each deep-linked. */
 export async function fetchResults(endpoint, query, signal) {
     const config = { params: { q: query }, signal };
     if (endpoint) {
         return (await axios.get(endpoint, config)).data;
     }
 
-    const [orders, products, customers] = await Promise.all([
-        axios.get('/api/orders', config),
-        axios.get('/api/products', config),
-        axios.get('/api/customers', config),
-    ]);
+    const { data } = await axios.get('/api/global-search', config);
 
-    return [
-        ...orders.data.map((order) => ({
-            id: order.id,
-            name: String(order.order_number || order.id),
-            type: 'orders',
-            status: order.status || '',
-            detail: `Customer: ${order.user?.name || '—'} · AED ${order.total_amount ?? 0}`,
-            link: linkFor({ type: 'orders', name: String(order.order_number || order.id) }),
-        })),
-        ...products.data.map((product) => ({
-            id: product.id,
-            name: product.name,
-            type: 'products',
-            status: product.is_active ? 'Active' : 'Draft',
-            detail: `SKU: ${product.sku || '—'} · Stock: ${product.stock_quantity ?? 0} · AED ${product.price ?? 0}`,
-            sku: product.sku || '',
-            link: linkFor({ type: 'products', name: product.name, sku: product.sku }),
-        })),
-        ...customers.data.map((customer) => ({
-            id: customer.id,
-            name: customer.name,
-            type: 'customers',
-            status: '',
-            detail: customer.email || '—',
-            email: customer.email || '',
-            link: linkFor({ type: 'customers', name: customer.name, email: customer.email }),
-        })),
-    ];
+    // Section navigation links lead the list so "search anything" always lands somewhere.
+    const sections = (data.sections ?? []).map((section) => ({
+        id: `section:${section.path}`,
+        name: `Open ${section.title}`,
+        type: 'sections',
+        status: '',
+        detail: 'Admin section',
+        link: { path: section.path },
+    }));
+
+    return [...sections, ...(data.results ?? [])];
+}
+
+/**
+ * Search box for admin pages that load their whole collection at once:
+ * hydrates from the route (so search deep links land filtered), follows
+ * later route changes, and narrows rows client-side.
+ */
+export function useCollectionSearch(list, route, matchers) {
+    const term = ref(searchQuery(route.query.q));
+
+    watch(() => route.query.q, (value) => {
+        term.value = searchQuery(value);
+    });
+
+    const filtered = computed(() => {
+        const needle = term.value.trim().toLowerCase();
+        if (!needle) return list.value;
+
+        return list.value.filter((row) =>
+            matchers.some((pick) => String(pick(row) ?? '').toLowerCase().includes(needle)),
+        );
+    });
+
+    return { term, filtered };
 }
 
 export function useAdminSearch(route, router, endpoint = null, debounceMs = 250) {

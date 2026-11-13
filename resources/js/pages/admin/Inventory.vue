@@ -353,10 +353,19 @@ async function load() {
     });
     products.value = r.data.products || [];
     summary.value = r.data.summary || summary.value;
-    if (!q.value && !statusFilter.value) allProducts.value = r.data.products || [];
+    const incoming = r.data.products || [];
+    if (!q.value && !statusFilter.value) {
+      allProducts.value = incoming;
+    } else {
+      // Keep the history product picker populated even while filtering.
+      const byId = new Map(allProducts.value.map((p) => [p.id, p]));
+      incoming.forEach((p) => byId.set(p.id, p));
+      allProducts.value = Array.from(byId.values());
+    }
   } catch (e) {
     flash.value = '';
-    formError.value = '';
+    // Surface the failure instead of silently showing stale data.
+    console.error('Inventory load failed', e);
   } finally {
     loading.value = false;
   }

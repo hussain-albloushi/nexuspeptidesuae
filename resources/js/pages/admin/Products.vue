@@ -207,9 +207,12 @@ function removeImage() {
 }
 function detailValue(key) {
   if (key === 'category_id') return activeProduct.value.category?.name || 'Uncategorized';
-  const value = activeProduct.value[key];
-  if (value === null || value === undefined || value === '') return 'Not set';
-  return ['price', 'cost_price', 'compare_at_price'].includes(key) ? money(value) : value;
+  const price = Number(activeProduct.value.price);
+  const compare = Number(activeProduct.value.compare_at_price);
+  const hasDiscount = Number.isFinite(price) && Number.isFinite(compare) && compare > price;
+  if (key === 'discount_percent') return hasDiscount ? Math.round(((compare - price) / compare) * 100) + '%' : 'Not set';
+  if (key === 'discount_amount') return hasDiscount ? money(compare - price) : 'Not set';
+  if (key === 'markup_percent') return value === null || value === '' || value === undefined ? 'Not set' : `${value}%`;
 }
 onBeforeUnmount(() => productDialog.value?.close());
 </script>

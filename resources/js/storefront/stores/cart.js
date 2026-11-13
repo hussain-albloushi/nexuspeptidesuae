@@ -87,10 +87,23 @@ export const useCartStore = defineStore('cart', {
         },
 
         add(slug, qty = 1) {
-            if (!findBySlug(slug)) return false;
+            const product = findBySlug(slug);
+            if (!product) return false;
+            const stock = product.stock;
+            if (stock !== null && stock !== undefined && Number(stock) <= 0) return false;
             const line = this.items.find((i) => i.slug === slug);
-            if (line) line.qty += qty;
-            else this.items.push({ slug, qty });
+            if (line) {
+                const newQty = line.qty + qty;
+                if (stock !== null && stock !== undefined) {
+                    line.qty = Math.min(newQty, Number(stock));
+                } else {
+                    line.qty = newQty;
+                }
+            } else {
+                const initial = stock !== null && stock !== undefined ? Math.min(qty, Number(stock)) : qty;
+                if (initial <= 0) return false;
+                this.items.push({ slug, qty: initial });
+            }
             this.persist();
             return true;
         },
@@ -99,6 +112,12 @@ export const useCartStore = defineStore('cart', {
             const line = this.items.find((i) => i.slug === slug);
             if (!line) return;
             if (qty <= 0) return this.remove(slug);
+            const product = findBySlug(slug);
+            const stock = product?.stock;
+            if (stock !== null && stock !== undefined) {
+                qty = Math.min(qty, Number(stock));
+                if (qty <= 0) return this.remove(slug);
+            }
             line.qty = qty;
             this.persist();
         },

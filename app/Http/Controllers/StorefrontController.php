@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Content;
 use App\Models\Product;
+use App\Services\GoogleRecaptcha;
 use App\Services\SiteSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -16,6 +17,7 @@ class StorefrontController extends Controller
     {
         $content = $this->publishedContent();
         $content['store'] = array_replace(config('storefront-content.shipping_defaults'), $content['store'] ?? []);
+        $content['store']['recaptchaKey'] = app(GoogleRecaptcha::class)->publicSiteKey();
 
         $site = $content['site'] ?? [];
 
@@ -42,7 +44,10 @@ class StorefrontController extends Controller
         return response()->json(array_replace(
             config('storefront-content.shipping_defaults'),
             $content['store'] ?? [],
-            ['timezone' => app(SiteSettings::class)->timezone()],
+            [
+                'timezone' => app(SiteSettings::class)->timezone(),
+                'recaptchaKey' => app(GoogleRecaptcha::class)->publicSiteKey(),
+            ],
         ))->header('Cache-Control', 'no-store');
     }
 
@@ -58,13 +63,14 @@ class StorefrontController extends Controller
                 ->where('is_active', true)
                 ->where('visibility', 'public')
                 ->orderBy('id')
-                ->get(['slug', 'name', 'price', 'compare_at_price', 'featured_image_url'])
+                ->get(['slug', 'name', 'price', 'compare_at_price', 'featured_image_url', 'stock_quantity'])
                 ->map(fn (Product $product): array => [
                     'slug' => $product->slug,
                     'name' => $product->name,
                     'price' => (float) $product->price,
                     'compare_at_price' => $product->compare_at_price !== null ? (float) $product->compare_at_price : null,
                     'image' => $product->featured_image_url,
+                    'stock' => (int) $product->stock_quantity,
                 ])
                 ->all();
         } catch (Throwable $exception) {

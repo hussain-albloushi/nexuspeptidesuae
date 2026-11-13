@@ -407,5 +407,9 @@ onBeforeUnmount(() => {
     position: sticky;
     bottom: 0;
     z-index: 2;
+    background: var(--admin-inset);
+    border-top: 1px solid var(--admin-border);
+    border-radius: 0 0 13px 13px;
+    box-shadow: 0 -6px 16px #0000000d;
 }
 </style>

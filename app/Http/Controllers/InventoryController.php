@@ -26,7 +26,7 @@ class InventoryController extends Controller
 
         $products = Product::with('category')
             ->when($request->filled('q'), function ($query) use ($request) {
-                $term = '%' . $request->string('q')->trim() . '%';
+                $term = '%'.$request->string('q')->trim().'%';
                 $query->where(function ($q) use ($term) {
                     $q->where('name', 'like', $term)
                         ->orWhere('sku', 'like', $term);
@@ -44,7 +44,7 @@ class InventoryController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function (Product $product) {
-                $status = $this->statusFor((int) $product->stock_quantity, (int) $product->low_stock_threshold);
+                $status = Product::stockStatusFor((int) $product->stock_quantity, (int) $product->low_stock_threshold);
 
                 return array_merge($product->toArray(), [
                     'computed_status' => $status,
@@ -89,7 +89,7 @@ class InventoryController extends Controller
 
             $product->update([
                 'stock_quantity' => $after,
-                'stock_status' => $this->statusFor($after, $threshold),
+                'stock_status' => Product::stockStatusFor($after, $threshold),
                 'low_stock_threshold' => $threshold,
             ]);
 
@@ -123,7 +123,7 @@ class InventoryController extends Controller
             ->when($request->filled('product_id'), fn ($query) => $query->where('product_id', $request->integer('product_id')))
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->type))
             ->when($request->filled('q'), function ($query) use ($request) {
-                $term = '%' . $request->string('q')->trim() . '%';
+                $term = '%'.$request->string('q')->trim().'%';
                 $query->where(function ($q) use ($term) {
                     $q->where('reason', 'like', $term)
                         ->orWhereHas('product', function ($p) use ($term) {
@@ -146,7 +146,7 @@ class InventoryController extends Controller
 
         $product->update([
             'low_stock_threshold' => (int) $data['low_stock_threshold'],
-            'stock_status' => $this->statusFor((int) $product->stock_quantity, (int) $data['low_stock_threshold']),
+            'stock_status' => Product::stockStatusFor((int) $product->stock_quantity, (int) $data['low_stock_threshold']),
         ]);
 
         return response()->json([
@@ -154,15 +154,6 @@ class InventoryController extends Controller
             'product' => $product->fresh('category'),
             'summary' => $this->summary(),
         ]);
-    }
-
-    private function statusFor(int $quantity, int $threshold): string
-    {
-        if ($quantity <= 0) {
-            return 'out_of_stock';
-        }
-
-        return $quantity <= $threshold ? 'low_stock' : 'in_stock';
     }
 
     private function summary(): array

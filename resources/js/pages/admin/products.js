@@ -13,7 +13,10 @@ export const productFieldGroups = [
     { title: 'Pricing & inventory', fields: [
         { key: 'price', label: 'Price (AED)', type: 'number', required: true, min: 0, max: 99999999.99, step: '0.01' },
         { key: 'compare_at_price', label: 'Compare-at price (AED)', type: 'number', min: 0, max: 99999999.99, step: '0.01' },
+        { key: 'discount_percent', label: 'Discount percent (%)', type: 'number', min: 0, max: 99, step: '0.01', hint: 'Optional. The compare-at price is derived from the selling price.' },
+        { key: 'discount_amount', label: 'Discount amount (AED)', type: 'number', min: 0, max: 99999999.99, step: '0.01', hint: 'Optional. The compare-at price becomes the selling price plus this amount.' },
         { key: 'cost_price', label: 'Cost price (AED)', type: 'number', min: 0, max: 99999999.99, step: '0.01' },
+        { key: 'markup_percent', label: 'Markup (%)', type: 'number', min: 0, max: 1000, step: '0.01', hint: 'Optional. When set, the selling price is cost price × (1 + markup %).' },
         { key: 'stock_quantity', label: 'Stock quantity', type: 'number', required: true, min: 0, max: 1000000, step: '1' },
         { key: 'low_stock_threshold', label: 'Low-stock alert threshold', type: 'number', required: true, min: 0, max: 1000000, step: '1' },
     ] },
@@ -204,7 +207,7 @@ export function useProducts(route) {
         fieldErrors.value = {};
         try {
             const payload = { ...form };
-            for (const field of ['category_id', 'compare_at_price', 'cost_price', 'description', 'featured_image_url', 'seo_title', 'seo_description']) {
+            for (const field of ['category_id', 'compare_at_price', 'discount_percent', 'discount_amount', 'cost_price', 'description', 'featured_image_url', 'seo_title', 'seo_description']) {
                 if (payload[field] === '') payload[field] = null;
             }
             const endpoint = '/api/products/' + activeProduct.value.id;

@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useContentStore } from '../stores/content';
-import { swalToast, swalConfirm } from '../services/alerts';
+import { swal, swalToast, swalConfirm } from '../services/alerts';
 import { UAE_CITIES } from '../constants';
 
 const route = useRoute();
@@ -13,7 +13,9 @@ const content = useContentStore();
 const site = computed(() => content.site);
 
 const login = ref({ email: '', password: '', remember: false });
-const register = ref({ email: '', password: '', agree: false, ageAgree: false });
+const register = ref({ name: '', email: '', password: '', agree: false, ageAgree: false });
+const showLoginPassword = ref(false);
+const showRegisterPassword = ref(false);
 const lostOpen = ref(false);
 const lostEmail = ref('');
 const lostBusy = ref(false);
@@ -35,7 +37,7 @@ const addressForm = ref({
 onMounted(async () => {
     // The verification email links back here with ?verified=1 / ?verified=invalid.
     if (route.query.verified === '1') {
-        swalToast('Your email address has been verified. Thank you!');
+        swalToast('Your email is verified. You can now sign in.');
     } else if (route.query.verified === 'invalid') {
         swalToast('That verification link is invalid or has expired. Request a new one below.', 'error');
     }
@@ -100,7 +102,7 @@ async function doSaveAddress() {
 async function doLogin() {
     const f = login.value;
     if (!f.email.trim() || !f.password) {
-        swalToast('Please enter your username or email and password.', 'error');
+        swalToast('Please enter your email address and password.', 'error');
         return;
     }
     busy.value = true;
@@ -118,8 +120,12 @@ async function doLogin() {
 
 async function doRegister() {
     const f = register.value;
-    if (!f.email.trim() || !f.password) {
-        swalToast('Please enter your email address and password.', 'error');
+    if (!f.name.trim() || !f.email.trim() || !f.password) {
+        swalToast('Please enter your full name, email address and password.', 'error');
+        return;
+    }
+    if (f.name.trim().length < 2) {
+        swalToast('Please enter your full name.', 'error');
         return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
@@ -140,9 +146,14 @@ async function doRegister() {
     }
     busy.value = true;
     try {
-        await auth.register({ name: f.email.split('@')[0], email: f.email.trim(), password: f.password });
-        register.value = { email: '', password: '', agree: false, ageAgree: false };
-        swalToast('Your account has been created. Check your inbox for a verification link.');
+        await auth.register({ name: f.name.trim(), email: f.email.trim(), password: f.password });
+        register.value = { name: '', email: '', password: '', agree: false, ageAgree: false };
+        await swal({
+            icon: 'success',
+            title: 'Account created',
+            text: 'Check your inbox for a verification link. You can sign in after verifying your email.',
+            confirmButtonText: 'OK',
+        });
         router.push('/');
     } catch (err) {
         swalToast(apiError(err, 'Unable to create your account. Please try again.'), 'error');
@@ -156,6 +167,7 @@ async function doLogout() {
     if (!ok) return;
     await auth.logout();
     swalToast('You have been logged out.', 'info');
+    router.push('/');
 }
 
 /** Pull the first readable message out of a Laravel validation/API error. */
@@ -362,7 +374,7 @@ async function resendVerification() {
                     <form class="mt-6 space-y-5" @submit.prevent="doLogin">
                         <div>
                             <label class="mb-2 block text-sm font-medium text-ink" for="lemail">
-                                Username or email address <span class="text-danger">Required</span>
+                                Email address <span class="text-danger">Required</span>
                             </label>
                             <input
                                 id="lemail"
@@ -377,13 +389,24 @@ async function resendVerification() {
                             <label class="mb-2 block text-sm font-medium text-ink" for="lpass">
                                 Password <span class="text-danger">Required</span>
                             </label>
-                            <input
-                                id="lpass"
-                                v-model="login.password"
-                                type="password"
-                                class="wd-field"
-                                required
-                            />
+                            <div class="relative">
+                                <input
+                                    id="lpass"
+                                    v-model="login.password"
+                                    :type="showLoginPassword ? 'text' : 'password'"
+                                    class="wd-field !pr-12"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 transition hover:text-ink"
+                                    :aria-label="showLoginPassword ? 'Hide password' : 'Show password'"
+                                    :aria-pressed="showLoginPassword"
+                                    @click="showLoginPassword = !showLoginPassword"
+                                >
+                                    <i class="fa-solid" :class="showLoginPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -403,11 +426,11 @@ async function resendVerification() {
                         <!-- Lost password -->
                         <div v-if="lostOpen" class="space-y-3 rounded-card bg-neutral-50 p-5">
                             <p class="text-sm text-ink">
-                                Lost your password? Please enter your username or email address. You
+                                Lost your password? Please enter your email address. You
                                 will receive a link to create a new password via email.
                             </p>
                             <label class="mb-2 block text-sm font-medium text-ink" for="remail">
-                                Username or email address
+                                Email address
                             </label>
                             <input id="remail" v-model="lostEmail" type="email" class="wd-field" :disabled="lostBusy" />
                             <button type="button" class="wd-btn !px-7 !py-3 text-sm" :disabled="lostBusy" @click="sendReset">
@@ -436,6 +459,19 @@ async function resendVerification() {
 
                     <form class="mt-6 space-y-5" @submit.prevent="doRegister">
                         <div>
+                            <label class="mb-2 block text-sm font-medium text-ink" for="rname">
+                                Full name <span class="text-danger">Required</span>
+                            </label>
+                            <input
+                                id="rname"
+                                v-model="register.name"
+                                type="text"
+                                class="wd-field"
+                                required
+                            />
+                        </div>
+
+                        <div>
                             <label class="mb-2 block text-sm font-medium text-ink" for="remail2">
                                 Email address <span class="text-danger">Required</span>
                             </label>
@@ -452,13 +488,24 @@ async function resendVerification() {
                             <label class="mb-2 block text-sm font-medium text-ink" for="rpass">
                                 Password <span class="text-danger">Required</span>
                             </label>
-                            <input
-                                id="rpass"
-                                v-model="register.password"
-                                type="password"
-                                class="wd-field"
-                                required
-                            />
+                            <div class="relative">
+                                <input
+                                    id="rpass"
+                                    v-model="register.password"
+                                    :type="showRegisterPassword ? 'text' : 'password'"
+                                    class="wd-field !pr-12"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 transition hover:text-ink"
+                                    :aria-label="showRegisterPassword ? 'Hide password' : 'Show password'"
+                                    :aria-pressed="showRegisterPassword"
+                                    @click="showRegisterPassword = !showRegisterPassword"
+                                >
+                                    <i class="fa-solid" :class="showRegisterPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Anti-spam honeypot, as on the source form -->

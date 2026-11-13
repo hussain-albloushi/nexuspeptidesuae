@@ -73,7 +73,10 @@ class ProductController extends Controller
             'description' => ['nullable', 'string', 'max:10000'],
             'price' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'compare_at_price' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99', 'gte:price'],
+            'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:99', 'decimal:0,2'],
+            'discount_amount' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'cost_price' => ['nullable', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
+            'markup_percent' => ['nullable', 'numeric', 'min:0', 'max:1000', 'decimal:0,2'],
             'stock_quantity' => ['required', 'integer', 'min:0', 'max:1000000'],
             'expected_stock_quantity' => ['required', 'integer'],
             'low_stock_threshold' => ['required', 'integer', 'min:0', 'max:1000000'],
@@ -107,6 +110,8 @@ class ProductController extends Controller
 
                 $before = $product->stock_quantity;
                 unset($data['expected_stock_quantity'], $data['image']);
+                $discountPercent = $request->input('discount_percent');
+                $discountAmount = $request->input('discount_amount');
                 if ($request->hasFile('image')) {
                     $uploadedPath = $request->file('image')->store('products/'.$id, 'public');
                     if (! $uploadedPath) {
@@ -117,6 +122,20 @@ class ProductController extends Controller
                 }
                 $data['stock_status'] = $data['stock_quantity'] <= 0 ? 'out_of_stock'
                     : ($data['stock_quantity'] <= $data['low_stock_threshold'] ? 'low_stock' : 'in_stock');
+                if ($discountPercent !== null) {
+                    $discountFactor = 1 - (float) $discountPercent / 100;
+                    $data['compare_at_price'] = round((float) $data['price'] / $discountFactor, 2);
+                } elseif ($discountAmount !== null) {
+                    $data['compare_at_price'] = round((float) $data['price'] + (float) $discountAmount, 2);
+                }
+
+                // Markup: derive the selling price from cost + percentage when provided.
+                if (array_key_exists('markup_percent', $data) && $data['markup_percent'] !== null && $data['markup_percent'] !== '') {
+                    $cost = (float) ($data['cost_price'] ?? $product->cost_price ?? 0);
+                    if ($cost > 0) {
+                        $data['price'] = round($cost * (1 + (float) $data['markup_percent'] / 100), 2);
+                    }
+                }
                 $product->update($data);
                 if ($before !== $product->stock_quantity) {
                     InventoryTransaction::create([

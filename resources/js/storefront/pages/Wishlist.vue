@@ -112,18 +112,16 @@ function moveToCart(product) {
                                 {{ product.name }}
                             </router-link>
 
-                            <p class="mt-2 text-sm text-neutral-500">
+                            <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                                <span class="text-lg font-bold text-navy">
+                                    <PriceDisplay :value="product.price" />
+                                </span>
                                 <template v-if="product.discount">
-                                    <span class="line-through">
-                                        Original price was: <PriceDisplay :value="product.regular" />.
+                                    <span class="text-neutral-400 line-through" aria-label="Original price">
+                                        <PriceDisplay :value="product.regular" />
                                     </span>
-                                    <span class="ml-1 font-medium text-navy">
-                                        Current price is: <PriceDisplay :value="product.price" />.
-                                    </span>
-                                </template>
-                                <template v-else>
-                                    <span class="font-semibold text-navy">
-                                        <PriceDisplay :value="product.price" />
+                                    <span class="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">
+                                        -{{ product.discount }}%
                                     </span>
                                 </template>
                             </p>

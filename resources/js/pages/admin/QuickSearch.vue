@@ -45,7 +45,7 @@
         <button type="button" class="btn btn-sm btn-outline-primary mt-2" @click="run">Retry</button>
       </div>
       <div v-else-if="!activeQuery" class="quick-search-state">
-        Search orders, products, and customers — try an order number, SKU, or email.
+        Search records or jump to any section — try an order number, SKU, email, or a page name like “coupons”.
       </div>
       <div v-else-if="!results.length" class="quick-search-state">
         No results for “<strong>{{ activeQuery }}</strong>”.
@@ -100,9 +100,15 @@ const activeIndex = ref(-1);
 const { q, results, loading, error, activeQuery, run } = useQuickSearch();
 
 const sectionMeta = {
+  sections: { label: 'Jump to', icon: 'bolt' },
   orders: { label: 'Orders', icon: 'orders' },
   products: { label: 'Products', icon: 'box' },
   customers: { label: 'Customers', icon: 'users' },
+  coupons: { label: 'Coupons', icon: 'ticket' },
+  suppliers: { label: 'Suppliers', icon: 'truck' },
+  'purchase-orders': { label: 'Purchase Orders', icon: 'document' },
+  categories: { label: 'Categories', icon: 'tags' },
+  expenses: { label: 'Expenses', icon: 'billing' },
 };
 
 const iconFor = (type) => sectionMeta[type]?.icon ?? 'search';
