@@ -16,6 +16,8 @@ const router = createRouter({
             { path: 'accounting', name: 'admin-accounting', component: () => import('./pages/admin/Accounting.vue') },
             { path: 'sales-report', name: 'admin-sales-report', component: () => import('./pages/admin/SalesReport.vue') },
             { path: 'settings', name: 'admin-settings', component: () => import('./pages/admin/Settings.vue') },
+            { path: 'account', name: 'admin-account', component: () => import('./pages/admin/AccountSettings.vue') },
+            { path: 'email-templates', name: 'admin-email-templates', component: () => import('./pages/admin/EmailTemplates.vue') },
             { path: 'contents', name: 'admin-contents', component: () => import('./pages/admin/Contents.vue') },
             { path: 'search', name: 'admin-search', component: () => import('./pages/admin/Search.vue') },
 

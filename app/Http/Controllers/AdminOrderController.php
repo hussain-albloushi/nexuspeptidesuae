@@ -81,6 +81,9 @@ class AdminOrderController extends Controller
                 });
             })
             ->when(isset($data['status']), fn (Builder $query) => $query->where('status', $data['status']))
+            // Cancelled orders are noise in the default list; the admin brings
+            // them back by filtering on the status.
+            ->when(! isset($data['status']), fn (Builder $query) => $query->where('status', '!=', 'cancelled'))
             ->when(isset($data['payment_status']), fn (Builder $query) => $query->where('payment_status', $data['payment_status']))
             ->when(isset($data['start_date']), fn (Builder $query) => $query->whereDate('created_at', '>=', $data['start_date']))
             ->when(isset($data['end_date']), fn (Builder $query) => $query->whereDate('created_at', '<=', $data['end_date']))

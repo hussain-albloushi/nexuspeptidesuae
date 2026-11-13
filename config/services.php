@@ -27,4 +27,27 @@ return [
         'dummy' => filter_var(env('STRIPE_DUMMY', true), FILTER_VALIDATE_BOOLEAN),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google reCAPTCHA (Help Center contact form)
+    |--------------------------------------------------------------------------
+    |
+    | Protects the public /api/contact endpoint from bot spam. Keys created
+    | at https://www.google.com/recaptcha/admin work as env fallbacks for
+    | local development; the admin Settings page overrides them with rows
+    | in the settings table (recaptcha_site_key / recaptcha_secret_key).
+    |
+    | key       = site key (RECAPTCHA_SITE_KEY) — public, embedded in the page
+    | secret    = secret key (RECAPTCHA_SECRET_KEY) — server side only
+    | threshold = minimum v3 score a submission must reach (v2 has no score)
+    |
+    */
+
+    'recaptcha' => [
+        'key' => env('RECAPTCHA_SITE_KEY'),
+        'secret' => env('RECAPTCHA_SECRET_KEY'),
+        'threshold' => env('RECAPTCHA_THRESHOLD', 0.5),
+        'timeout' => env('RECAPTCHA_TIMEOUT', 10),
+    ],
+
 ];

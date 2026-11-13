@@ -58,7 +58,7 @@
                 <p>{{ adminUser?.name || 'Administrator' }} <small>{{ adminUser?.email || 'NexusPeptides' }}</small></p>
               </li>
               <li class="user-footer">
-                <router-link to="/admin" class="btn btn-outline-secondary">Dashboard</router-link>
+                <router-link to="/admin/account" class="btn btn-outline-secondary">Account settings</router-link>
                 <a href="#" @click.prevent="logout" class="btn btn-outline-danger float-end">Sign out</a>
               </li>
             </ul>
@@ -124,10 +124,13 @@
               <router-link to="/admin/settings" class="nav-link" :class="{ active: $route.path === '/admin/settings' }"><AdminIcon name="settings" class="nav-icon" /><p>Settings</p></router-link>
             </li>
             <li class="nav-item">
+              <router-link to="/admin/email-templates" class="nav-link" :class="{ active: $route.path === '/admin/email-templates' }"><AdminIcon name="email" class="nav-icon" /><p>Email Templates</p></router-link>
+            </li>
+            <li class="nav-item">
               <router-link to="/admin/contents" class="nav-link" :class="{ active: $route.path === '/admin/contents' }"><AdminIcon name="document" class="nav-icon" /><p>Website Content</p></router-link>
             </li>
             <li class="nav-item">
-              <a href="/" class="nav-link"><AdminIcon name="store" class="nav-icon" /><p>Storefront</p></a>
+              <a href="/" target="_blank" rel="noopener noreferrer" class="nav-link"><AdminIcon name="store" class="nav-icon" /><p>Storefront</p></a>
             </li>
           </ul>
         </nav>
@@ -189,23 +192,25 @@ const alertTypes = [
 ];
 const activeAlerts = computed(() => alertTypes.filter((alert) => notificationData.value?.attention[alert.key] > 0));
 onMounted(startNotifications);
-watch(() => route.path, () => { void refreshNotifications(); });
+watch(() => route.path, () => { void refreshNotifications(); void loadAdminUser(); });
 
-onMounted(async () => {
+async function loadAdminUser() {
   try {
     const { data } = await axios.get('/api/me');
     adminUser.value = data;
   } catch {
     adminUser.value = null;
   }
-});
+}
+
+onMounted(loadAdminUser);
 
 const titles = {
   '/admin': 'Dashboard', '/admin/orders': 'Orders', '/admin/products': 'Products',
   '/admin/categories': 'Categories', '/admin/inventory': 'Inventory', '/admin/customers': 'Customers',
   '/admin/purchase-orders': 'Purchase Orders', '/admin/suppliers': 'Suppliers',
   '/admin/coupons': 'Coupons', '/admin/accounting': 'Accounting',
-  '/admin/sales-report': 'Sales Report', '/admin/settings': 'Settings', '/admin/contents': 'Website Content',
+  '/admin/sales-report': 'Sales Report', '/admin/settings': 'Settings', '/admin/account': 'Account Settings', '/admin/contents': 'Website Content',
   '/admin/search': 'Search Results',
 };
 

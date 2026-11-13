@@ -75,6 +75,20 @@
         max-width: 100%;
         height: auto;
     }
+
+    /* Justify every storefront paragraph. This lives in the base layer, so
+       Tailwind utilities (text-center, text-right, …) still win wherever a
+       paragraph is intentionally aligned another way, and single-line
+       paragraphs render left-aligned because justify leaves the last line alone. */
+    p {
+        text-align: justify;
+        text-justify: inter-word;
+        /* Hyphenate long words (needs the lang attribute on <html>) and allow
+           unbreakable strings like URLs to wrap — both stop words from being
+           pushed whole to the next line, which is what stretches the spaces. */
+        hyphens: auto;
+        overflow-wrap: break-word;
+    }
 }
 
 @layer components {
@@ -154,6 +168,16 @@
 .swal2-popup {
     border-radius: var(--radius-card) !important;
     font-family: var(--font-body) !important;
+}
+
+/* reCAPTCHA v3 injects a "protected by reCAPTCHA" badge. Google's terms
+   require it stay visible, so pin it above any card/footer overflow that
+   would otherwise clip it off-screen. */
+#grecaptcha-badge {
+    z-index: 1000 !important;
+    bottom: 12px !important;
+    height: 58px !important;
+    visibility: visible !important;
 }
 
 .swal2-confirm.wd-swal-confirm {

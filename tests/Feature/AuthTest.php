@@ -10,7 +10,7 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_creates_a_customer_and_an_api_token(): void
+    public function test_registration_creates_an_unverified_customer_without_a_token(): void
     {
         $response = $this->postJson('/api/register', [
             'name' => 'Test Customer',
@@ -20,9 +20,10 @@ class AuthTest extends TestCase
             'role' => 'admin',
         ]);
 
-        $response->assertCreated()->assertJsonStructure(['user', 'access_token']);
+        $response->assertCreated()->assertJsonStructure(['user', 'message']);
         $this->assertDatabaseHas('users', ['email' => 'customer@example.com', 'role' => 'customer']);
-        $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->assertNull(User::where('email', 'customer@example.com')->first()->email_verified_at);
     }
 
     public function test_duplicate_registration_returns_422(): void

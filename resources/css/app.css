@@ -350,6 +350,18 @@
 
 /* Apex reference layout */
 .apex-admin-shell { font-size: 14px; --bs-body-font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+/* AdminLTE's layout-fixed gives .app-main `overflow: auto` but never bounds it, so a long
+   page grows the 1fr grid row (grid items default to `min-height: auto`), the document
+   scrolls instead, and `position: sticky` inside the main column measures a scroll
+   container that never moves. Locking the shell to the viewport height and letting the
+   row shrink makes .app-main the real scroller, which is what the sticky save bars need. */
+.apex-admin-shell.app-wrapper { height: 100dvh; min-height: 100dvh; }
+.apex-admin-shell .app-main { min-height: 0; overflow-y: auto; }
+/* AdminLTE's print reset only relaxes `min-height`, so release the pinned shell height
+   here too — otherwise a long page (Content Editor, invoices) prints as one clipped page. */
+@media print {
+    .apex-admin-shell.app-wrapper { height: auto; min-height: 0; }
+}
 .apex-admin-shell .app-main :is(.operations-dashboard, .product-workspace, .orders-workspace) {
     padding: 24px;
     max-width: none;

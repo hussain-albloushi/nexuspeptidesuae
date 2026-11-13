@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
 import { useRoute, useRouter } from 'vue-router';
-import { swalToast } from '../services/alerts';
+import { swalToast, swalConfirm } from '../services/alerts';
 import { formatSiteDate } from '../../siteTime.js';
 
 const route = useRoute();
@@ -12,8 +12,10 @@ const router = useRouter();
 const auth = useAuthStore();
 const currency = useCurrencyStore();
 const orders = ref([]);
+const statusFilter = ref('');
 const loading = ref(true);
 const error = ref(null);
+const cancelling = ref(null);
 const returnForm = ref({ orderId: null, reason: '', lines: {}, busy: false, error: '' });
 
 // Status badge styling matches AdminLTE + Tailwind theme
@@ -42,7 +44,9 @@ async function fetchOrders() {
     loading.value = true;
     error.value = null;
     try {
-        const { data } = await axios.get('/api/my-orders');
+        const { data } = await axios.get('/api/my-orders', {
+            params: statusFilter.value ? { status: statusFilter.value } : {},
+        });
         orders.value = data || [];
     } catch (e) {
         orders.value = [];
@@ -128,6 +132,21 @@ function cancelReturn() {
     returnForm.value = { orderId: null, reason: '', lines: {}, busy: false, error: '' };
 }
 
+async function cancelOrder(order) {
+    const ok = await swalConfirm('Cancel this order?', 'This will cancel the order and restore the reserved stock.', 'Yes, cancel');
+    if (!ok) return;
+    cancelling.value = order.id;
+    try {
+        await axios.post(`/api/orders/${order.id}/cancel`);
+        swalToast('Order cancelled.');
+        await fetchOrders();
+    } catch (err) {
+        swalToast(err?.response?.data?.message || 'Unable to cancel this order.', 'error');
+    } finally {
+        cancelling.value = null;
+    }
+}
+
 async function submitReturn(order) {
     if (returnForm.value.busy) return;
     const items = Object.entries(returnForm.value.lines)
@@ -202,27 +221,44 @@ async function submitReturn(order) {
             </button>
         </div>
 
-        <!-- No orders -->
-        <div
-            v-else-if="orders.length === 0 && !loading && !error"
-            class="mt-12 mx-auto max-w-xl py-20 text-center"
-        >
-            <i class="fa-solid fa-box-open text-4xl text-neutral-200"></i>
-            <h2 class="mt-6 font-heading text-2xl text-navy">No orders yet</h2>
-            <p class="mt-3 text-sm leading-relaxed text-neutral-500">
-                You haven't placed any orders with us yet. Browse our catalogue and add products to your cart to get started.
-            </p>
-            <router-link
-                to="/peptide-shop"
-                class="mt-8 inline-flex items-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
-            >
-                Go to shop
-            </router-link>
-        </div>
-
-        <!-- Order list -->
+        <!-- Orders -->
         <div v-else class="mt-10 space-y-6">
-            <h2 class="font-heading text-xl text-navy">Order history</h2>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h2 class="font-heading text-xl text-navy">Order history</h2>
+                <select
+                    v-model="statusFilter"
+                    class="wd-field !w-auto !py-2 text-sm"
+                    aria-label="Filter orders by status"
+                    @change="fetchOrders"
+                >
+                    <option value="">All orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <!-- No orders -->
+            <div v-if="orders.length === 0" class="mt-12 mx-auto max-w-xl py-20 text-center">
+                <i class="fa-solid fa-box-open text-4xl text-neutral-200"></i>
+                <h2 class="mt-6 font-heading text-2xl text-navy">
+                    {{ statusFilter ? 'No matching orders' : 'No orders yet' }}
+                </h2>
+                <p class="mt-3 text-sm leading-relaxed text-neutral-500">
+                    {{ statusFilter
+                        ? 'You have no orders with this status.'
+                        : "You haven't placed any orders with us yet. Browse our catalogue and add products to your cart to get started." }}
+                </p>
+                <router-link
+                    v-if="!statusFilter"
+                    to="/peptide-shop"
+                    class="mt-8 inline-flex items-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
+                >
+                    Go to shop
+                </router-link>
+            </div>
 
             <div
                 v-for="order in orders"
@@ -277,7 +313,17 @@ async function submitReturn(order) {
                     <span v-if="order.notes"><strong>Notes:</strong> {{ order.notes }}</span>
                 </div>
 
-                <!-- Return requests -->
+                <div v-if="order.status === 'pending' && order.payment_method === 'cod'" class="border-t border-line px-6 py-4">
+                    <button
+                        type="button"
+                        class="inline-flex items-center gap-2 rounded-full border border-red-300 px-5 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                        :disabled="cancelling === order.id"
+                        @click="cancelOrder(order)"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                        {{ cancelling === order.id ? 'Cancelling…' : 'Cancel order' }}
+                    </button>
+                </div>
                 <div v-if="pendingReturn(order) || approvedReturn(order) || canRequestReturn(order)" class="border-t border-line px-6 py-4">
                     <template v-if="pendingReturn(order)">
                         <p class="flex items-center gap-2 text-sm text-amber-700">

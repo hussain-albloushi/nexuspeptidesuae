@@ -86,6 +86,28 @@ class ProductManagementTest extends TestCase
         $this->assertDatabaseHas('inventory_transactions', ['product_id' => $product->id, 'quantity_before' => 5, 'quantity_after' => 20, 'type' => 'adjustment']);
     }
 
+    public function test_discount_percent_updates_the_compare_at_price_to_the_original_price(): void
+    {
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+        $product = $this->product(['price' => 100]);
+
+        $this->putJson('/api/products/'.$product->id, $this->payload($product, ['price' => 100, 'discount_percent' => 25]))
+            ->assertOk();
+
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'price' => 100, 'compare_at_price' => 133.33]);
+    }
+
+    public function test_discount_amount_updates_the_compare_at_price_to_the_original_price(): void
+    {
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+        $product = $this->product(['price' => 100]);
+
+        $this->putJson('/api/products/'.$product->id, $this->payload($product, ['price' => 100, 'discount_amount' => 15]))
+            ->assertOk();
+
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'price' => 100, 'compare_at_price' => 115]);
+    }
+
     public function test_unchanged_stock_does_not_create_an_adjustment_and_threshold_recalculates_status(): void
     {
         Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
@@ -196,6 +218,8 @@ class ProductManagementTest extends TestCase
             'blank name' => ['name', ''], 'blank sku' => ['sku', ''], 'invalid slug' => ['slug', 'UPPER CASE'],
             'negative price' => ['price', -1], 'money precision' => ['price', 1.234],
             'compare price too low' => ['compare_at_price', 20], 'negative cost' => ['cost_price', -1],
+            'negative discount percent' => ['discount_percent', -1], 'discount percent over maximum' => ['discount_percent', 100],
+            'negative discount amount' => ['discount_amount', -1],
             'negative stock' => ['stock_quantity', -1], 'fractional stock' => ['stock_quantity', 2.5],
             'negative threshold' => ['low_stock_threshold', -1], 'missing category' => ['category_id', 999],
             'invalid status' => ['is_active', 'sometimes'], 'invalid visibility' => ['visibility', 'anywhere'],

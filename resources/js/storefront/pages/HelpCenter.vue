@@ -1,11 +1,18 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import axios from 'axios';
 import { useContentStore } from '../stores/content';
 import { swalToast } from '../services/alerts';
 
 const content = useContentStore();
 const help = computed(() => content.help);
 const site = computed(() => content.site);
+
+const RECAPTCHA_ACTION = 'help_center_message';
+const RECAPTCHA_SCRIPT = 'https://www.google.com/recaptcha/api.js';
+
+// The page payload carries null unless the admin saved keys under System Settings.
+const recaptchaKey = computed(() => content.store.recaptchaKey || '');
 
 const form = ref({
     firstName: '',
@@ -16,17 +23,83 @@ const form = ref({
     message: '',
 });
 
+const sending = ref(false);
 const openFaq = ref(0);
 
-function submit() {
+let recaptchaScript;
+
+function loadRecaptchaScript(key) {
+    if (recaptchaScript) return recaptchaScript;
+    recaptchaScript = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = `${RECAPTCHA_SCRIPT}?render=${key}`;
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = () => { recaptchaScript = undefined; reject(new Error('recaptcha-load')); };
+        document.head.appendChild(script);
+    });
+    return recaptchaScript;
+}
+
+/**
+ * v3 tokens are single-use and expire in ~2 minutes, so one is minted per
+ * submission right before the POST. Without a configured key the server
+ * skips the check and the form works as before.
+ */
+async function recaptchaToken() {
+    if (!recaptchaKey.value) return null;
+    await loadRecaptchaScript(recaptchaKey.value);
+    await new Promise((resolve) => window.grecaptcha.ready(resolve));
+    return window.grecaptcha.execute(recaptchaKey.value, { action: RECAPTCHA_ACTION });
+}
+
+function fieldErrors(payload) {
+    return Object.values(payload?.errors ?? {})
+        .map((messages) => (Array.isArray(messages) ? messages[0] : messages))
+        .filter(Boolean);
+}
+
+async function submit() {
     const f = form.value;
     if (!f.firstName || !f.lastName || !f.email || !f.message) {
         swalToast('Please complete all required fields.', 'error');
         return;
     }
-    form.value = { firstName: '', lastName: '', email: '', mobile: '', subject: '', message: '' };
-    swalToast(`Your message has been sent to ${site.value.name}.`);
+
+    sending.value = true;
+    try {
+        const token = await recaptchaToken();
+        const { data } = await axios.post('/api/contact', {
+            first_name: f.firstName,
+            last_name: f.lastName,
+            email: f.email,
+            mobile: f.mobile,
+            subject: f.subject,
+            message: f.message,
+            recaptcha_token: token,
+        });
+        form.value = { firstName: '', lastName: '', email: '', mobile: '', subject: '', message: '' };
+        swalToast(data.message || 'Your message has been sent.');
+    } catch (error) {
+        if (error?.response?.status === 422) {
+            const messages = fieldErrors(error.response.data);
+            swalToast(messages[0] || 'Please check the highlighted fields and try again.', 'error');
+        } else if (error?.response?.status === 429) {
+            swalToast('Too many messages from this device. Please try again in a minute.', 'error');
+        } else if (error?.message === 'recaptcha-load') {
+            swalToast('Could not load the security check. Check your connection and try again.', 'error');
+        } else {
+            swalToast('Something went wrong while sending your message. Please try again.', 'error');
+        }
+    } finally {
+        sending.value = false;
+    }
 }
+
+onMounted(() => {
+    if (recaptchaKey.value) loadRecaptchaScript(recaptchaKey.value).catch(() => {});
+});
 </script>
 
 <template>
@@ -116,7 +189,14 @@ function submit() {
                             <textarea id="message" v-model="form.message" rows="5" class="wd-field" required></textarea>
                         </div>
 
-                        <button type="submit" class="wd-btn">Send to {{ site.name }}</button>
+                        <button type="submit" class="wd-btn" :disabled="sending">
+                            {{ sending ? 'Sending…' : `Send to ${site.name}` }}
+                        </button>
+                        <p v-if="recaptchaKey" class="text-xs text-neutral-400">
+                            This form is protected by Google reCAPTCHA and is subject to the
+                            <a href="https://policies.google.com/privacy" class="text-navy hover:text-secondary">Privacy Policy</a> and
+                            <a href="https://policies.google.com/terms" class="text-navy hover:text-secondary">Terms of Service</a>.
+                        </p>
                     </form>
                 </div>
 

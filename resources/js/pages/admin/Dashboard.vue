@@ -52,7 +52,7 @@
         <div class="apex-dashboard-rail"><section class="dashboard-panel apex-pipeline-card">
   <div class="dashboard-panel-heading"><div><h3>Order pipeline</h3><p>How your orders are progressing</p></div></div>
   <div class="dashboard-panel-body apex-donut-row">
-    <div class="apex-donut" :style="{ background: pipelineGradient }"><div><strong>{{ number(data.metrics.orders.value) }}</strong><span>Orders</span></div></div>
+    <div class="apex-donut" :style="{ background: pipelineGradient }"><div><strong>{{ number(pipelineTotal) }}</strong><span>Orders</span></div></div>
     <div class="apex-donut-legend"><div v-for="status in statusRows" :key="status.status"><span class="legend-dot" :style="{ backgroundColor: statusColor(status.status) }"></span><span>{{ label(status.status) }}</span><strong>{{ number(status.count) }}</strong></div></div>
   </div>
 </section><section class="dashboard-panel apex-attention-card" aria-labelledby="attention-title">
@@ -129,7 +129,7 @@ let chart;
 const metricCards = [
   { key: 'order_value', label: 'Order value', money: true, icon: 'fa-solid fa-bag-shopping', tone: 'tone-blue', to: '/admin/orders', note: 'Non-cancelled orders, including tax & shipping' },
   { key: 'paid_sales', label: 'Paid sales', money: true, icon: 'fa-solid fa-credit-card', tone: 'tone-green', to: '/admin/accounting', note: 'Orders marked as paid; cancelled excluded' },
-  { key: 'orders', label: 'Orders received', icon: 'fa-solid fa-receipt', tone: 'tone-purple', to: '/admin/orders', note: 'All orders placed in this period' },
+  { key: 'orders', label: 'Orders received', icon: 'fa-solid fa-receipt', tone: 'tone-purple', to: '/admin/orders', note: 'Orders placed in this period, cancelled excluded' },
   { key: 'customers', label: 'New customers', icon: 'fa-solid fa-users', tone: 'tone-orange', to: '/admin/customers', note: 'Customer accounts created in this period' },
 ];
 const attentionCards = [
@@ -146,10 +146,13 @@ const date = (value) => formatSiteDate(value, { day: 'numeric', month: 'short' }
 const updatedTime = computed(() => data.value ? formatSiteDate(data.value.generated_at, { hour: '2-digit', minute: '2-digit', second: '2-digit' }, '') : '');
 const hasSales = computed(() => data.value?.trend.some((point) => point.booked > 0 || point.paid > 0));
 const statusColor = (status) => ({ pending: '#f59e0b', processing: '#008e4c', shipped: '#1686e5', delivered: '#00a6a8', cancelled: '#ef4444' }[status] || 'var(--admin-muted)');
+// The donut shows every status (cancelled included), so its total is the sum of
+// the pipeline counts — not the "orders received" metric, which excludes cancelled.
+const pipelineTotal = computed(() => (data.value?.order_statuses || []).reduce((sum, entry) => sum + Number(entry.count || 0), 0));
 const statusRows = computed(() => {
   const counts = new Map((data.value?.order_statuses || []).map((entry) => [entry.status, entry.count]));
   const statuses = [...new Set(['pending', 'processing', 'shipped', 'delivered', 'cancelled', ...counts.keys()])];
-  const total = data.value?.metrics.orders.value || 0;
+  const total = pipelineTotal.value;
   return statuses.map((status) => ({ status, count: counts.get(status) || 0, percent: total ? (counts.get(status) || 0) / total * 100 : 0 }));
 });
 
